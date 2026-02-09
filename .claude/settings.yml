@@ -1,0 +1,55 @@
+# Claude Project Settings
+# Configure default behavior, memory, and skill preferences here.
+
+project_name: gym-app
+description: >
+  A personal workout tracker built for a single user who primarily lifts weights and occasionally does cardio. The app replaces the use of other apps such as Juggernaut AI and Fitbod with a fast, frictionless way to log workouts, track progressive overload, and review training history.
+
+vibe_tags:
+  - minimal
+  - functional
+  - dark-mode
+  - clean-typography
+  - mobile-first
+  - native-ios
+  - high-contrast
+  - low-friction
+
+default_skills:
+  - scaffold-component
+  - scaffold-page
+  - write-tests
+  - fix-lint-errors
+
+memory:
+  enabled: true
+  include_project_brief: true
+  include_codebase_index: true
+
+# Claude prompt guidance
+assistant_behavior:
+  tone: concise
+  coding_style: idiomatic
+  prefers_modular_code: true
+  explain_when_uncertain: true
+
+# File limits for Claude awareness (optional)
+file_context:
+  max_files: 30
+  max_total_lines: 4000
+  include_patterns:
+    - "**/*.swift"
+    - "**/*.xcdatamodeld"
+
+documentation_maintenance:
+  enabled: true
+  track_files:
+    - README.md
+    - docs/PROJECT_BRIEF.md
+    - docs/DESIGN.md
+  update_strategy:
+    on_significant_code_change: true
+    on_feature_completion: true
+    ask_before_editing: true
+  preferred_summary_style: concise_bullets
+

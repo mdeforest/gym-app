@@ -1,0 +1,65 @@
+# Project Brief
+
+## Project Name
+Gym App
+
+**Info**: This is a temporary name.
+
+## Summary
+A personal workout tracker built for a single user who primarily lifts weights and occasionally does cardio. The app replaces the use of other apps such as Juggernaut AI and Fitbod with a fast, frictionless way to log workouts, track progressive overload, and review training history.
+
+## Target Audience
+- **Solo user** — this is a personal tool, not a multi-user platform
+- **Pain points**:
+  - Existing gym apps are bloated with social features, paywalls, and unnecessary complexity
+  - Hard to quickly log sets mid-workout without friction
+  - Difficult to see at a glance whether weight/reps are progressing over time
+
+## Goals and Objectives
+- **Primary goal**: Provide a fast, minimal interface to log weight training workouts (exercises, sets, reps, weight) and review history
+- **Stretch goals (post-MVP)**:
+  - Workout templates / saved routines
+  - Progress charts and analytics (PR tracking, volume over time)
+  - Rest timer
+  - Body weight / measurement tracking
+  - Workout calendar view
+  - Data export (CSV/JSON)
+
+## Core Features
+- [] **Workout logging**: Start a workout session, add exercises, and log sets (weight, reps) with minimal taps
+- [] **Exercise library**: A pre-populated list of 51 common lifts across 7 muscle groups (Chest, Back, Shoulders, Arms, Legs, Core, Cardio) with the ability to add custom exercises
+- [ ] **Cardio logging**: Data model supports duration and distance fields on `WorkoutExercise`; dedicated cardio input UI not yet built
+- [] **Workout history**: Browse past workouts by date, view full session details including all exercises and sets
+- [] **Last-session reference**: When logging an exercise, sets are pre-filled with last session's weight/reps for easy progressive overload tracking
+
+## Design and User Experience Vibe
+- **Tone**: Minimal and functional — get in, log, get out. No gamification, no fluff
+- **Style**: Dark mode by default; clean typography; high-contrast inputs sized for easy tapping mid-workout
+- **Key UX principles**:
+  - Logging a set should take no more than 2-3 taps
+  - The app should be optimized for mobile use in a gym setting (one-handed, sweaty fingers)
+  - Previous session data always visible for reference while logging
+- **References / inspiration**: Strong (iOS app), JEFIT (exercise library), plain spreadsheet simplicity
+
+## Tech Stack
+- Native iOS app (Swift 6 / SwiftUI), deployed via the App Store
+- iOS 17+ minimum deployment target
+- SwiftData for on-device persistence
+- MVVM architecture with `@Observable` ViewModels
+- XcodeGen for Xcode project generation (`project.yml`)
+- No backend needed for MVP — all data is local on-device
+- Deployment via TestFlight (beta) and App Store Connect (production)
+- No third-party integrations needed for MVP
+- iCloud sync is a nice-to-have post-MVP
+
+## Risks / Open Questions
+- **Data model complexity**: Supersets, drop sets, and RPE tracking add complexity — keep them out of MVP?
+- ~~**Exercise library scope**: How large should the default exercise list be?~~ **Resolved**: 51 exercises across 7 muscle groups, seeded on first launch
+- **App Store review**: Ensure compliance with Apple's Human Interface Guidelines and App Review Guidelines
+- **Cardio UI**: Data model supports cardio (duration/distance fields) but no dedicated input UI yet — needed for MVP?
+
+## Success Metrics
+- The app is actually used during workouts instead of falling back to notes/spreadsheets
+- Logging a full workout session (5-6 exercises, 3-5 sets each) feels fast and painless
+- Historical data is easy to find and reference
+
