@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.1.0] - 02/09/26
 
 ### Added
 - Edit completed workouts (change time, add/remove sets, modify weight/reps, update cardio)

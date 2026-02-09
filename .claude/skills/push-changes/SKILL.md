@@ -1,50 +1,65 @@
 ---
 name: push-changes
-description: Prepare and push a new commit by reviewing diffs, updating the changelog, prompting for commit message, and optionally tagging a release.
+description: Push a new commit with optional versioning, changelog update, and git tag creation.
 triggers:
-  - "push to GitHub"
   - "commit and push"
   - "publish update"
+  - "release build"
 ---
 
 Steps:
 
-1. Run:
+1. Detect git changes:
+   Run:
    git status
 
-2. If uncommitted changes exist:
-   - Run: git diff --cached (or git diff if nothing staged)
+   If no changes: exit with message  
+   If changes exist: continue
 
-3. Summarize the changes.
-   Ask the user:
-   > “Would you like me to update CHANGELOG.md with the following summary?”
+2. Ask:
+   > “Do you want to tag this as a versioned release?”  
+   Suggest a version like:
+   - If last tag is `v1.1.2`, suggest `v1.1.3`
+   - Let user override or enter custom version
+
+3. Run:
+   git diff --cached (or full diff if needed)
+
+   Summarize the key changes for the user and ask:
+   > “Would you like me to update `CHANGELOG.md` with these?”
 
    - If yes:
-     - Prepend to CHANGELOG.md under a section like:
-       ## [Unreleased]
+     - If a version was chosen, create a new section in `CHANGELOG.md`:
+       ```
+       ## [v1.1.3] - 2024-02-09
        ### Added
-       - [feature summary]
+       - ...
        ### Changed
-       - [modified behavior]
+       - ...
        ### Fixed
-       - [bug fixes]
+       - ...
+       ```
+
+     - If `CHANGELOG.md` has a `[Unreleased]` section:
+       > “Move existing `[Unreleased]` entries into this new version?”
+       - If yes: migrate them under the new tag
+
+     - If no version selected:
+       - Prepend under `[Unreleased]`
 
 4. Ask:
    > “What commit message should I use?”  
-   (Optionally suggest one based on diff.)
+   (Suggest one if user doesn't provide.)
 
-5. Run:
+5. Commit changes:
    git add .
    git commit -m "[message]"
 
-6. Ask:
-   > “Would you like to tag this commit with a version number (e.g., v1.2.0)?”
+6. If version selected:
+   git tag v1.1.3  
+   git push origin --tags
 
-   - If yes:
-     git tag v[version]
-     git push origin --tags
-
-7. Push the changes:
+7. Push:
    git push
 
-8. Confirm success or display error output if push fails.
+8. Confirm success or show any errors.
