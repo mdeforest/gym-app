@@ -22,7 +22,7 @@ Example terminal commands:
 xcrun simctl list devices
 
 # Boot a specific simulator
-xcrun simctl boot "iPhone 156 Pro Max"
+xcrun simctl boot "iPhone 16 Pro Max"
 
 # Build the app
 xcodebuild \

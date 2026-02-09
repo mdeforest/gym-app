@@ -5,11 +5,13 @@ struct WorkoutView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel: WorkoutViewModel?
 
+    var onWorkoutFinished: ((Workout) -> Void)?
+
     var body: some View {
         NavigationStack {
             Group {
                 if let viewModel, viewModel.activeWorkout != nil {
-                    ActiveWorkoutView(viewModel: viewModel)
+                    ActiveWorkoutView(viewModel: viewModel, onWorkoutFinished: onWorkoutFinished)
                 } else {
                     startWorkoutView
                 }

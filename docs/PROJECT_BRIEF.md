@@ -26,11 +26,14 @@ A personal workout tracker built for a single user who primarily lifts weights a
   - Data export (CSV/JSON)
 
 ## Core Features
-- [] **Workout logging**: Start a workout session, add exercises, and log sets (weight, reps) with minimal taps
-- [] **Exercise library**: A pre-populated list of 51 common lifts across 7 muscle groups (Chest, Back, Shoulders, Arms, Legs, Core, Cardio) with the ability to add custom exercises
-- [ ] **Cardio logging**: Data model supports duration and distance fields on `WorkoutExercise`; dedicated cardio input UI not yet built
-- [] **Workout history**: Browse past workouts by date, view full session details including all exercises and sets
-- [] **Last-session reference**: When logging an exercise, sets are pre-filled with last session's weight/reps for easy progressive overload tracking
+- [x] **Workout logging**: Start a workout session, add exercises, and log sets (weight, reps) with minimal taps. Cancel button with confirmation to discard in-progress workouts.
+- [x] **Exercise library**: A pre-populated list of 51 common lifts across 7 muscle groups (Chest, Back, Shoulders, Arms, Legs, Core, Cardio) with the ability to add custom exercises
+- [x] **Exercise detail panel**: Tap any exercise to view how-to instructions (description, primary muscles, step-by-step guide) and recent workout history in a resizable bottom sheet
+- [x] **Cardio logging**: Dedicated time (minutes) and distance (km) inputs for cardio exercises, replacing weight/reps UI. Pre-fills from last session.
+- [x] **Workout history**: Browse past workouts by date, view full session details. After finishing a workout, the app auto-navigates to the completed workout's detail view in the History tab. Only completed sets are saved; incomplete sets and empty exercises are discarded on finish.
+- [x] **Edit completed workouts**: Tap Edit on any past workout to modify start/end time (with live duration preview), add/remove exercises, add/remove sets, and change weight/reps or cardio inputs. Uses the same SetRowView and NumberInputField components as the active workout screen.
+- [x] **Last-session reference**: When logging an exercise, sets are pre-filled with last session's weight/reps for easy progressive overload tracking
+- [x] **Set management**: Swipe left to delete individual sets. Editing a set's weight/reps auto-propagates values to subsequent incomplete sets.
 
 ## Design and User Experience Vibe
 - **Tone**: Minimal and functional — get in, log, get out. No gamification, no fluff
@@ -56,7 +59,7 @@ A personal workout tracker built for a single user who primarily lifts weights a
 - **Data model complexity**: Supersets, drop sets, and RPE tracking add complexity — keep them out of MVP?
 - ~~**Exercise library scope**: How large should the default exercise list be?~~ **Resolved**: 51 exercises across 7 muscle groups, seeded on first launch
 - **App Store review**: Ensure compliance with Apple's Human Interface Guidelines and App Review Guidelines
-- **Cardio UI**: Data model supports cardio (duration/distance fields) but no dedicated input UI yet — needed for MVP?
+- ~~**Cardio UI**: Data model supports cardio (duration/distance fields) but no dedicated input UI yet — needed for MVP?~~ **Resolved**: Dedicated time/distance inputs built for cardio exercises
 
 ## Success Metrics
 - The app is actually used during workouts instead of falling back to notes/spreadsheets

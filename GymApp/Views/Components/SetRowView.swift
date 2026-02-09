@@ -5,32 +5,89 @@ struct SetRowView: View {
     @Binding var weight: String
     @Binding var reps: String
     let isCompleted: Bool
-    let onComplete: () -> Void
+    var onComplete: (() -> Void)?
+    var onDelete: (() -> Void)?
+
+    @State private var offset: CGFloat = 0
+    @State private var showingDelete = false
+
+    private let deleteButtonWidth: CGFloat = 70
+    private let deleteThreshold: CGFloat = -50
 
     var body: some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
-            Text("\(setNumber)")
-                .font(.callout.weight(.medium))
-                .foregroundStyle(AppTheme.Colors.textSecondary)
-                .frame(width: 28)
-
-            NumberInputField(label: "lbs", value: $weight)
-
-            Text("x")
-                .font(.callout)
-                .foregroundStyle(AppTheme.Colors.textSecondary)
-
-            NumberInputField(label: "reps", value: $reps)
-
-            Button(action: onComplete) {
-                Image(systemName: isCompleted ? "checkmark.circle.fill" : "checkmark.circle")
-                    .font(.title2)
-                    .foregroundStyle(isCompleted ? AppTheme.Colors.accent : AppTheme.Colors.textSecondary)
+        ZStack(alignment: .trailing) {
+            // Delete button revealed behind the row
+            if onDelete != nil {
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        onDelete?()
+                        offset = 0
+                        showingDelete = false
+                    }
+                } label: {
+                    Image(systemName: "trash.fill")
+                        .font(.body)
+                        .foregroundStyle(.white)
+                        .frame(width: deleteButtonWidth, height: .infinity)
+                        .frame(maxHeight: .infinity)
+                }
+                .background(AppTheme.Colors.destructive)
             }
-            .frame(width: AppTheme.Layout.minTouchTarget, height: AppTheme.Layout.minTouchTarget)
+
+            // Main row content
+            HStack(spacing: AppTheme.Spacing.sm) {
+                Text("\(setNumber)")
+                    .font(.callout.weight(.medium))
+                    .foregroundStyle(AppTheme.Colors.textSecondary)
+                    .frame(width: 28)
+
+                NumberInputField(label: "lbs", value: $weight)
+
+                Text("x")
+                    .font(.callout)
+                    .foregroundStyle(AppTheme.Colors.textSecondary)
+
+                NumberInputField(label: "reps", value: $reps)
+
+                if let onComplete {
+                    Button(action: onComplete) {
+                        Image(systemName: isCompleted ? "checkmark.circle.fill" : "checkmark.circle")
+                            .font(.title2)
+                            .foregroundStyle(isCompleted ? AppTheme.Colors.accent : AppTheme.Colors.textSecondary)
+                    }
+                    .frame(width: AppTheme.Layout.minTouchTarget, height: AppTheme.Layout.minTouchTarget)
+                }
+            }
+            .padding(.horizontal, AppTheme.Spacing.md)
+            .padding(.vertical, AppTheme.Spacing.xs)
+            .background(AppTheme.Colors.surface)
+            .offset(x: offset)
+            .gesture(
+                onDelete != nil
+                    ? DragGesture(minimumDistance: 20)
+                        .onChanged { value in
+                            let translation = value.translation.width
+                            if translation < 0 {
+                                offset = translation
+                            } else if showingDelete {
+                                offset = -deleteButtonWidth + translation
+                            }
+                        }
+                        .onEnded { value in
+                            withAnimation(.easeOut(duration: 0.2)) {
+                                if offset < deleteThreshold {
+                                    offset = -deleteButtonWidth
+                                    showingDelete = true
+                                } else {
+                                    offset = 0
+                                    showingDelete = false
+                                }
+                            }
+                        }
+                    : nil
+            )
         }
-        .padding(.horizontal, AppTheme.Spacing.md)
-        .padding(.vertical, AppTheme.Spacing.xs)
+        .clipped()
     }
 }
 
@@ -40,7 +97,8 @@ struct SetRowView: View {
         weight: .constant("135"),
         reps: .constant("8"),
         isCompleted: false,
-        onComplete: {}
+        onComplete: {},
+        onDelete: {}
     )
     .background(AppTheme.Colors.surface)
 }

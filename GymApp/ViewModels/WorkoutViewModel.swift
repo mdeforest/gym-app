@@ -7,6 +7,7 @@ final class WorkoutViewModel {
     var activeWorkout: Workout?
     var showingAddExercise = false
     var showingFinishConfirmation = false
+    var showingDiscardConfirmation = false
 
     private let modelContext: ModelContext
 
@@ -24,10 +25,26 @@ final class WorkoutViewModel {
         save()
     }
 
-    func finishWorkout() {
-        activeWorkout?.endDate = .now
+    @discardableResult
+    func finishWorkout() -> Workout? {
+        guard let workout = activeWorkout else { return nil }
+
+        // Remove incomplete sets and exercises with no completed sets
+        for exercise in workout.exercises {
+            for set in exercise.sets where !set.isCompleted {
+                modelContext.delete(set)
+            }
+            // Remove exercise if it has no completed sets (and isn't cardio)
+            let hasCompletedSets = exercise.sets.contains { $0.isCompleted }
+            if !hasCompletedSets && !(exercise.exercise?.isCardio ?? false) {
+                modelContext.delete(exercise)
+            }
+        }
+
+        workout.endDate = .now
         activeWorkout = nil
         save()
+        return workout
     }
 
     func discardWorkout() {
@@ -45,15 +62,23 @@ final class WorkoutViewModel {
         let workoutExercise = WorkoutExercise(order: order, exercise: exercise)
         workoutExercise.workout = activeWorkout
 
-        // Add one default set pre-filled from last session
-        let defaultSet = ExerciseSet(order: 0)
-        if let lastSession = fetchLastSession(for: exercise) {
-            if let lastSet = lastSession.sortedSets.first {
-                defaultSet.weight = lastSet.weight
-                defaultSet.reps = lastSet.reps
+        if exercise.isCardio {
+            // Prefill cardio fields from last session
+            if let lastSession = fetchLastSession(for: exercise) {
+                workoutExercise.durationSeconds = lastSession.durationSeconds
+                workoutExercise.distanceMeters = lastSession.distanceMeters
             }
+        } else {
+            // Add one default set pre-filled from last session
+            let defaultSet = ExerciseSet(order: 0)
+            if let lastSession = fetchLastSession(for: exercise) {
+                if let lastSet = lastSession.sortedSets.first {
+                    defaultSet.weight = lastSet.weight
+                    defaultSet.reps = lastSet.reps
+                }
+            }
+            defaultSet.workoutExercise = workoutExercise
         }
-        defaultSet.workoutExercise = workoutExercise
 
         exercise.lastUsedDate = .now
         save()
@@ -85,8 +110,28 @@ final class WorkoutViewModel {
         save()
     }
 
-    func deleteSet(_ exerciseSet: ExerciseSet) {
+    func deleteSet(_ exerciseSet: ExerciseSet, from workoutExercise: WorkoutExercise) {
+        let deletedOrder = exerciseSet.order
         modelContext.delete(exerciseSet)
+
+        // Reorder remaining sets
+        for set in workoutExercise.sets where set.order > deletedOrder {
+            set.order -= 1
+        }
+        save()
+    }
+
+    func propagateValues(from changedSet: ExerciseSet, in workoutExercise: WorkoutExercise) {
+        let sorted = workoutExercise.sortedSets
+        guard let changedIndex = sorted.firstIndex(where: { $0.id == changedSet.id }) else { return }
+
+        // Only propagate to sets after the changed one that haven't been completed
+        for index in (changedIndex + 1)..<sorted.count {
+            let set = sorted[index]
+            guard !set.isCompleted else { continue }
+            set.weight = changedSet.weight
+            set.reps = changedSet.reps
+        }
         save()
     }
 

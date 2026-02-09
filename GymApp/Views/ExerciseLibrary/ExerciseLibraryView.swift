@@ -5,6 +5,7 @@ struct ExerciseLibraryView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel: ExerciseLibraryViewModel?
     @State private var showingAddExercise = false
+    @State private var selectedExercise: Exercise?
 
     var body: some View {
         NavigationStack {
@@ -29,6 +30,11 @@ struct ExerciseLibraryView: View {
                 if let viewModel {
                     AddCustomExerciseView(viewModel: viewModel)
                 }
+            }
+            .sheet(item: $selectedExercise) { exercise in
+                ExerciseDetailView(exercise: exercise)
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
             }
             .background(AppTheme.Colors.background)
         }
@@ -65,20 +71,27 @@ struct ExerciseLibraryView: View {
 
             List {
                 ForEach(viewModel.filteredExercises) { exercise in
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(exercise.name)
-                                .font(.body)
-                                .foregroundStyle(AppTheme.Colors.textPrimary)
-                            Text(exercise.muscleGroup.displayName)
+                    Button {
+                        selectedExercise = exercise
+                    } label: {
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text(exercise.name)
+                                    .font(.body)
+                                    .foregroundStyle(AppTheme.Colors.textPrimary)
+                                Text(exercise.muscleGroup.displayName)
+                                    .font(.caption)
+                                    .foregroundStyle(AppTheme.Colors.textSecondary)
+                            }
+                            Spacer()
+                            if exercise.isCustom {
+                                Text("Custom")
+                                    .font(.caption2)
+                                    .foregroundStyle(AppTheme.Colors.accent)
+                            }
+                            Image(systemName: "chevron.right")
                                 .font(.caption)
                                 .foregroundStyle(AppTheme.Colors.textSecondary)
-                        }
-                        Spacer()
-                        if exercise.isCustom {
-                            Text("Custom")
-                                .font(.caption2)
-                                .foregroundStyle(AppTheme.Colors.accent)
                         }
                     }
                 }

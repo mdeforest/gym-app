@@ -4,9 +4,15 @@ import SwiftData
 struct HistoryView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel: HistoryViewModel?
+    @Binding var navigateToWorkout: Workout?
+    @State private var navigationPath = NavigationPath()
+
+    init(navigateToWorkout: Binding<Workout?> = .constant(nil)) {
+        _navigateToWorkout = navigateToWorkout
+    }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             Group {
                 if let viewModel {
                     if viewModel.workouts.isEmpty {
@@ -19,6 +25,11 @@ struct HistoryView: View {
                 }
             }
             .navigationTitle("History")
+            .navigationDestination(for: Workout.self) { workout in
+                if let viewModel {
+                    WorkoutDetailView(workout: workout, viewModel: viewModel)
+                }
+            }
             .background(AppTheme.Colors.background)
         }
         .onAppear {
@@ -26,6 +37,13 @@ struct HistoryView: View {
                 viewModel = HistoryViewModel(modelContext: modelContext)
             }
             viewModel?.fetchWorkouts()
+        }
+        .onChange(of: navigateToWorkout) { _, workout in
+            if let workout {
+                viewModel?.fetchWorkouts()
+                navigationPath.append(workout)
+                navigateToWorkout = nil
+            }
         }
     }
 
@@ -45,7 +63,7 @@ struct HistoryView: View {
     private func workoutList(viewModel: HistoryViewModel) -> some View {
         List {
             ForEach(viewModel.workouts) { workout in
-                NavigationLink(destination: WorkoutDetailView(workout: workout, viewModel: viewModel)) {
+                NavigationLink(value: workout) {
                     workoutRow(workout, viewModel: viewModel)
                 }
             }

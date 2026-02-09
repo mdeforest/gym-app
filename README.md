@@ -5,10 +5,14 @@ A minimal, no-nonsense workout tracker for iOS. Log weight training and cardio s
 ## Features
 
 - **Workout logging** — Start a session, add exercises, and log sets (weight, reps) with minimal taps
-- **Exercise library** — Pre-populated list of ~40-50 common lifts categorized by muscle group, plus custom exercises
-- **Cardio logging** — Log cardio sessions with type (run, bike, row), duration, and optional distance
-- **Workout history** — Browse past workouts by date with full session details
-- **Last-session reference** — See what you did last time for each exercise to track progressive overload
+- **Cardio logging** — Cardio exercises use dedicated time/distance inputs instead of weight/reps
+- **Exercise library** — Pre-populated list of 51 common lifts categorized by muscle group, plus custom exercises
+- **Exercise detail panel** — Tap any exercise to view how-to instructions, primary muscles, and recent workout history
+- **Workout history** — Browse past workouts by date with full session details; auto-navigates to detail after finishing a workout. Only completed sets are saved.
+- **Edit completed workouts** — Tap Edit on any past workout to change start/end time, add/remove sets, modify weight/reps, or update cardio inputs
+- **Last-session reference** — Sets are pre-filled with last session's weight/reps for easy progressive overload tracking
+- **Set management** — Swipe left to delete sets; editing a set auto-populates remaining incomplete sets
+- **Cancel workout** — Dedicated cancel button with confirmation to discard an in-progress workout
 
 ## Design Goals
 
@@ -43,6 +47,7 @@ GymApp/
 ├── ViewModels/
 │   ├── WorkoutViewModel.swift
 │   ├── ExerciseLibraryViewModel.swift
+│   ├── ExerciseDetailViewModel.swift
 │   └── HistoryViewModel.swift
 ├── Views/
 │   ├── Workout/
@@ -51,6 +56,7 @@ GymApp/
 │   │   └── AddExerciseView.swift
 │   ├── ExerciseLibrary/
 │   │   ├── ExerciseLibraryView.swift
+│   │   ├── ExerciseDetailView.swift
 │   │   └── AddCustomExerciseView.swift
 │   ├── History/
 │   │   ├── HistoryView.swift
@@ -67,7 +73,8 @@ GymApp/
 │   └── AppTheme.swift            # Design tokens (colors, spacing, layout)
 ├── Services/
 │   ├── DataService.swift         # ModelContainer factory
-│   └── ExerciseSeedData.swift    # 51 pre-populated exercises
+│   ├── ExerciseSeedData.swift    # 51 pre-populated exercises
+│   └── ExerciseInstructions.swift # How-to instructions for all exercises
 └── Resources/
     └── Assets.xcassets
 GymAppTests/
@@ -144,4 +151,4 @@ This project is licensed under the MIT License.
 
 ## Author
 
-Made by [Your Name]
+Made by Michaela DeForest
