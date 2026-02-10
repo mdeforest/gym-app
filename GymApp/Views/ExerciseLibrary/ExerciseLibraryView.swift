@@ -33,7 +33,7 @@ struct ExerciseLibraryView: View {
             }
             .sheet(item: $selectedExercise) { exercise in
                 ExerciseDetailView(exercise: exercise)
-                    .presentationDetents([.medium, .large])
+                    .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
             }
             .background(AppTheme.Colors.background)

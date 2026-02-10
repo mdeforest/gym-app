@@ -5,23 +5,30 @@ struct ActiveWorkoutView: View {
     var onWorkoutFinished: ((Workout) -> Void)?
 
     var body: some View {
-        ScrollView {
-            LazyVStack(spacing: AppTheme.Spacing.md) {
-                if let workout = viewModel.activeWorkout {
-                    ForEach(workout.exercises.sorted(by: { $0.order < $1.order })) { workoutExercise in
-                        WorkoutExerciseSection(
-                            workoutExercise: workoutExercise,
-                            viewModel: viewModel
-                        )
+        ZStack(alignment: .bottom) {
+            ScrollView {
+                LazyVStack(spacing: AppTheme.Spacing.md) {
+                    if let workout = viewModel.activeWorkout {
+                        ForEach(workout.exercises.sorted(by: { $0.order < $1.order })) { workoutExercise in
+                            WorkoutExerciseSection(
+                                workoutExercise: workoutExercise,
+                                viewModel: viewModel
+                            )
+                        }
                     }
-                }
 
-                SecondaryButton(title: "+ Add Exercise") {
-                    viewModel.showingAddExercise = true
+                    SecondaryButton(title: "+ Add Exercise") {
+                        viewModel.showingAddExercise = true
+                    }
+                    .padding(.horizontal, AppTheme.Layout.screenEdgePadding)
                 }
-                .padding(.horizontal, AppTheme.Layout.screenEdgePadding)
+                .padding(.vertical, AppTheme.Spacing.md)
+                .padding(.bottom, viewModel.restTimerActive ? 60 : 0)
             }
-            .padding(.vertical, AppTheme.Spacing.md)
+
+            if viewModel.restTimerActive {
+                RestTimerView(viewModel: viewModel)
+            }
         }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -69,6 +76,7 @@ struct ActiveWorkoutView: View {
 private struct WorkoutExerciseSection: View {
     let workoutExercise: WorkoutExercise
     let viewModel: WorkoutViewModel
+    @State private var showingRestPicker = false
 
     private var isCardio: Bool {
         workoutExercise.exercise?.isCardio ?? false
@@ -82,6 +90,22 @@ private struct WorkoutExerciseSection: View {
                     .font(.headline)
                     .foregroundStyle(AppTheme.Colors.accent)
 
+                if !isCardio, let restSeconds = workoutExercise.exercise?.defaultRestSeconds {
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            showingRestPicker.toggle()
+                        }
+                    } label: {
+                        Text(formatRestTime(restSeconds))
+                            .font(.caption.weight(.medium))
+                            .padding(.horizontal, AppTheme.Spacing.xs)
+                            .padding(.vertical, 2)
+                            .foregroundStyle(AppTheme.Colors.accent)
+                            .background(AppTheme.Colors.accentMuted)
+                            .clipShape(Capsule())
+                    }
+                }
+
                 Spacer()
 
                 Button {
@@ -93,6 +117,10 @@ private struct WorkoutExerciseSection: View {
             }
             .padding(.horizontal, AppTheme.Layout.screenEdgePadding)
 
+            if showingRestPicker, !isCardio {
+                restTimePickerRow
+            }
+
             if isCardio {
                 cardioInputs
             } else {
@@ -103,6 +131,47 @@ private struct WorkoutExerciseSection: View {
         .background(AppTheme.Colors.surface)
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.Layout.cornerRadius))
         .padding(.horizontal, AppTheme.Layout.screenEdgePadding)
+    }
+
+    // MARK: - Rest Time Picker
+
+    private var restTimePickerRow: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: AppTheme.Spacing.xs) {
+                restTimePill(label: "Off", seconds: nil)
+                restTimePill(label: "30s", seconds: 30)
+                restTimePill(label: "60s", seconds: 60)
+                restTimePill(label: "90s", seconds: 90)
+                restTimePill(label: "2m", seconds: 120)
+                restTimePill(label: "3m", seconds: 180)
+            }
+            .padding(.horizontal, AppTheme.Layout.screenEdgePadding)
+        }
+        .transition(.opacity.combined(with: .move(edge: .top)))
+    }
+
+    private func restTimePill(label: String, seconds: Int?) -> some View {
+        let isSelected = workoutExercise.exercise?.defaultRestSeconds == seconds
+        return Button {
+            workoutExercise.exercise?.defaultRestSeconds = seconds
+        } label: {
+            Text(label)
+                .font(.subheadline.weight(.medium))
+                .padding(.horizontal, AppTheme.Spacing.sm)
+                .padding(.vertical, AppTheme.Spacing.xs)
+                .foregroundStyle(isSelected ? .white : AppTheme.Colors.textSecondary)
+                .background(isSelected ? AppTheme.Colors.accent : AppTheme.Colors.surfaceTertiary)
+                .clipShape(Capsule())
+        }
+    }
+
+    private func formatRestTime(_ seconds: Int) -> String {
+        if seconds >= 60 {
+            let min = seconds / 60
+            let sec = seconds % 60
+            return sec > 0 ? "\(min)m \(sec)s" : "\(min)m"
+        }
+        return "\(seconds)s"
     }
 
     // MARK: - Cardio Inputs

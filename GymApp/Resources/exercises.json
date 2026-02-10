@@ -1,0 +1,418 @@
+[
+  {
+    "name": "Barbell Bench Press",
+    "muscleGroup": "chest",
+    "isCardio": false,
+    "defaultRestSeconds": 90,
+    "description": "A compound pressing movement targeting the chest, shoulders, and triceps using a barbell on a flat bench.",
+    "instructions": "Lie flat on a bench with feet on the floor. Grip the barbell slightly wider than shoulder-width. Unrack and lower the bar to your mid-chest, then press back up to full lockout."
+  },
+  {
+    "name": "Incline Barbell Bench Press",
+    "muscleGroup": "chest",
+    "isCardio": false,
+    "defaultRestSeconds": 90,
+    "description": "A compound press on an inclined bench that emphasizes the upper chest and front deltoids.",
+    "instructions": "Set the bench to a 30-45 degree incline. Grip the barbell slightly wider than shoulder-width. Lower to your upper chest, then press back up to lockout."
+  },
+  {
+    "name": "Dumbbell Bench Press",
+    "muscleGroup": "chest",
+    "isCardio": false,
+    "defaultRestSeconds": 90,
+    "description": "A pressing movement using dumbbells that allows a greater range of motion and independent arm work.",
+    "instructions": "Lie flat on a bench holding a dumbbell in each hand at chest level. Press the dumbbells up until your arms are extended, then lower back down with control."
+  },
+  {
+    "name": "Incline Dumbbell Press",
+    "muscleGroup": "chest",
+    "isCardio": false,
+    "defaultRestSeconds": 90,
+    "description": "An incline pressing movement with dumbbells that targets the upper chest with a full range of motion.",
+    "instructions": "Set the bench to a 30-45 degree incline. Press dumbbells from chest level to full extension overhead, then lower with control."
+  },
+  {
+    "name": "Dumbbell Fly",
+    "muscleGroup": "chest",
+    "isCardio": false,
+    "defaultRestSeconds": 60,
+    "description": "An isolation movement that stretches and contracts the chest through a wide arc.",
+    "instructions": "Lie flat on a bench with dumbbells held above your chest, arms slightly bent. Open your arms in a wide arc until you feel a stretch in your chest, then squeeze them back together."
+  },
+  {
+    "name": "Cable Fly",
+    "muscleGroup": "chest",
+    "isCardio": false,
+    "defaultRestSeconds": 60,
+    "description": "A cable-based isolation movement providing constant tension on the chest throughout the range of motion.",
+    "instructions": "Stand between two cable pulleys set at chest height. With a slight bend in your elbows, bring your hands together in front of your chest in a hugging motion, then return with control."
+  },
+  {
+    "name": "Push-Up",
+    "muscleGroup": "chest",
+    "isCardio": false,
+    "defaultRestSeconds": 60,
+    "description": "A bodyweight compound movement that works the chest, shoulders, and triceps.",
+    "instructions": "Start in a plank position with hands slightly wider than shoulder-width. Lower your body until your chest nearly touches the floor, then push back up to the starting position."
+  },
+  {
+    "name": "Chest Dip",
+    "muscleGroup": "chest",
+    "isCardio": false,
+    "defaultRestSeconds": 90,
+    "description": "A bodyweight pressing movement on parallel bars that heavily targets the lower chest and triceps.",
+    "instructions": "Grip the parallel bars and lean your torso slightly forward. Lower yourself by bending your elbows until you feel a stretch in your chest, then press back up to full arm extension."
+  },
+  {
+    "name": "Barbell Row",
+    "muscleGroup": "back",
+    "isCardio": false,
+    "defaultRestSeconds": 90,
+    "description": "A compound pulling movement that targets the mid-back, lats, and biceps.",
+    "instructions": "Hinge at the hips with a slight knee bend, back flat. Grip the barbell shoulder-width apart. Pull the bar to your lower chest, squeezing your shoulder blades together, then lower with control."
+  },
+  {
+    "name": "Dumbbell Row",
+    "muscleGroup": "back",
+    "isCardio": false,
+    "defaultRestSeconds": 90,
+    "description": "A unilateral rowing movement that targets the lats and mid-back one side at a time.",
+    "instructions": "Place one hand and knee on a bench for support. With the other hand, pull a dumbbell from a hanging position up to your hip, squeezing your shoulder blade back, then lower with control."
+  },
+  {
+    "name": "Pull-Up",
+    "muscleGroup": "back",
+    "isCardio": false,
+    "defaultRestSeconds": 90,
+    "description": "A bodyweight vertical pulling movement that primarily targets the lats and biceps.",
+    "instructions": "Hang from a bar with an overhand grip slightly wider than shoulder-width. Pull yourself up until your chin clears the bar, then lower back down with control."
+  },
+  {
+    "name": "Chin-Up",
+    "muscleGroup": "back",
+    "isCardio": false,
+    "defaultRestSeconds": 90,
+    "description": "A bodyweight vertical pull with an underhand grip that targets the lats and biceps with greater bicep emphasis than pull-ups.",
+    "instructions": "Hang from a bar with an underhand (supinated) grip at shoulder-width. Pull yourself up until your chin clears the bar, then lower back down with control."
+  },
+  {
+    "name": "Lat Pulldown",
+    "muscleGroup": "back",
+    "isCardio": false,
+    "defaultRestSeconds": 90,
+    "description": "A cable-based vertical pulling movement that targets the lats, similar to a pull-up with adjustable resistance.",
+    "instructions": "Sit at a lat pulldown machine and grip the bar wider than shoulder-width. Pull the bar down to your upper chest while squeezing your lats, then return the bar up with control."
+  },
+  {
+    "name": "Seated Cable Row",
+    "muscleGroup": "back",
+    "isCardio": false,
+    "defaultRestSeconds": 90,
+    "description": "A cable-based horizontal pulling movement that targets the mid-back and lats with constant tension.",
+    "instructions": "Sit at the cable row station with feet braced. Pull the handle to your lower chest, squeezing your shoulder blades together, then extend your arms back with control."
+  },
+  {
+    "name": "T-Bar Row",
+    "muscleGroup": "back",
+    "isCardio": false,
+    "defaultRestSeconds": 90,
+    "description": "A compound rowing movement using a T-bar or landmine setup that targets the mid-back and lats.",
+    "instructions": "Straddle the T-bar with a hip-hinge stance. Grip the handles and pull the weight to your chest, squeezing your back muscles, then lower with control."
+  },
+  {
+    "name": "Deadlift",
+    "muscleGroup": "back",
+    "isCardio": false,
+    "defaultRestSeconds": 120,
+    "description": "A full-body compound lift that primarily targets the posterior chain including the back, glutes, and hamstrings.",
+    "instructions": "Stand with feet hip-width apart, barbell over mid-foot. Hinge at the hips, grip the bar, brace your core, and drive through your legs and hips to stand up. Reverse the motion to lower the bar."
+  },
+  {
+    "name": "Overhead Press",
+    "muscleGroup": "shoulders",
+    "isCardio": false,
+    "defaultRestSeconds": 90,
+    "description": "A compound pressing movement that targets the shoulders and triceps by pressing a barbell overhead.",
+    "instructions": "Stand with feet shoulder-width apart, barbell at shoulder height. Press the bar overhead to full lockout, moving your head slightly forward as the bar passes, then lower back to your shoulders."
+  },
+  {
+    "name": "Dumbbell Shoulder Press",
+    "muscleGroup": "shoulders",
+    "isCardio": false,
+    "defaultRestSeconds": 90,
+    "description": "A seated or standing overhead press with dumbbells that allows independent arm movement.",
+    "instructions": "Hold dumbbells at shoulder height with palms facing forward. Press both dumbbells overhead to full extension, then lower back to shoulder height with control."
+  },
+  {
+    "name": "Lateral Raise",
+    "muscleGroup": "shoulders",
+    "isCardio": false,
+    "defaultRestSeconds": 60,
+    "description": "An isolation movement that targets the lateral (side) deltoid for wider-looking shoulders.",
+    "instructions": "Stand holding dumbbells at your sides. Raise your arms out to the sides until they are parallel with the floor, keeping a slight bend in your elbows, then lower with control."
+  },
+  {
+    "name": "Front Raise",
+    "muscleGroup": "shoulders",
+    "isCardio": false,
+    "defaultRestSeconds": 60,
+    "description": "An isolation movement that targets the anterior (front) deltoid.",
+    "instructions": "Stand holding dumbbells in front of your thighs. Raise one or both arms straight in front of you to shoulder height, then lower with control."
+  },
+  {
+    "name": "Face Pull",
+    "muscleGroup": "shoulders",
+    "isCardio": false,
+    "defaultRestSeconds": 60,
+    "description": "A cable pulling movement that targets the rear deltoids and rotator cuff muscles, promoting shoulder health.",
+    "instructions": "Set a cable pulley to upper chest height with a rope attachment. Pull the rope toward your face, separating the ends and squeezing your rear delts, then return with control."
+  },
+  {
+    "name": "Reverse Fly",
+    "muscleGroup": "shoulders",
+    "isCardio": false,
+    "defaultRestSeconds": 60,
+    "description": "An isolation movement that targets the rear deltoids and upper back.",
+    "instructions": "Bend forward at the hips or use a reverse fly machine. With a slight bend in your elbows, raise the dumbbells out to your sides by squeezing your rear delts, then lower with control."
+  },
+  {
+    "name": "Arnold Press",
+    "muscleGroup": "shoulders",
+    "isCardio": false,
+    "defaultRestSeconds": 90,
+    "description": "A dumbbell press variation that rotates through the press to hit all three deltoid heads.",
+    "instructions": "Start with dumbbells at shoulder height, palms facing you. As you press up, rotate your palms to face forward at the top. Reverse the rotation as you lower back down."
+  },
+  {
+    "name": "Barbell Curl",
+    "muscleGroup": "arms",
+    "isCardio": false,
+    "defaultRestSeconds": 60,
+    "description": "A bicep isolation movement using a barbell for heavy, bilateral curling.",
+    "instructions": "Stand holding a barbell with an underhand grip at shoulder-width. Curl the bar up toward your shoulders, keeping your elbows pinned at your sides, then lower with control."
+  },
+  {
+    "name": "Dumbbell Curl",
+    "muscleGroup": "arms",
+    "isCardio": false,
+    "defaultRestSeconds": 60,
+    "description": "A bicep isolation movement using dumbbells that allows independent arm work and wrist rotation.",
+    "instructions": "Stand holding dumbbells at your sides. Curl the weights up toward your shoulders, optionally supinating your wrists as you lift, then lower with control."
+  },
+  {
+    "name": "Hammer Curl",
+    "muscleGroup": "arms",
+    "isCardio": false,
+    "defaultRestSeconds": 60,
+    "description": "A curl variation with a neutral grip that targets the brachialis and brachioradialis in addition to the biceps.",
+    "instructions": "Stand holding dumbbells at your sides with palms facing each other (neutral grip). Curl the weights up keeping the neutral grip throughout, then lower with control."
+  },
+  {
+    "name": "Preacher Curl",
+    "muscleGroup": "arms",
+    "isCardio": false,
+    "defaultRestSeconds": 60,
+    "description": "A bicep curl performed on a preacher bench that isolates the biceps by eliminating momentum.",
+    "instructions": "Sit at a preacher bench with your upper arms resting on the pad. Curl the weight up toward your shoulders, then lower slowly to near-full arm extension."
+  },
+  {
+    "name": "Tricep Pushdown",
+    "muscleGroup": "arms",
+    "isCardio": false,
+    "defaultRestSeconds": 60,
+    "description": "A cable-based isolation movement that targets the triceps by extending the arms downward.",
+    "instructions": "Stand at a cable machine with a bar or rope attachment at head height. Push the attachment down by extending your elbows, keeping upper arms stationary, then return with control."
+  },
+  {
+    "name": "Overhead Tricep Extension",
+    "muscleGroup": "arms",
+    "isCardio": false,
+    "defaultRestSeconds": 60,
+    "description": "A tricep isolation movement performed overhead that emphasizes the long head of the triceps.",
+    "instructions": "Hold a dumbbell or cable overhead with both hands. Lower the weight behind your head by bending your elbows, then extend back to the starting position."
+  },
+  {
+    "name": "Skull Crusher",
+    "muscleGroup": "arms",
+    "isCardio": false,
+    "defaultRestSeconds": 60,
+    "description": "A lying tricep extension that targets all three heads of the triceps.",
+    "instructions": "Lie on a bench holding a barbell or EZ bar with arms extended above your chest. Lower the weight toward your forehead by bending your elbows, then extend back up."
+  },
+  {
+    "name": "Close-Grip Bench Press",
+    "muscleGroup": "arms",
+    "isCardio": false,
+    "defaultRestSeconds": 90,
+    "description": "A bench press variation with a narrow grip that shifts emphasis to the triceps.",
+    "instructions": "Lie on a flat bench and grip the barbell with hands shoulder-width or narrower. Lower the bar to your chest, keeping elbows tucked, then press back up to lockout."
+  },
+  {
+    "name": "Barbell Squat",
+    "muscleGroup": "legs",
+    "isCardio": false,
+    "defaultRestSeconds": 120,
+    "description": "A fundamental compound movement that targets the quads, glutes, and entire lower body.",
+    "instructions": "Position the barbell on your upper back. Stand with feet shoulder-width apart. Squat down by bending your knees and hips until your thighs are at least parallel, then drive back up."
+  },
+  {
+    "name": "Front Squat",
+    "muscleGroup": "legs",
+    "isCardio": false,
+    "defaultRestSeconds": 120,
+    "description": "A squat variation with the barbell in front that emphasizes the quads and requires more core stability.",
+    "instructions": "Hold the barbell across your front deltoids with a clean grip or crossed-arm grip. Squat down keeping your torso upright, then drive back up through your heels."
+  },
+  {
+    "name": "Leg Press",
+    "muscleGroup": "legs",
+    "isCardio": false,
+    "defaultRestSeconds": 90,
+    "description": "A machine-based compound movement that targets the quads, glutes, and hamstrings with back support.",
+    "instructions": "Sit in the leg press machine with feet shoulder-width apart on the platform. Lower the sled by bending your knees toward your chest, then press back up without locking out."
+  },
+  {
+    "name": "Romanian Deadlift",
+    "muscleGroup": "legs",
+    "isCardio": false,
+    "defaultRestSeconds": 90,
+    "description": "A hip-hinge movement that primarily targets the hamstrings and glutes with a strong eccentric stretch.",
+    "instructions": "Hold a barbell at hip height. Hinge forward at the hips, pushing them back while keeping legs mostly straight, lowering the bar along your legs. Drive your hips forward to return."
+  },
+  {
+    "name": "Leg Curl",
+    "muscleGroup": "legs",
+    "isCardio": false,
+    "defaultRestSeconds": 60,
+    "description": "A machine-based isolation movement that directly targets the hamstrings.",
+    "instructions": "Lie face down or sit in a leg curl machine with the pad behind your ankles. Curl your heels toward your glutes by bending your knees, then return with control."
+  },
+  {
+    "name": "Leg Extension",
+    "muscleGroup": "legs",
+    "isCardio": false,
+    "defaultRestSeconds": 60,
+    "description": "A machine-based isolation movement that directly targets the quadriceps.",
+    "instructions": "Sit in a leg extension machine with the pad on your shins. Extend your legs to straighten them fully, squeezing your quads at the top, then lower with control."
+  },
+  {
+    "name": "Bulgarian Split Squat",
+    "muscleGroup": "legs",
+    "isCardio": false,
+    "defaultRestSeconds": 90,
+    "description": "A unilateral squat variation with the rear foot elevated that targets the quads and glutes.",
+    "instructions": "Stand in front of a bench and place one foot behind you on it. Lower into a lunge until your front thigh is parallel to the floor, then drive back up through your front heel."
+  },
+  {
+    "name": "Calf Raise",
+    "muscleGroup": "legs",
+    "isCardio": false,
+    "defaultRestSeconds": 60,
+    "description": "An isolation movement targeting the calf muscles (gastrocnemius and soleus).",
+    "instructions": "Stand on the edge of a step or calf raise machine with the balls of your feet on the platform. Rise up onto your toes as high as possible, then lower your heels below the platform."
+  },
+  {
+    "name": "Hip Thrust",
+    "muscleGroup": "legs",
+    "isCardio": false,
+    "defaultRestSeconds": 90,
+    "description": "A glute-focused compound movement performed with your upper back on a bench.",
+    "instructions": "Sit on the floor with your upper back against a bench and a barbell across your hips. Drive through your heels to thrust your hips up until fully extended, then lower with control."
+  },
+  {
+    "name": "Lunge",
+    "muscleGroup": "legs",
+    "isCardio": false,
+    "defaultRestSeconds": 90,
+    "description": "A unilateral lower-body movement that targets the quads, glutes, and hamstrings.",
+    "instructions": "Stand upright and step forward with one leg. Lower your body until both knees are at about 90 degrees, then push through your front foot to return to standing."
+  },
+  {
+    "name": "Plank",
+    "muscleGroup": "core",
+    "isCardio": false,
+    "defaultRestSeconds": 45,
+    "description": "An isometric core exercise that strengthens the entire midsection and stabilizer muscles.",
+    "instructions": "Start in a forearm plank position with elbows under your shoulders and body in a straight line from head to heels. Hold this position, bracing your core and avoiding sagging or piking."
+  },
+  {
+    "name": "Hanging Leg Raise",
+    "muscleGroup": "core",
+    "isCardio": false,
+    "defaultRestSeconds": 45,
+    "description": "An advanced core movement that targets the lower abs by lifting the legs while hanging.",
+    "instructions": "Hang from a pull-up bar with arms extended. Raise your legs in front of you to at least parallel with the floor, keeping them as straight as possible, then lower with control."
+  },
+  {
+    "name": "Cable Crunch",
+    "muscleGroup": "core",
+    "isCardio": false,
+    "defaultRestSeconds": 45,
+    "description": "A weighted core exercise using a cable machine that targets the rectus abdominis.",
+    "instructions": "Kneel in front of a high cable pulley with a rope attachment. Hold the rope beside your head and crunch down, bringing your elbows toward your knees while flexing your abs."
+  },
+  {
+    "name": "Ab Wheel Rollout",
+    "muscleGroup": "core",
+    "isCardio": false,
+    "defaultRestSeconds": 45,
+    "description": "A challenging core exercise that works the entire anterior chain through an extending and contracting motion.",
+    "instructions": "Kneel on the floor holding an ab wheel. Roll the wheel forward, extending your body as far as you can while maintaining a flat back, then contract your abs to roll back to the start."
+  },
+  {
+    "name": "Russian Twist",
+    "muscleGroup": "core",
+    "isCardio": false,
+    "defaultRestSeconds": 45,
+    "description": "A rotational core exercise that targets the obliques.",
+    "instructions": "Sit on the floor with knees bent and lean back slightly. Hold a weight at your chest and rotate your torso side to side, touching the weight to the floor on each side."
+  },
+  {
+    "name": "Running",
+    "muscleGroup": "cardio",
+    "isCardio": true,
+    "defaultRestSeconds": null,
+    "description": "A fundamental cardiovascular exercise that improves endurance, heart health, and lower-body conditioning.",
+    "instructions": "Run at a steady pace or use intervals. Maintain an upright posture, land midfoot, and keep a comfortable breathing rhythm."
+  },
+  {
+    "name": "Cycling",
+    "muscleGroup": "cardio",
+    "isCardio": true,
+    "defaultRestSeconds": null,
+    "description": "A low-impact cardiovascular exercise performed on a stationary or outdoor bicycle.",
+    "instructions": "Adjust the seat height so your leg is almost fully extended at the bottom of the pedal stroke. Pedal at a consistent cadence, adjusting resistance as needed."
+  },
+  {
+    "name": "Rowing",
+    "muscleGroup": "cardio",
+    "isCardio": true,
+    "defaultRestSeconds": null,
+    "description": "A full-body cardiovascular exercise using a rowing machine that works both upper and lower body.",
+    "instructions": "Sit on the rower and strap in your feet. Drive with your legs first, then lean back and pull the handle to your lower chest. Reverse the sequence to return."
+  },
+  {
+    "name": "Elliptical",
+    "muscleGroup": "cardio",
+    "isCardio": true,
+    "defaultRestSeconds": null,
+    "description": "A low-impact cardiovascular machine that simulates running without the joint stress.",
+    "instructions": "Step onto the pedals and grip the handles. Push and pull in a smooth, continuous motion, maintaining an upright posture throughout."
+  },
+  {
+    "name": "Stair Climber",
+    "muscleGroup": "cardio",
+    "isCardio": true,
+    "defaultRestSeconds": null,
+    "description": "A cardiovascular machine that simulates stair climbing, targeting the legs and glutes.",
+    "instructions": "Step onto the machine and grip the handles lightly for balance. Step at a steady pace, driving through your heels. Avoid leaning heavily on the handles."
+  },
+  {
+    "name": "Jump Rope",
+    "muscleGroup": "cardio",
+    "isCardio": true,
+    "defaultRestSeconds": null,
+    "description": "A high-intensity cardiovascular exercise that improves coordination, footwork, and endurance.",
+    "instructions": "Hold the rope handles at hip height with elbows close to your body. Swing the rope overhead and jump with both feet just high enough to clear it, landing softly on the balls of your feet."
+  }
+]

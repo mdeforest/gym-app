@@ -67,7 +67,10 @@ final class ExerciseLibraryViewModel {
             let exercise = Exercise(
                 name: definition.name,
                 muscleGroup: definition.muscleGroup,
-                isCardio: definition.muscleGroup == .cardio
+                isCardio: definition.isCardio,
+                exerciseDescription: definition.description,
+                instructions: definition.instructions,
+                defaultRestSeconds: definition.defaultRestSeconds
             )
             modelContext.insert(exercise)
         }

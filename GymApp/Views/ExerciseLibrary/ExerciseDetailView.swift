@@ -45,6 +45,10 @@ struct ExerciseDetailView: View {
 
                 howToSection
 
+                if !exercise.isCardio {
+                    restTimerSection
+                }
+
                 historySection(viewModel: viewModel)
             }
             .padding(.horizontal, AppTheme.Layout.screenEdgePadding)
@@ -159,6 +163,54 @@ struct ExerciseDetailView: View {
             Spacer()
         }
         .padding(.horizontal, AppTheme.Layout.cardPadding)
+    }
+
+    // MARK: - Rest Timer Setting
+
+    private var restTimerSection: some View {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+            Text("Rest Timer")
+                .font(.headline)
+                .foregroundStyle(AppTheme.Colors.textPrimary)
+                .padding(.horizontal, AppTheme.Layout.cardPadding)
+
+            Text("Auto-starts when you complete a set")
+                .font(.subheadline)
+                .foregroundStyle(AppTheme.Colors.textSecondary)
+                .padding(.horizontal, AppTheme.Layout.cardPadding)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: AppTheme.Spacing.xs) {
+                    restTimePill(label: "Off", seconds: nil)
+                    restTimePill(label: "30s", seconds: 30)
+                    restTimePill(label: "60s", seconds: 60)
+                    restTimePill(label: "90s", seconds: 90)
+                    restTimePill(label: "2m", seconds: 120)
+                    restTimePill(label: "3m", seconds: 180)
+                }
+                .padding(.horizontal, AppTheme.Layout.cardPadding)
+            }
+        }
+        .padding(.vertical, AppTheme.Spacing.sm)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(AppTheme.Colors.surface)
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Layout.cornerRadius))
+    }
+
+    private func restTimePill(label: String, seconds: Int?) -> some View {
+        let isSelected = exercise.defaultRestSeconds == seconds
+        return Button {
+            exercise.defaultRestSeconds = seconds
+            try? modelContext.save()
+        } label: {
+            Text(label)
+                .font(.subheadline.weight(.medium))
+                .padding(.horizontal, AppTheme.Spacing.sm)
+                .padding(.vertical, AppTheme.Spacing.xs)
+                .foregroundStyle(isSelected ? .white : AppTheme.Colors.textSecondary)
+                .background(isSelected ? AppTheme.Colors.accent : AppTheme.Colors.surfaceTertiary)
+                .clipShape(Capsule())
+        }
     }
 
     // MARK: - How To Perform

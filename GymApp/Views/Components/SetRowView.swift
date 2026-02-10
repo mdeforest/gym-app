@@ -17,7 +17,7 @@ struct SetRowView: View {
     var body: some View {
         ZStack(alignment: .trailing) {
             // Delete button revealed behind the row
-            if onDelete != nil {
+            if onDelete != nil, showingDelete || offset < 0 {
                 Button {
                     withAnimation(.easeInOut(duration: 0.2)) {
                         onDelete?()
@@ -28,7 +28,7 @@ struct SetRowView: View {
                     Image(systemName: "trash.fill")
                         .font(.body)
                         .foregroundStyle(.white)
-                        .frame(width: deleteButtonWidth, height: .infinity)
+                        .frame(width: deleteButtonWidth)
                         .frame(maxHeight: .infinity)
                 }
                 .background(AppTheme.Colors.destructive)
@@ -60,7 +60,7 @@ struct SetRowView: View {
             }
             .padding(.horizontal, AppTheme.Spacing.md)
             .padding(.vertical, AppTheme.Spacing.xs)
-            .background(AppTheme.Colors.surface)
+            .background(isCompleted ? AppTheme.Colors.accentMuted.opacity(0.4) : AppTheme.Colors.surface)
             .offset(x: offset)
             .gesture(
                 onDelete != nil

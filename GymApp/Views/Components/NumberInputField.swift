@@ -13,7 +13,10 @@ struct NumberInputField: View {
             .padding(.horizontal, AppTheme.Spacing.xs)
             .frame(height: AppTheme.Layout.minTouchTarget)
             .background(AppTheme.Colors.surfaceTertiary)
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.Layout.cornerRadius))
+            .clipShape(RoundedRectangle(cornerRadius: AppTheme.Spacing.sm))
+            .onReceive(NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)) { notification in
+                (notification.object as? UITextField)?.selectAll(nil)
+            }
     }
 }
 

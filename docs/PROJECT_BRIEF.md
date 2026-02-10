@@ -20,7 +20,7 @@ A personal workout tracker built for a single user who primarily lifts weights a
 - **Stretch goals (post-MVP)**:
   - Workout templates / saved routines
   - Progress charts and analytics (PR tracking, volume over time)
-  - Rest timer
+  - ~~Rest timer~~ **Delivered** — see Core Features
   - Body weight / measurement tracking
   - Workout calendar view
   - Data export (CSV/JSON)
@@ -34,6 +34,7 @@ A personal workout tracker built for a single user who primarily lifts weights a
 - [x] **Edit completed workouts**: Tap Edit on any past workout to modify start/end time (with live duration preview), add/remove exercises, add/remove sets, and change weight/reps or cardio inputs. Uses the same SetRowView and NumberInputField components as the active workout screen.
 - [x] **Last-session reference**: When logging an exercise, sets are pre-filled with last session's weight/reps for easy progressive overload tracking
 - [x] **Set management**: Swipe left to delete individual sets. Editing a set's weight/reps auto-propagates values to subsequent incomplete sets.
+- [x] **Rest timer**: Auto-starts when completing a set if the exercise has a configured rest duration. Floating pill overlay with countdown, expandable to full controls (±30s, Skip). Haptic + sound on completion; local notification when backgrounded. Each exercise has a configurable `defaultRestSeconds` (editable in Exercise Detail and inline during workouts). Timer uses wall-clock dates so it continues counting while the app is backgrounded.
 
 ## Design and User Experience Vibe
 - **Tone**: Minimal and functional — get in, log, get out. No gamification, no fluff
@@ -60,6 +61,7 @@ A personal workout tracker built for a single user who primarily lifts weights a
 - ~~**Exercise library scope**: How large should the default exercise list be?~~ **Resolved**: 51 exercises across 7 muscle groups, seeded on first launch
 - **App Store review**: Ensure compliance with Apple's Human Interface Guidelines and App Review Guidelines
 - ~~**Cardio UI**: Data model supports cardio (duration/distance fields) but no dedicated input UI yet — needed for MVP?~~ **Resolved**: Dedicated time/distance inputs built for cardio exercises
+- ~~**Rest timer**: Originally a stretch goal — should it be included in MVP?~~ **Resolved**: Implemented with per-exercise configurable rest durations, auto-start on set completion, floating timer pill, local notifications, and background-aware countdown
 
 ## Success Metrics
 - The app is actually used during workouts instead of falling back to notes/spreadsheets

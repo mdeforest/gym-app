@@ -6,8 +6,9 @@ A minimal, no-nonsense workout tracker for iOS. Log weight training and cardio s
 
 - **Workout logging** — Start a session, add exercises, and log sets (weight, reps) with minimal taps
 - **Cardio logging** — Cardio exercises use dedicated time/distance inputs instead of weight/reps
+- **Rest timer** — Auto-starts on set completion (configurable per exercise). Floating pill with countdown, expandable to full controls (+30s, -30s, Skip). Haptic + sound on completion; local notification when backgrounded. Timer continues counting in the background.
 - **Exercise library** — Pre-populated list of 51 common lifts categorized by muscle group, plus custom exercises
-- **Exercise detail panel** — Tap any exercise to view how-to instructions, primary muscles, and recent workout history
+- **Exercise detail panel** — Tap any exercise to view how-to instructions, primary muscles, rest timer config, and recent workout history
 - **Workout history** — Browse past workouts by date with full session details; auto-navigates to detail after finishing a workout. Only completed sets are saved.
 - **Edit completed workouts** — Tap Edit on any past workout to change start/end time, add/remove sets, modify weight/reps, or update cardio inputs
 - **Last-session reference** — Sets are pre-filled with last session's weight/reps for easy progressive overload tracking
@@ -65,10 +66,18 @@ GymApp/
 │       ├── PrimaryButton.swift
 │       ├── SecondaryButton.swift
 │       ├── DestructiveButton.swift
+│       ├── PillButton.swift
 │       ├── NumberInputField.swift
 │       ├── ExerciseCard.swift
 │       ├── SetRowView.swift
-│       └── EmptyStateView.swift
+│       ├── EmptyStateView.swift
+│       ├── StatCard.swift
+│       ├── FeaturedStatCard.swift
+│       ├── StatGrid.swift
+│       ├── ProgressBar.swift
+│       ├── CircularActionButton.swift
+│       ├── CircularProgressRing.swift
+│       └── RestTimerView.swift
 ├── Theme/
 │   └── AppTheme.swift            # Design tokens (colors, spacing, layout)
 ├── Services/
@@ -76,7 +85,8 @@ GymApp/
 │   ├── ExerciseSeedData.swift    # 51 pre-populated exercises
 │   └── ExerciseInstructions.swift # How-to instructions for all exercises
 └── Resources/
-    └── Assets.xcassets
+    ├── Assets.xcassets
+    └── exercises.json          # Exercise seed data (51 exercises with rest defaults)
 GymAppTests/
 └── GymAppTests.swift             # Unit tests (Swift Testing)
 GymAppUITests/

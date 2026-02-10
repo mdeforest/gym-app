@@ -8,7 +8,10 @@ final class Exercise {
     var muscleGroup: MuscleGroup
     var isCustom: Bool
     var isCardio: Bool
+    var exerciseDescription: String
+    var instructions: String
     var lastUsedDate: Date?
+    var defaultRestSeconds: Int?
 
     @Relationship(deleteRule: .cascade, inverse: \WorkoutExercise.exercise)
     var workoutExercises: [WorkoutExercise] = []
@@ -17,12 +20,18 @@ final class Exercise {
         name: String,
         muscleGroup: MuscleGroup,
         isCustom: Bool = false,
-        isCardio: Bool = false
+        isCardio: Bool = false,
+        exerciseDescription: String = "",
+        instructions: String = "",
+        defaultRestSeconds: Int? = nil
     ) {
         self.id = UUID()
         self.name = name
         self.muscleGroup = muscleGroup
         self.isCustom = isCustom
         self.isCardio = isCardio
+        self.exerciseDescription = exerciseDescription
+        self.instructions = instructions
+        self.defaultRestSeconds = defaultRestSeconds
     }
 }

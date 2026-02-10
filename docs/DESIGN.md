@@ -8,93 +8,118 @@
 
 ### Color Palette
 
-Dark mode by default. Colors follow iOS semantic naming conventions.
+Dark mode by default. Bold, premium aesthetic with warm orange accent. Colors follow iOS semantic naming conventions.
 
-| Role              | Color     | Usage                                      |
-|-------------------|-----------|--------------------------------------------|
-| Primary (Accent)  | `#30D158` | Buttons, active states, highlights, links  |
-| Background        | `#000000` | Main app background (true black, OLED)     |
-| Surface (Elevated)| `#1C1C1E` | Cards, bottom sheets, grouped backgrounds  |
-| Surface (Tertiary)| `#2C2C2E` | Input fields, secondary cards, dividers    |
-| Text (Primary)    | `#FFFFFF` | Headings, body text, primary labels        |
-| Text (Secondary)  | `#EBEBF599` | Captions, placeholder text, metadata (60% opacity) |
-| Destructive       | `#FF453A` | Delete actions, error states               |
-| Success           | `#30D158` | Confirmation toasts, save indicators       |
-| Warning           | `#FF9F0A` | Caution states                             |
+| Role                    | Color         | Usage                                                        |
+|-------------------------|---------------|--------------------------------------------------------------|
+| Primary (Accent)        | `#FF6A3D`     | Buttons, active states, highlights, links                    |
+| Accent Muted            | `#FF6A3D33`   | Accent at 20% opacity — inactive states, subtle highlights, completed-set tint |
+| Background              | `#000000`     | Main app background (true black, OLED)                       |
+| Surface (Elevated)      | `#1C1C1E`     | Cards, bottom sheets, grouped backgrounds                    |
+| Surface (Tertiary)      | `#2C2C2E`     | Input fields, secondary cards, dividers                      |
+| Featured Surface        | `#FF6A3D`     | Hero/featured stat card background (solid accent fill)       |
+| Featured Gradient End   | `#E8552B`     | Darker end of gradient on featured cards (top-left to bottom-right) |
+| Text (Primary)          | `#FFFFFF`     | Headings, body text, primary labels                          |
+| Text (Secondary)        | `#EBEBF599`   | Captions, placeholder text, metadata (60% opacity)           |
+| Destructive             | `#FF453A`     | Delete actions, error states                                 |
+| Success                 | `#30D158`     | Set completion checkmarks, confirmation toasts, save indicators |
+| Warning                 | `#FFB340`     | Caution states                                               |
+| Chart Active            | `#FF6A3D`     | Active/current bars in charts                                |
+| Chart Inactive          | `#3D2A1F`     | Muted warm brown for inactive/past bars in charts            |
+
+> **Note on Accent vs. Destructive**: `#FF6A3D` (warm coral-orange) and `#FF453A` (cooler red) are visually distinct but share a warm hue family. Destructive actions should always include contextual cues (trash icons, alert dialogs, "Delete"/"Discard" labels) beyond color alone.
 
 ### Typography
 
 - **Font Family**: SF Pro (system font) — ensures consistency with iOS and automatic Dynamic Type support
 - **Size Scale**:
 
-| Style        | Size   | Weight     | Usage                              |
-|--------------|--------|------------|------------------------------------|
-| Large Title  | 34pt   | Bold       | Screen titles (History, Library)   |
-| Title 2      | 22pt   | Bold       | Section headers                    |
-| Headline     | 17pt   | Semibold   | Exercise names, card titles        |
-| Body         | 17pt   | Regular    | General text, descriptions         |
-| Callout      | 16pt   | Regular    | Set data (weight, reps)            |
-| Subheadline  | 15pt   | Regular    | Secondary labels                   |
-| Footnote     | 13pt   | Regular    | Timestamps, metadata               |
-| Caption      | 12pt   | Regular    | Hints, tertiary info               |
+| Style        | Size   | Weight     | Usage                                    |
+|--------------|--------|------------|------------------------------------------|
+| Hero Display | 40pt   | Bold       | Large stat numbers on featured cards (volume, PR weight) |
+| Large Title  | 36pt   | Bold       | Screen titles (History, Library)         |
+| Title 2      | 24pt   | Bold       | Section headers                          |
+| Headline     | 17pt   | Bold       | Exercise names, card titles              |
+| Body         | 17pt   | Regular    | General text, descriptions               |
+| Callout      | 16pt   | Medium     | Set data (weight, reps)                  |
+| Subheadline  | 15pt   | Regular    | Secondary labels                         |
+| Stat Label   | 13pt   | Medium     | Unit labels below hero numbers ("LBS", "REPS", "MIN"). Uppercase, 1pt letter spacing. |
+| Footnote     | 13pt   | Regular    | Timestamps, metadata                     |
+| Caption      | 12pt   | Regular    | Hints, tertiary info                     |
 
-- **Dynamic Type**: Fully supported. All text uses SwiftUI's built-in text styles (`.largeTitle`, `.headline`, `.body`, etc.) so the app respects the user's system font size preference.
+- **Dynamic Type**: Fully supported. Standard styles use SwiftUI's built-in text styles (`.largeTitle`, `.headline`, `.body`, etc.). Custom styles (Hero Display, Stat Label) use `UIFontMetrics`-scaled values so they respond to accessibility size changes.
 
 ### Iconography
 
 - **Icon Set**: SF Symbols (Apple's native system icons)
 - **Guidelines**:
-  - Use **medium weight** icons to match SF Pro text weight
+  - Use **semibold weight** icons to match the bolder typography
+  - On featured/hero cards, use **bold weight** icons at 24–28pt to match the card's visual impact
   - Prefer **filled** variants for tab bar icons (active state) and **outline** variants for inactive states
   - Icon size should match the adjacent text's point size
+  - Accent-colored icons use `#FF6A3D`; icons on Featured Surface cards use white
   - Use SF Symbols' built-in rendering modes (monochrome with accent color)
 
 ---
 
 ## 2. Layout System
 
-- **Framework**: SwiftUI native layout (`VStack`, `HStack`, `LazyVStack`, `ScrollView`)
+- **Framework**: SwiftUI native layout (`VStack`, `HStack`, `LazyVStack`, `LazyVGrid`, `ScrollView`)
 - **Safe Areas**: Always respect safe area insets; content never renders behind the notch or home indicator
-- **Spacing Scale**: Multiples of 4pt (4, 8, 12, 16, 20, 24, 32)
+- **Spacing Scale**: Multiples of 4pt (4, 8, 12, 16, 20, 24, 32, 40)
 - **Content Width**: Full-width on all devices — no max-width constraint (single-column mobile layout)
 - **Minimum Touch Target**: 44×44pt per Apple Human Interface Guidelines
-- **Card Padding**: 16pt internal padding, 8pt gap between cards
-- **Screen Edge Padding**: 16pt horizontal padding from screen edges
+- **Card Padding**: 20pt internal padding, 12pt gap between cards
+- **Screen Edge Padding**: 20pt horizontal padding from screen edges
+- **Section Spacing**: 32pt vertical space between major sections
 
 ---
 
 ## 3. Components
 
-| Component          | Spec                                                                                         | File                                    | Status |
-|--------------------|----------------------------------------------------------------------------------------------|-----------------------------------------|--------|
-| **Primary Button** | Full-width, 50pt height, `#30D158` fill, white label, 12pt corner radius, bold text          | `Views/Components/PrimaryButton.swift`  | Done   |
-| **Secondary Button** | Full-width, 50pt height, `#2C2C2E` fill, white label, 12pt corner radius                  | `Views/Components/SecondaryButton.swift`| Done   |
-| **Destructive Button** | Full-width, 50pt height, `#FF453A` fill, white label, 12pt corner radius                | `Views/Components/DestructiveButton.swift` | Done |
-| **Set Row**        | Horizontal row: set number, weight field, reps field, optional checkmark button. Pre-filled from last session. Tap field to edit via numeric keypad. Swipe left to reveal delete button. Editing values propagates to subsequent incomplete sets. Checkmark is hidden when `onComplete` is nil (e.g., in history edit mode). | `Views/Components/SetRowView.swift` | Done |
-| **Exercise Card**  | Surface (`#1C1C1E`) background, 12pt corner radius, 16pt padding. Shows exercise name (headline) and last session summary (subheadline, secondary text). | `Views/Components/ExerciseCard.swift` | Done |
-| **Number Input**   | `#2C2C2E` background, 12pt corner radius, centered text (callout weight), numeric keyboard. Tap to select all for quick overwrite. | `Views/Components/NumberInputField.swift` | Done |
-| **Tab Bar**        | Standard iOS tab bar, 3 tabs: Workout (`dumbbell.fill`), History (`clock.fill`), Exercises (`list.bullet`). True black background. | `App/ContentView.swift` | Done |
-| **Toast**          | Floating pill at bottom of screen above tab bar, auto-dismisses after 3 seconds. Dark surface background with white text. Slide-up animation. | — | Not yet built |
-| **Section Header** | Title 2 weight, left-aligned, 24pt top margin, 8pt bottom margin                            | Used inline in views | Done |
-| **Empty State**    | Centered text (secondary color) with SF Symbol icon above, and a primary action button below | `Views/Components/EmptyStateView.swift` | Done |
-| **Exercise Detail** | Resizable bottom sheet (`.medium`/`.large` detents) with drag indicator. Header shows muscle group badge + custom tag. How-to section: description, primary muscles, numbered steps. History section: last 5 sessions with sets/reps/weight (or time/distance for cardio). | `Views/ExerciseLibrary/ExerciseDetailView.swift` | Done |
-| **Cardio Inputs**  | Two-row layout inside workout exercise section: clock icon + minutes field, run icon + km field. Replaces weight/reps for exercises flagged as cardio. | Inline in `ActiveWorkoutView.swift` | Done |
+| Component              | Spec                                                                                         | File                                    | Status |
+|------------------------|----------------------------------------------------------------------------------------------|-----------------------------------------|--------|
+| **Primary Button**     | Full-width, 52pt height, `#FF6A3D` fill, white label, pill-shaped (26pt corner radius), bold text. Optional trailing `chevron.right` icon for navigation-style actions. | `Views/Components/PrimaryButton.swift`  | Needs update |
+| **Secondary Button**   | Full-width, 52pt height, `#2C2C2E` fill, white label, 16pt corner radius                    | `Views/Components/SecondaryButton.swift`| Needs update |
+| **Destructive Button** | Full-width, 52pt height, `#FF453A` fill, white label, 16pt corner radius                    | `Views/Components/DestructiveButton.swift` | Needs update |
+| **Pill Button**        | Auto-width (not full-width), 36pt height, pill-shaped (18pt corner radius). Primary variant: `#FF6A3D` fill. Secondary variant: `#2C2C2E` fill. White label with optional leading/trailing SF Symbol icon. For inline actions like "+ Add Set", "View All". | `Views/Components/PillButton.swift` | Done |
+| **Set Row**            | Horizontal row: set number, weight field, reps field, optional checkmark button. Pre-filled from last session. Tap field to edit via numeric keypad. Swipe left to reveal delete button. Editing values propagates to subsequent incomplete sets. Checkmark is hidden when `onComplete` is nil (e.g., in history edit mode). Confirmed sets get a subtle `#FF6A3D` at 8% opacity background tint. | `Views/Components/SetRowView.swift` | Needs update |
+| **Exercise Card**      | Surface (`#1C1C1E`) background, 16pt corner radius, 20pt padding, 12pt gap between cards. Shows exercise name (headline, bold) and last session summary (subheadline, secondary text). | `Views/Components/ExerciseCard.swift` | Needs update |
+| **Number Input**       | `#2C2C2E` background, 12pt corner radius, centered text (callout, medium weight), numeric keyboard. Tap to select all for quick overwrite. | `Views/Components/NumberInputField.swift` | Needs update |
+| **Stat Card**          | Single metric display for 2-column grids. `#1C1C1E` surface background, 16pt corner radius, 20pt internal padding, 100pt minimum height. Contains: Hero Display number (40pt bold, white) and Stat Label below (13pt medium, uppercase, secondary text color). Optional SF Symbol icon (top-right, 20pt, secondary color). | `Views/Components/StatCard.swift` | Done |
+| **Featured Stat Card** | Same layout as Stat Card but with `#FF6A3D` solid fill (or linear gradient to `#E8552B`, top-left to bottom-right). White text for both number and label. 20pt corner radius. Used for primary metrics like "Total Volume" or "Personal Record". Optional icon badge in top-right (white, bold weight). | `Views/Components/FeaturedStatCard.swift` | Done |
+| **Stat Grid**          | 2-column `LazyVGrid` with 12pt spacing between items. Each cell is a Stat Card or Featured Stat Card. Full-width with screen edge padding. | `Views/Components/StatGrid.swift` | Done |
+| **Workout Summary Header** | Full-width section at the top of workout detail views. Contains a Stat Grid with 2–4 metrics (Duration, Exercises, Sets, Volume). Primary metric uses Featured Stat Card; others use standard Stat Cards. | — | Not yet built |
+| **Progress Bar**       | Horizontal bar showing workout/exercise completion. Full width, 6pt height, 3pt corner radius. Track: `#2C2C2E`. Fill: linear gradient `#FF6A3D` to `#E8552B`. | `Views/Components/ProgressBar.swift` | Done |
+| **Circular Action Button** | 64pt circle. Primary variant: `#FF6A3D` fill, white icon (e.g., `play.fill`, `pause.fill`). Secondary variant: `#2C2C2E` fill, white icon. Destructive variant: `#FF453A` fill, white icon. For rest timer controls. | `Views/Components/CircularActionButton.swift` | Done |
+| **Rest Timer Pill (Collapsed)** | Floating bar anchored to bottom of `ActiveWorkoutView`, above tab bar. Full-width minus screen edge padding (20pt each side). 52pt height, pill-shaped (26pt corner radius). `#1C1C1E` surface background with shadow. Contains: circular progress ring (28pt, 3pt stroke, accent gradient), countdown text (`title2` bold, white, monospacedDigit `M:SS`), exercise name (subheadline, secondary), skip button (`xmark`, secondary text, 44pt touch target). Tap pill to expand. Slides up with spring animation on timer start; slides down on dismiss. | `Views/Components/RestTimerView.swift` | Done |
+| **Rest Timer Sheet (Expanded)** | Bottom sheet overlay when collapsed pill is tapped. `#1C1C1E` surface background, 20pt corner radius (top corners only), drag indicator at top. Contains: large circular progress ring (160pt diameter, 6pt stroke, accent-to-`#E8552B` gradient on `#2C2C2E` track), countdown in center (Hero Display 40pt bold), "REST" stat label (13pt medium, uppercase), row of 3 Circular Action Buttons: −30s (secondary), +30s (secondary), Skip (destructive). Exercise name context label below (subheadline, secondary text). | `Views/Components/RestTimerView.swift` | Done |
+| **Circular Progress Ring** | Configurable size/stroke. Track: `#2C2C2E` stroke. Fill: accent-to-`#E8552B` linear gradient, round line cap, −90° rotation. Ring drains (unfills) as time decreases. Used in rest timer at 28pt (pill) and 160pt (expanded sheet). | `Views/Components/CircularProgressRing.swift` | Done |
+| **Rest Time Picker** | Horizontal `ScrollView` of capsule pill buttons: Off, 30s, 60s, 90s, 2m, 3m. Selected: `#FF6A3D` fill, white text. Unselected: `#2C2C2E` fill, secondary text. Used in Exercise Detail and inline during active workout (via tappable rest time badge). | Inline in views | Done |
+| **Tab Bar**            | Standard iOS tab bar, 3 tabs: Workout (`dumbbell.fill`), History (`clock.fill`), Exercises (`list.bullet`). True black background, `#FF6A3D` tint. | `App/ContentView.swift` | Needs update |
+| **Toast**              | Floating pill at bottom of screen above tab bar, auto-dismisses after 3 seconds. Dark surface background with white text. Slide-up animation. Pill-shaped corners. | — | Not yet built |
+| **Section Header**     | Title 2 weight (24pt bold), left-aligned, 32pt top margin, 8pt bottom margin               | Used inline in views | Needs update |
+| **Empty State**        | Centered text (secondary color) with SF Symbol icon above (semibold weight), and a primary action button below (pill-shaped) | `Views/Components/EmptyStateView.swift` | Needs update |
+| **Exercise Detail**    | Full-height bottom sheet (`.large` detent) with drag indicator. Header shows muscle group badge (`#FF6A3D` capsule fill) + custom tag. How-to section: description, primary muscles (in accent color), numbered steps. Rest Timer section: "Rest Timer" headline, subtitle, horizontal Rest Time Picker pills. History section: last 5 sessions with sets/reps/weight (or time/distance for cardio). | `Views/ExerciseLibrary/ExerciseDetailView.swift` | Done |
+| **Cardio Inputs**      | Two-row layout inside workout exercise section: clock icon + minutes field, run icon + km field. Replaces weight/reps for exercises flagged as cardio. | Inline in `ActiveWorkoutView.swift` | Done |
 
 ### Design Tokens
 
 All design tokens are centralized in `Theme/AppTheme.swift`:
 
-- `AppTheme.Colors` — accent, background, surface, surfaceTertiary, textPrimary, textSecondary, destructive, success, warning
-- `AppTheme.Spacing` — xxs (4), xs (8), sm (12), md (16), lg (20), xl (24), xxl (32)
-- `AppTheme.Layout` — cornerRadius (12), buttonHeight (50), minTouchTarget (44), cardPadding (16), cardSpacing (8), screenEdgePadding (16)
+- `AppTheme.Colors` — accent, accentMuted, background, surface, surfaceTertiary, featuredSurface, featuredGradientEnd, textPrimary, textSecondary, destructive, success, warning, chartActive, chartInactive
+- `AppTheme.Spacing` — xxs (4), xs (8), sm (12), md (16), lg (20), xl (24), xxl (32), xxxl (40)
+- `AppTheme.Layout` — cornerRadius (16), featuredCardRadius (20), pillButtonRadius (26), buttonHeight (52), circularButtonSize (64), minTouchTarget (44), cardPadding (20), cardSpacing (12), screenEdgePadding (20), statCardMinHeight (100), statGridSpacing (12), sectionSpacing (32)
 
 ---
 
 ## 4. UX Flows
 
+> Visual note: All accent-colored elements (button fills, active states, highlights, badges) use `#FF6A3D`. Workout summaries use Stat Grid and Featured Stat Card components for bold, stats-forward presentation.
+
 ### Start Workout
 1. User taps the **Workout** tab
-2. Taps **Start Workout** button (primary, prominent)
+2. Taps **Start Workout** button (pill-shaped primary button, prominent)
 3. Empty session created with current timestamp
 4. User taps **Add Exercise** to begin
 
@@ -109,8 +134,8 @@ All design tokens are centralized in `Theme/AppTheme.swift`:
 1. After adding a strength exercise, set rows appear pre-filled with last session's values (weight + reps)
 2. User taps a number field to adjust → numeric keypad appears, value is auto-selected for quick overwrite
 3. Editing a set's weight or reps auto-propagates the values to all subsequent incomplete sets
-4. User taps the **checkmark** button on the row to confirm the set
-5. Tap **+ Add Set** to add another row (pre-filled with the same weight/reps as the previous set)
+4. User taps the **checkmark** button on the row to confirm the set — row gets subtle accent background tint
+5. Tap **+ Add Set** (pill button) to add another row (pre-filled with the same weight/reps as the previous set)
 6. Swipe left on a set row to reveal a delete button (hidden when only 1 set remains)
 7. Logging a set takes 2-3 taps when values don't change from last session
 
@@ -119,12 +144,23 @@ All design tokens are centralized in `Theme/AppTheme.swift`:
 2. Two fields: minutes (clock icon) and km (run icon), pre-filled from last session if available
 3. No set/rep concept — just duration and distance
 
+### Rest Timer
+1. User completes a set by tapping the checkmark — if the exercise has a `defaultRestSeconds` value configured (non-nil), the rest timer auto-starts with that duration
+2. A floating timer pill slides up from the bottom of `ActiveWorkoutView` showing a countdown (`M:SS`), small circular progress ring, exercise name, and a skip (X) button
+3. Tapping the pill expands it into a larger sheet with a big circular progress ring, the countdown, and adjustment buttons (−30s, +30s, Skip)
+4. The user can adjust the timer at any time; −30s/+30s buttons modify remaining time (never below 0). The progress ring and countdown update in real time
+5. When the timer reaches 0:00, a haptic buzz and short completion sound play; the pill shows "Rest Complete" briefly (1.5s) before auto-dismissing
+6. If the app is backgrounded, a local notification fires when the timer completes ("Rest Complete — time to start your next set")
+7. Completing another set while a timer is running resets to the new exercise's rest duration (or continues unchanged if the new exercise has no rest configured)
+8. The timer is purely UI state — it does not persist. The local notification is scheduled when the timer starts and canceled on skip/dismiss
+9. Each exercise section header shows a small rest time badge (e.g., "90s") when configured. Tapping the badge during a workout opens an inline Rest Time Picker to change the value
+
 ### Finish Workout
 1. User taps **Finish** button in the navigation bar
 2. Centered alert prompt: "Finish workout?" with message "This will save your workout to history."
 3. Incomplete sets are discarded; exercises with no completed sets are removed
 4. Workout saved with timestamp and duration
-5. App switches to the **History** tab and auto-navigates to the completed workout's detail view
+5. App switches to the **History** tab and auto-navigates to the completed workout's detail view, which displays the **Workout Summary Header** with stat cards
 
 ### Cancel Workout
 1. User taps **Cancel** button (red, top-left) in the navigation bar
@@ -134,16 +170,17 @@ All design tokens are centralized in `Theme/AppTheme.swift`:
 
 ### View Exercise Detail
 1. User taps any exercise in the **Exercises** tab
-2. A resizable bottom sheet appears (medium or large height) with drag indicator
-3. **Header**: Muscle group badge (green capsule) and optional "Custom" tag
+2. A full-height bottom sheet appears (`.large` detent) with drag indicator
+3. **Header**: Muscle group badge (orange accent capsule) and optional "Custom" tag
 4. **How to Perform**: Description, primary muscles (in accent color), and numbered step-by-step instructions
-5. **Recent History**: Last 5 sessions showing date and sets (weight × reps), or time/distance for cardio
-6. Custom exercises show "No instructions available" in the how-to section
+5. **Rest Timer**: Configurable rest duration with pill button picker (Off, 30s, 60s, 90s, 2m, 3m)
+6. **Recent History**: Last 5 sessions showing date and sets (weight × reps), or time/distance for cardio
+7. Custom exercises show "No instructions available" in the how-to section
 
 ### View History
 1. User taps the **History** tab
 2. Workouts listed by date (most recent first), showing date, duration, and exercise count
-3. Tap a workout → detail view with all exercises, sets, weights, and reps
+3. Tap a workout → detail view with **Workout Summary Header** (stat grid) followed by all exercises, sets, weights, and reps
 
 ### Edit Completed Workout
 1. User opens a workout from the **History** tab
@@ -160,24 +197,27 @@ All design tokens are centralized in `Theme/AppTheme.swift`:
 ### Error States
 - **Failed to save**: Toast appears at bottom — "Couldn't save. Try again." with a retry action
 - **No exercises found** (search): Inline empty state — "No exercises found" with option to create a custom exercise
-- **Empty history**: Centered empty state — "No workouts yet" with illustration and "Start Workout" button
+- **Empty history**: Centered empty state — "No workouts yet" with illustration and "Start Workout" pill button
 
 ---
 
 ## 5. Accessibility
 
-- **Dynamic Type**: All text uses SwiftUI semantic text styles; layout adapts to larger accessibility sizes
+- **Dynamic Type**: All text uses SwiftUI semantic text styles; layout adapts to larger accessibility sizes. Custom styles (Hero Display, Stat Label) use `UIFontMetrics` scaling.
 - **VoiceOver**: All interactive elements have descriptive accessibility labels (e.g., "Set 1: 135 pounds, 8 reps — tap to edit")
-- **Contrast Ratios**: White text on true black exceeds WCAG AAA (21:1). Green accent on black meets WCAG AA for large text
+- **Contrast Ratios**: White text on true black exceeds WCAG AAA (21:1). Orange accent (`#FF6A3D`) on black meets WCAG AA for large text (5.2:1 contrast ratio). White text on Featured Surface (`#FF6A3D`) meets WCAG AA for large/bold text only (3.2:1) — Featured Stat Cards exclusively use Hero Display (40pt bold) and Stat Label (13pt bold uppercase), which qualify as large text.
 - **Focus States**: Interactive elements show a visible focus ring when navigated via keyboard or switch control
-- **Haptic Feedback**: Light haptic on set confirmation, medium haptic on workout finish
+- **Haptic Feedback**: Light haptic on set confirmation, medium haptic on workout finish, success notification haptic + sound on rest timer completion
+- **Rest Timer**: VoiceOver reads countdown as "X minutes, Y seconds remaining". Skip button labeled "Skip rest timer". Timer completion announced via `UIAccessibility.post` notification.
 - **Reduce Motion**: Respect `UIAccessibility.isReduceMotionEnabled` — disable slide/spring animations when enabled
 
 ---
 
 ## 6. Inspirations / References
 
+- **PacePro** — bold, stats-forward design with warm orange accent, dramatic typography hierarchy, and premium card-based layouts. Primary inspiration for the current visual direction.
 - **Strong (iOS)** — clean workout logging interface, set-by-set input pattern
+- **Hevy** — prominent stat displays and workout summary cards with large numbers and clear visual hierarchy
 - **JEFIT** — comprehensive exercise library with muscle group categorization
 - **Plain spreadsheet** — the simplicity benchmark; logging should feel as fast as typing into a spreadsheet row
 - **Apple Fitness** — dark UI patterns, native iOS design language

@@ -1,13 +1,41 @@
 import Foundation
 import SwiftData
 import Observation
+import UserNotifications
+import AudioToolbox
+import UIKit
 
+@MainActor
 @Observable
 final class WorkoutViewModel {
     var activeWorkout: Workout?
     var showingAddExercise = false
     var showingFinishConfirmation = false
     var showingDiscardConfirmation = false
+
+    // MARK: - Rest Timer State
+    var restTimerActive = false
+    var restTimerRunning = false
+    var restTimerDuration: Int = 0
+    var restTimeRemaining: Int = 0
+    var restTimerExpanded = false
+    var restTimerExerciseName: String?
+    var restTimerCompleted = false
+    private var timerTask: Task<Void, Never>?
+    private var timerEndDate: Date?
+    private var notificationPermissionRequested = false
+    private static let notificationIdentifier = "restTimerComplete"
+
+    var restTimerProgress: Double {
+        guard restTimerDuration > 0 else { return 0 }
+        return Double(restTimerDuration - restTimeRemaining) / Double(restTimerDuration)
+    }
+
+    var restTimerDisplayText: String {
+        let minutes = restTimeRemaining / 60
+        let seconds = restTimeRemaining % 60
+        return String(format: "%d:%02d", minutes, seconds)
+    }
 
     private let modelContext: ModelContext
 
@@ -27,6 +55,7 @@ final class WorkoutViewModel {
 
     @discardableResult
     func finishWorkout() -> Workout? {
+        skipRestTimer()
         guard let workout = activeWorkout else { return nil }
 
         // Remove incomplete sets and exercises with no completed sets
@@ -48,6 +77,7 @@ final class WorkoutViewModel {
     }
 
     func discardWorkout() {
+        skipRestTimer()
         guard let activeWorkout else { return }
         modelContext.delete(activeWorkout)
         self.activeWorkout = nil
@@ -106,8 +136,17 @@ final class WorkoutViewModel {
     }
 
     func completeSet(_ exerciseSet: ExerciseSet) {
+        let wasCompleted = exerciseSet.isCompleted
         exerciseSet.isCompleted.toggle()
         save()
+
+        // Auto-start rest timer when completing (not un-completing) a set
+        if !wasCompleted, exerciseSet.isCompleted,
+           let exercise = exerciseSet.workoutExercise?.exercise,
+           let restSeconds = exercise.defaultRestSeconds,
+           restSeconds > 0 {
+            startRestTimer(seconds: restSeconds, exerciseName: exercise.name)
+        }
     }
 
     func deleteSet(_ exerciseSet: ExerciseSet, from workoutExercise: WorkoutExercise) {
@@ -148,6 +187,138 @@ final class WorkoutViewModel {
         )
 
         return try? modelContext.fetch(descriptor).first
+    }
+
+    // MARK: - Rest Timer
+
+    func startRestTimer(seconds: Int, exerciseName: String? = nil) {
+        stopTimerTask()
+        restTimerDuration = seconds
+        restTimeRemaining = seconds
+        timerEndDate = Date.now.addingTimeInterval(TimeInterval(seconds))
+        restTimerRunning = true
+        restTimerActive = true
+        restTimerCompleted = false
+        restTimerExerciseName = exerciseName
+        requestNotificationPermission()
+        scheduleCompletionNotification(in: seconds)
+        startTimerTask()
+    }
+
+    func skipRestTimer() {
+        stopTimerTask()
+        cancelCompletionNotification()
+        timerEndDate = nil
+        restTimerActive = false
+        restTimerRunning = false
+        restTimerExpanded = false
+        restTimerCompleted = false
+        restTimeRemaining = 0
+        restTimerDuration = 0
+        restTimerExerciseName = nil
+    }
+
+    func adjustRestTimer(by seconds: Int) {
+        let newRemaining = restTimeRemaining + seconds
+        restTimeRemaining = max(0, newRemaining)
+        restTimerDuration = max(restTimeRemaining, restTimerDuration + seconds)
+        timerEndDate = Date.now.addingTimeInterval(TimeInterval(restTimeRemaining))
+
+        cancelCompletionNotification()
+
+        if restTimeRemaining > 0 && !restTimerRunning {
+            restTimerRunning = true
+            restTimerCompleted = false
+            startTimerTask()
+        }
+
+        if restTimeRemaining > 0 {
+            scheduleCompletionNotification(in: restTimeRemaining)
+        }
+
+        if restTimeRemaining == 0 {
+            timerDidComplete()
+        }
+    }
+
+    func toggleRestTimerExpanded() {
+        restTimerExpanded.toggle()
+    }
+
+    private func startTimerTask() {
+        timerTask = Task { [weak self] in
+            while let self, !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(1))
+                guard !Task.isCancelled, let endDate = self.timerEndDate else { return }
+                let remaining = max(0, Int(endDate.timeIntervalSinceNow.rounded(.up)))
+                self.restTimeRemaining = remaining
+                if remaining == 0 {
+                    self.timerDidComplete()
+                    return
+                }
+            }
+        }
+    }
+
+    private func stopTimerTask() {
+        timerTask?.cancel()
+        timerTask = nil
+    }
+
+    private func timerDidComplete() {
+        restTimerRunning = false
+        restTimerCompleted = true
+        stopTimerTask()
+        cancelCompletionNotification()
+
+        // Haptic feedback
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
+
+        // Play system sound
+        AudioServicesPlaySystemSound(1007)
+
+        // Auto-dismiss after 1.5 seconds
+        Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(1500))
+            guard let self, self.restTimerCompleted else { return }
+            self.skipRestTimer()
+        }
+    }
+
+    private func requestNotificationPermission() {
+        guard !notificationPermissionRequested else { return }
+        notificationPermissionRequested = true
+        let center = UNUserNotificationCenter.current()
+        Task {
+            try? await center.requestAuthorization(options: [.alert, .sound])
+        }
+    }
+
+    private func scheduleCompletionNotification(in seconds: Int) {
+        let center = UNUserNotificationCenter.current()
+        let content = UNMutableNotificationContent()
+        content.title = "Rest Complete"
+        content.body = "Time to start your next set"
+        content.sound = .default
+
+        let trigger = UNTimeIntervalNotificationTrigger(
+            timeInterval: TimeInterval(max(seconds, 1)),
+            repeats: false
+        )
+
+        let request = UNNotificationRequest(
+            identifier: Self.notificationIdentifier,
+            content: content,
+            trigger: trigger
+        )
+
+        center.add(request)
+    }
+
+    private func cancelCompletionNotification() {
+        let center = UNUserNotificationCenter.current()
+        center.removePendingNotificationRequests(withIdentifiers: [Self.notificationIdentifier])
     }
 
     // MARK: - Private
