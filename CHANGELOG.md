@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.3.0] - 02/10/26
+
+### Added
+- App rebrand from "GymApp" to **Pulse** with new bundle ID (`com.pulse.Pulse`)
+- Custom app icon (dumbbell on dark background, 1024x1024 PNG)
+- Horizontal logo lockup image asset (`Logo.imageset`)
+- Animated splash screen — logo fades in centered, holds briefly, then shrinks and slides into its resting position on the Workout tab
+- Logo displayed on Workout tab empty state in place of generic SF Symbol
+- Text and button fade-in on Workout tab timed with splash completion
+
+### Changed
+- Renamed all directories, files, and references from GymApp to Pulse
+- Updated `project.yml`, `scripts/restart.sh`, and build skill for new Pulse scheme
+- Updated README, PROJECT_BRIEF, and DESIGN docs with branding, splash screen, and logo details
+
 ## [0.2.0] - 02/10/26
 
 ### Added

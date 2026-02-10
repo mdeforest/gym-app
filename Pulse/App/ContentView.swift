@@ -1,15 +1,20 @@
 import SwiftUI
 
 struct ContentView: View {
+    var splashFinished: Bool = true
+
     @State private var selectedTab = 0
     @State private var completedWorkout: Workout?
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            WorkoutView(onWorkoutFinished: { workout in
-                completedWorkout = workout
-                selectedTab = 1
-            })
+            WorkoutView(
+                splashFinished: splashFinished,
+                onWorkoutFinished: { workout in
+                    completedWorkout = workout
+                    selectedTab = 1
+                }
+            )
             .tabItem {
                 Label("Workout", systemImage: "dumbbell.fill")
             }
@@ -32,7 +37,7 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    ContentView(splashFinished: true)
         .modelContainer(for: [
             Workout.self,
             WorkoutExercise.self,

@@ -1,9 +1,7 @@
 # Project Brief
 
 ## Project Name
-Gym App
-
-**Info**: This is a temporary name.
+Pulse
 
 ## Summary
 A personal workout tracker built for a single user who primarily lifts weights and occasionally does cardio. The app replaces the use of other apps such as Juggernaut AI and Fitbod with a fast, frictionless way to log workouts, track progressive overload, and review training history.
@@ -35,6 +33,7 @@ A personal workout tracker built for a single user who primarily lifts weights a
 - [x] **Last-session reference**: When logging an exercise, sets are pre-filled with last session's weight/reps for easy progressive overload tracking
 - [x] **Set management**: Swipe left to delete individual sets. Editing a set's weight/reps auto-propagates values to subsequent incomplete sets.
 - [x] **Rest timer**: Auto-starts when completing a set if the exercise has a configured rest duration. Floating pill overlay with countdown, expandable to full controls (±30s, Skip). Haptic + sound on completion; local notification when backgrounded. Each exercise has a configurable `defaultRestSeconds` (editable in Exercise Detail and inline during workouts). Timer uses wall-clock dates so it continues counting while the app is backgrounded.
+- [x] **Branding & splash screen**: Custom app icon (dumbbell on dark background) and horizontal logo lockup. Animated splash screen on launch — logo fades in centered, then shrinks and transitions into its resting position on the Workout tab.
 
 ## Design and User Experience Vibe
 - **Tone**: Minimal and functional — get in, log, get out. No gamification, no fluff

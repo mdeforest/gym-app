@@ -1,6 +1,6 @@
 import Testing
 import SwiftData
-@testable import GymApp
+@testable import Pulse
 
 @Suite("Workout Model Tests")
 struct WorkoutModelTests {

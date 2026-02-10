@@ -1,6 +1,6 @@
 # DESIGN.md
 
-> A living document capturing the visual, UX, and architectural design of the Gym App.
+> A living document capturing the visual, UX, and architectural design of Pulse.
 
 ---
 
@@ -60,6 +60,11 @@ Dark mode by default. Bold, premium aesthetic with warm orange accent. Colors fo
   - Accent-colored icons use `#FF6A3D`; icons on Featured Surface cards use white
   - Use SF Symbols' built-in rendering modes (monochrome with accent color)
 
+### Branding Assets
+
+- **App Icon**: Custom dumbbell icon on dark charcoal background. Orange accent color matching `#FF6A3D`. 1024×1024 PNG, full-bleed (no transparency). Stored in `Assets.xcassets/AppIcon.appiconset/`.
+- **Logo**: Horizontal lockup — icon mark + "PULSE" wordmark in white on transparent/black background. Used on the splash screen and Workout tab empty state. Stored in `Assets.xcassets/Logo.imageset/`.
+
 ---
 
 ## 2. Layout System
@@ -99,9 +104,10 @@ Dark mode by default. Bold, premium aesthetic with warm orange accent. Colors fo
 | **Tab Bar**            | Standard iOS tab bar, 3 tabs: Workout (`dumbbell.fill`), History (`clock.fill`), Exercises (`list.bullet`). True black background, `#FF6A3D` tint. | `App/ContentView.swift` | Needs update |
 | **Toast**              | Floating pill at bottom of screen above tab bar, auto-dismisses after 3 seconds. Dark surface background with white text. Slide-up animation. Pill-shaped corners. | — | Not yet built |
 | **Section Header**     | Title 2 weight (24pt bold), left-aligned, 32pt top margin, 8pt bottom margin               | Used inline in views | Needs update |
-| **Empty State**        | Centered text (secondary color) with SF Symbol icon above (semibold weight), and a primary action button below (pill-shaped) | `Views/Components/EmptyStateView.swift` | Needs update |
+| **Empty State**        | Centered text (secondary color) with SF Symbol icon above (semibold weight), and a primary action button below (pill-shaped). On the Workout tab, the Logo image (`Image("Logo")`, 180pt width) replaces the SF Symbol. | `Views/Components/EmptyStateView.swift` | Done |
 | **Exercise Detail**    | Full-height bottom sheet (`.large` detent) with drag indicator. Header shows muscle group badge (`#FF6A3D` capsule fill) + custom tag. How-to section: description, primary muscles (in accent color), numbered steps. Rest Timer section: "Rest Timer" headline, subtitle, horizontal Rest Time Picker pills. History section: last 5 sessions with sets/reps/weight (or time/distance for cardio). | `Views/ExerciseLibrary/ExerciseDetailView.swift` | Done |
 | **Cardio Inputs**      | Two-row layout inside workout exercise section: clock icon + minutes field, run icon + km field. Replaces weight/reps for exercises flagged as cardio. | Inline in `ActiveWorkoutView.swift` | Done |
+| **Splash Screen**      | Full-screen overlay on app launch. True black background. Logo (`Image("Logo")`) starts centered at 320pt width, fades in over 1s, holds for ~1.5s. Then background fades to transparent while logo shrinks to 180pt and slides up ~60pt (spring animation, 0.9s). Logo fades out last, revealing the Workout tab with its own logo in place. Text and button on Workout tab fade in simultaneously. Total duration ~3.4s. | `Views/Components/SplashView.swift` | Done |
 
 ### Design Tokens
 
@@ -117,8 +123,14 @@ All design tokens are centralized in `Theme/AppTheme.swift`:
 
 > Visual note: All accent-colored elements (button fills, active states, highlights, badges) use `#FF6A3D`. Workout summaries use Stat Grid and Featured Stat Card components for bold, stats-forward presentation.
 
+### App Launch
+1. Animated splash screen appears — Pulse logo fades in centered at 320pt on true black
+2. After ~2.5s, the background fades to transparent and the logo shrinks (320pt → 180pt) and slides upward toward its resting position on the Workout tab
+3. The Workout tab is revealed underneath; title text, subtitle, and "Start Workout" button fade in simultaneously
+4. Splash overlay is removed once the transition completes (~3.4s total)
+
 ### Start Workout
-1. User taps the **Workout** tab
+1. User taps the **Workout** tab — the Pulse logo is displayed above "Ready to Train?" with a "Start Workout" button
 2. Taps **Start Workout** button (pill-shaped primary button, prominent)
 3. Empty session created with current timestamp
 4. User taps **Add Exercise** to begin

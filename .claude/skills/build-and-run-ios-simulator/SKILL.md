@@ -26,7 +26,7 @@ xcrun simctl boot "iPhone 16 Pro Max"
 
 # Build the app
 xcodebuild \
-  -scheme GymApp \
+  -scheme Pulse \
   -destination 'platform=iOS Simulator,name=iPhone 16 Pro Max' \
   build 2>&1 | tee build.log
 

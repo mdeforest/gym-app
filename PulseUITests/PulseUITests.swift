@@ -1,6 +1,6 @@
 import XCTest
 
-final class GymAppUITests: XCTestCase {
+final class PulseUITests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
     }

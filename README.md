@@ -1,4 +1,4 @@
-# Gym App
+# Pulse
 
 A minimal, no-nonsense workout tracker for iOS. Log weight training and cardio sessions fast, track progressive overload, and review training history — all without the bloat of social features, paywalls, or unnecessary complexity.
 
@@ -14,6 +14,7 @@ A minimal, no-nonsense workout tracker for iOS. Log weight training and cardio s
 - **Last-session reference** — Sets are pre-filled with last session's weight/reps for easy progressive overload tracking
 - **Set management** — Swipe left to delete sets; editing a set auto-populates remaining incomplete sets
 - **Cancel workout** — Dedicated cancel button with confirmation to discard an in-progress workout
+- **Animated splash screen** — Logo fades in centered, then shrinks and slides into position on the Workout tab as the app reveals
 
 ## Design Goals
 
@@ -35,9 +36,9 @@ A minimal, no-nonsense workout tracker for iOS. Log weight training and cardio s
 ## Project Structure
 
 ```
-GymApp/
+Pulse/
 ├── App/
-│   ├── GymApp.swift              # App entry point + SwiftData ModelContainer
+│   ├── PulseApp.swift              # App entry point + SwiftData ModelContainer
 │   └── ContentView.swift         # 3-tab layout (Workout, History, Exercises)
 ├── Models/
 │   ├── MuscleGroup.swift         # Muscle group enum (7 groups)
@@ -77,7 +78,8 @@ GymApp/
 │       ├── ProgressBar.swift
 │       ├── CircularActionButton.swift
 │       ├── CircularProgressRing.swift
-│       └── RestTimerView.swift
+│       ├── RestTimerView.swift
+│       └── SplashView.swift
 ├── Theme/
 │   └── AppTheme.swift            # Design tokens (colors, spacing, layout)
 ├── Services/
@@ -85,12 +87,12 @@ GymApp/
 │   ├── ExerciseSeedData.swift    # 51 pre-populated exercises
 │   └── ExerciseInstructions.swift # How-to instructions for all exercises
 └── Resources/
-    ├── Assets.xcassets
+    ├── Assets.xcassets           # AppIcon, Logo image, AccentColor
     └── exercises.json          # Exercise seed data (51 exercises with rest defaults)
-GymAppTests/
-└── GymAppTests.swift             # Unit tests (Swift Testing)
-GymAppUITests/
-└── GymAppUITests.swift           # UI tests (XCTest)
+PulseTests/
+└── PulseTests.swift             # Unit tests (Swift Testing)
+PulseUITests/
+└── PulseUITests.swift           # UI tests (XCTest)
 project.yml                       # XcodeGen project configuration
 ```
 
@@ -116,7 +118,7 @@ project.yml                       # XcodeGen project configuration
 
 3. Open the project in Xcode:
    ```bash
-   open GymApp.xcodeproj
+   open Pulse.xcodeproj
    ```
 
 4. Select a simulator or connected device (iOS 17+)
@@ -128,11 +130,11 @@ project.yml                       # XcodeGen project configuration
 Run the full test suite in Xcode:
 
 - **Unit tests**: `⌘U` or Product > Test
-- **UI tests**: Included in the `GymAppUITests` target
+- **UI tests**: Included in the `PulseUITests` target
 
 ```bash
 # CLI alternative
-xcodebuild test -scheme GymApp -destination 'platform=iOS Simulator,name=iPhone 16'
+xcodebuild test -scheme Pulse -destination 'platform=iOS Simulator,name=iPhone 16'
 ```
 
 ## Deployment
