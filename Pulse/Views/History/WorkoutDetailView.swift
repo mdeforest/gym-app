@@ -1,11 +1,14 @@
 import SwiftUI
+import SwiftData
 
 struct WorkoutDetailView: View {
+    @Environment(\.modelContext) private var modelContext
     let workout: Workout
     let viewModel: HistoryViewModel
 
     @State private var isEditing = false
     @State private var showingAddExercise = false
+    @State private var showingSaveAsTemplate = false
     @State private var editedStartDate: Date
     @State private var editedEndDate: Date
 
@@ -47,23 +50,38 @@ struct WorkoutDetailView: View {
         .background(AppTheme.Colors.background)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button(isEditing ? "Done" : "Edit") {
-                    if isEditing {
-                        viewModel.updateDates(for: workout, startDate: editedStartDate, endDate: editedEndDate)
-                    } else {
-                        editedStartDate = workout.startDate
-                        editedEndDate = workout.endDate ?? .now
+                HStack(spacing: AppTheme.Spacing.md) {
+                    if !isEditing {
+                        Button {
+                            showingSaveAsTemplate = true
+                        } label: {
+                            Image(systemName: "rectangle.stack.badge.plus")
+                                .foregroundStyle(AppTheme.Colors.accent)
+                        }
                     }
-                    isEditing.toggle()
+                    Button(isEditing ? "Done" : "Edit") {
+                        if isEditing {
+                            viewModel.updateDates(for: workout, startDate: editedStartDate, endDate: editedEndDate)
+                        } else {
+                            editedStartDate = workout.startDate
+                            editedEndDate = workout.endDate ?? .now
+                        }
+                        isEditing.toggle()
+                    }
+                    .fontWeight(isEditing ? .semibold : .regular)
+                    .foregroundStyle(AppTheme.Colors.accent)
                 }
-                .fontWeight(isEditing ? .semibold : .regular)
-                .foregroundStyle(AppTheme.Colors.accent)
             }
         }
         .sheet(isPresented: $showingAddExercise) {
             AddExerciseView { exercise in
                 viewModel.addExercise(exercise, to: workout)
             }
+            .environment(\.modelContext, modelContext)
+        }
+        .sheet(isPresented: $showingSaveAsTemplate) {
+            CreateTemplateView(fromWorkout: workout)
+                .environment(\.modelContext, modelContext)
         }
     }
 

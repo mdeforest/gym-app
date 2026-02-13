@@ -53,6 +53,47 @@ final class WorkoutViewModel {
         save()
     }
 
+    func startWorkout(from template: WorkoutTemplate) {
+        let workout = Workout()
+        modelContext.insert(workout)
+
+        for templateExercise in template.sortedExercises {
+            guard let exercise = templateExercise.exercise else { continue }
+
+            let workoutExercise = WorkoutExercise(order: templateExercise.order, exercise: exercise)
+            workoutExercise.workout = workout
+
+            if exercise.isCardio {
+                let lastSession = fetchLastSession(for: exercise)
+                workoutExercise.durationSeconds = templateExercise.defaultDurationSeconds
+                    ?? lastSession?.durationSeconds
+                workoutExercise.distanceMeters = templateExercise.defaultDistanceMeters
+                    ?? lastSession?.distanceMeters
+            } else {
+                let lastSession = fetchLastSession(for: exercise)
+                let lastSet = lastSession?.sortedSets.first
+
+                for setIndex in 0..<templateExercise.setCount {
+                    let set = ExerciseSet(order: setIndex)
+                    // Template defaults take priority, fall back to last session
+                    set.weight = templateExercise.defaultWeight > 0
+                        ? templateExercise.defaultWeight
+                        : (lastSet?.weight ?? 0)
+                    set.reps = templateExercise.defaultReps > 0
+                        ? templateExercise.defaultReps
+                        : (lastSet?.reps ?? 0)
+                    set.workoutExercise = workoutExercise
+                }
+            }
+
+            exercise.lastUsedDate = .now
+        }
+
+        template.lastUsedDate = .now
+        activeWorkout = workout
+        save()
+    }
+
     @discardableResult
     func finishWorkout() -> Workout? {
         skipRestTimer()

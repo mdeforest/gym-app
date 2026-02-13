@@ -16,6 +16,9 @@ final class Exercise {
     @Relationship(deleteRule: .cascade, inverse: \WorkoutExercise.exercise)
     var workoutExercises: [WorkoutExercise] = []
 
+    @Relationship(deleteRule: .nullify, inverse: \TemplateExercise.exercise)
+    var templateExercises: [TemplateExercise] = []
+
     init(
         name: String,
         muscleGroup: MuscleGroup,

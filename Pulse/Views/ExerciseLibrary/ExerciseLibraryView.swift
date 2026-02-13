@@ -3,18 +3,84 @@ import SwiftData
 
 struct ExerciseLibraryView: View {
     @Environment(\.modelContext) private var modelContext
+    @Query(sort: \Exercise.name) private var allExercises: [Exercise]
     @State private var viewModel: ExerciseLibraryViewModel?
     @State private var showingAddExercise = false
     @State private var selectedExercise: Exercise?
+    @State private var searchText = ""
+    @State private var selectedMuscleGroup: MuscleGroup?
+
+    private var filteredExercises: [Exercise] {
+        var result = allExercises
+
+        if let selectedMuscleGroup {
+            result = result.filter { $0.muscleGroup == selectedMuscleGroup }
+        }
+
+        if !searchText.isEmpty {
+            result = result.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+        }
+
+        return result
+    }
 
     var body: some View {
         NavigationStack {
-            Group {
-                if let viewModel {
-                    exerciseList(viewModel: viewModel)
-                } else {
-                    ProgressView()
+            VStack(spacing: 0) {
+                // Muscle group filter
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: AppTheme.Spacing.xs) {
+                        filterChip(title: "All", isSelected: selectedMuscleGroup == nil) {
+                            selectedMuscleGroup = nil
+                        }
+                        ForEach(MuscleGroup.allCases) { group in
+                            filterChip(
+                                title: group.displayName,
+                                isSelected: selectedMuscleGroup == group
+                            ) {
+                                selectedMuscleGroup = group
+                            }
+                        }
+                    }
+                    .padding(.horizontal, AppTheme.Layout.screenEdgePadding)
+                    .padding(.vertical, AppTheme.Spacing.xs)
                 }
+
+                List {
+                    ForEach(filteredExercises) { exercise in
+                        Button {
+                            selectedExercise = exercise
+                        } label: {
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text(exercise.name)
+                                        .font(.body)
+                                        .foregroundStyle(AppTheme.Colors.textPrimary)
+                                    Text(exercise.muscleGroup.displayName)
+                                        .font(.caption)
+                                        .foregroundStyle(AppTheme.Colors.textSecondary)
+                                }
+                                Spacer()
+                                if exercise.isCustom {
+                                    Text("Custom")
+                                        .font(.caption2)
+                                        .foregroundStyle(AppTheme.Colors.accent)
+                                }
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundStyle(AppTheme.Colors.textSecondary)
+                            }
+                        }
+                    }
+                    .onDelete { indexSet in
+                        for index in indexSet {
+                            let exercise = filteredExercises[index]
+                            viewModel?.deleteExercise(exercise)
+                        }
+                    }
+                }
+                .listStyle(.plain)
+                .searchable(text: $searchText, prompt: "Search exercises")
             }
             .navigationTitle("Exercises")
             .toolbar {
@@ -44,69 +110,6 @@ struct ExerciseLibraryView: View {
                 vm.seedExercisesIfNeeded()
                 viewModel = vm
             }
-        }
-    }
-
-    @ViewBuilder
-    private func exerciseList(viewModel: ExerciseLibraryViewModel) -> some View {
-        VStack(spacing: 0) {
-            // Muscle group filter
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: AppTheme.Spacing.xs) {
-                    filterChip(title: "All", isSelected: viewModel.selectedMuscleGroup == nil) {
-                        viewModel.selectedMuscleGroup = nil
-                    }
-                    ForEach(MuscleGroup.allCases) { group in
-                        filterChip(
-                            title: group.displayName,
-                            isSelected: viewModel.selectedMuscleGroup == group
-                        ) {
-                            viewModel.selectedMuscleGroup = group
-                        }
-                    }
-                }
-                .padding(.horizontal, AppTheme.Layout.screenEdgePadding)
-                .padding(.vertical, AppTheme.Spacing.xs)
-            }
-
-            List {
-                ForEach(viewModel.filteredExercises) { exercise in
-                    Button {
-                        selectedExercise = exercise
-                    } label: {
-                        HStack {
-                            VStack(alignment: .leading) {
-                                Text(exercise.name)
-                                    .font(.body)
-                                    .foregroundStyle(AppTheme.Colors.textPrimary)
-                                Text(exercise.muscleGroup.displayName)
-                                    .font(.caption)
-                                    .foregroundStyle(AppTheme.Colors.textSecondary)
-                            }
-                            Spacer()
-                            if exercise.isCustom {
-                                Text("Custom")
-                                    .font(.caption2)
-                                    .foregroundStyle(AppTheme.Colors.accent)
-                            }
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundStyle(AppTheme.Colors.textSecondary)
-                        }
-                    }
-                }
-                .onDelete { indexSet in
-                    for index in indexSet {
-                        let exercise = viewModel.filteredExercises[index]
-                        viewModel.deleteExercise(exercise)
-                    }
-                }
-            }
-            .listStyle(.plain)
-            .searchable(text: Binding(
-                get: { viewModel.searchText },
-                set: { viewModel.searchText = $0 }
-            ), prompt: "Search exercises")
         }
     }
 

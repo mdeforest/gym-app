@@ -27,6 +27,8 @@ struct PulseApp: App {
             WorkoutExercise.self,
             ExerciseSet.self,
             Exercise.self,
+            WorkoutTemplate.self,
+            TemplateExercise.self,
         ])
     }
 }

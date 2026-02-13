@@ -2,20 +2,80 @@ import SwiftUI
 import SwiftData
 
 struct AddExerciseView: View {
-    @Environment(\.modelContext) private var modelContext
+    @Query(sort: \Exercise.name) private var allExercises: [Exercise]
     @Environment(\.dismiss) private var dismiss
-    @State private var viewModel: ExerciseLibraryViewModel?
+
+    @State private var searchText = ""
+    @State private var selectedMuscleGroup: MuscleGroup?
 
     let onSelect: (Exercise) -> Void
 
+    private var filteredExercises: [Exercise] {
+        var result = allExercises
+
+        if let selectedMuscleGroup {
+            result = result.filter { $0.muscleGroup == selectedMuscleGroup }
+        }
+
+        if !searchText.isEmpty {
+            result = result.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+        }
+
+        return result
+    }
+
+    private var recentExercises: [Exercise] {
+        allExercises
+            .filter { $0.lastUsedDate != nil }
+            .sorted { ($0.lastUsedDate ?? .distantPast) > ($1.lastUsedDate ?? .distantPast) }
+            .prefix(5)
+            .map { $0 }
+    }
+
     var body: some View {
         NavigationStack {
-            Group {
-                if let viewModel {
-                    exerciseList(viewModel: viewModel)
-                } else {
-                    ProgressView()
+            VStack(spacing: 0) {
+                // Category filter tabs
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: AppTheme.Spacing.xs) {
+                        categoryTab(title: "All", isSelected: selectedMuscleGroup == nil) {
+                            selectedMuscleGroup = nil
+                        }
+                        ForEach(MuscleGroup.allCases) { group in
+                            categoryTab(
+                                title: group.displayName,
+                                isSelected: selectedMuscleGroup == group
+                            ) {
+                                selectedMuscleGroup = group
+                            }
+                        }
+                    }
+                    .padding(.horizontal, AppTheme.Layout.screenEdgePadding)
+                    .padding(.vertical, AppTheme.Spacing.xs)
                 }
+
+                List {
+                    // Recent exercises section
+                    if searchText.isEmpty && selectedMuscleGroup == nil {
+                        let recent = recentExercises
+                        if !recent.isEmpty {
+                            Section("Recent") {
+                                ForEach(recent) { exercise in
+                                    exerciseRow(exercise)
+                                }
+                            }
+                        }
+                    }
+
+                    // All exercises
+                    Section(selectedMuscleGroup?.displayName ?? "All Exercises") {
+                        ForEach(filteredExercises) { exercise in
+                            exerciseRow(exercise)
+                        }
+                    }
+                }
+                .listStyle(.plain)
+                .searchable(text: $searchText, prompt: "Search exercises")
             }
             .navigationTitle("Add Exercise")
             .navigationBarTitleDisplayMode(.inline)
@@ -25,63 +85,6 @@ struct AddExerciseView: View {
                 }
             }
             .background(AppTheme.Colors.background)
-        }
-        .onAppear {
-            if viewModel == nil {
-                let vm = ExerciseLibraryViewModel(modelContext: modelContext)
-                vm.seedExercisesIfNeeded()
-                viewModel = vm
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func exerciseList(viewModel: ExerciseLibraryViewModel) -> some View {
-        VStack(spacing: 0) {
-            // Category filter tabs
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: AppTheme.Spacing.xs) {
-                    categoryTab(title: "All", isSelected: viewModel.selectedMuscleGroup == nil) {
-                        viewModel.selectedMuscleGroup = nil
-                    }
-                    ForEach(MuscleGroup.allCases) { group in
-                        categoryTab(
-                            title: group.displayName,
-                            isSelected: viewModel.selectedMuscleGroup == group
-                        ) {
-                            viewModel.selectedMuscleGroup = group
-                        }
-                    }
-                }
-                .padding(.horizontal, AppTheme.Layout.screenEdgePadding)
-                .padding(.vertical, AppTheme.Spacing.xs)
-            }
-
-            List {
-                // Recent exercises section
-                if viewModel.searchText.isEmpty && viewModel.selectedMuscleGroup == nil {
-                    let recent = viewModel.recentExercises
-                    if !recent.isEmpty {
-                        Section("Recent") {
-                            ForEach(recent) { exercise in
-                                exerciseRow(exercise)
-                            }
-                        }
-                    }
-                }
-
-                // All exercises
-                Section(viewModel.selectedMuscleGroup?.displayName ?? "All Exercises") {
-                    ForEach(viewModel.filteredExercises) { exercise in
-                        exerciseRow(exercise)
-                    }
-                }
-            }
-            .listStyle(.plain)
-            .searchable(text: Binding(
-                get: { viewModel.searchText },
-                set: { viewModel.searchText = $0 }
-            ), prompt: "Search exercises")
         }
     }
 

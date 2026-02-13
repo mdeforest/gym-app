@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.4.0] - 02/13/26
+
+### Added
+- Workout template system — save, create, edit, and start workouts from reusable templates
+- `WorkoutTemplate` and `TemplateExercise` SwiftData models with full relationship support
+- `TemplateViewModel` with CRUD operations, create-from-workout, exercise reordering
+- Template card UI component with muscle group pills and exercise count
+- Templates tab in main navigation (4-tab layout)
+- Create template from completed workout in workout detail view
+- Start workout from template with pre-filled sets (uses template defaults, falls back to last session)
+- Comprehensive unit test suite — 89 tests across 14 suites covering all models and ViewModels
+- Claude skills for generating unit tests and UI tests
+
+### Changed
+- `ContentView` expanded from 3-tab to 4-tab layout with Templates tab
+- `AddExerciseView` and `ExerciseLibraryView` refactored for template integration
+- Updated `DataService` schema to include template models
+- Updated README, PROJECT_BRIEF, DESIGN, and FUTURE_FEATURES docs
+
 ## [0.3.0] - 02/10/26
 
 ### Added

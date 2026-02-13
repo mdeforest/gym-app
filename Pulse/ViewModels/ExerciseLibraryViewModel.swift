@@ -2,6 +2,7 @@ import Foundation
 import SwiftData
 import Observation
 
+@MainActor
 @Observable
 final class ExerciseLibraryViewModel {
     var exercises: [Exercise] = []
@@ -41,7 +42,12 @@ final class ExerciseLibraryViewModel {
         let descriptor = FetchDescriptor<Exercise>(
             sortBy: [SortDescriptor(\.name)]
         )
-        exercises = (try? modelContext.fetch(descriptor)) ?? []
+        do {
+            exercises = try modelContext.fetch(descriptor)
+        } catch {
+            print("[ExerciseLibraryViewModel] fetchExercises failed: \(error)")
+            exercises = []
+        }
     }
 
     func addCustomExercise(name: String, muscleGroup: MuscleGroup) {
@@ -60,7 +66,13 @@ final class ExerciseLibraryViewModel {
 
     func seedExercisesIfNeeded() {
         let descriptor = FetchDescriptor<Exercise>()
-        let count = (try? modelContext.fetchCount(descriptor)) ?? 0
+        let count: Int
+        do {
+            count = try modelContext.fetchCount(descriptor)
+        } catch {
+            print("[ExerciseLibraryViewModel] fetchCount failed: \(error)")
+            count = 0
+        }
         guard count == 0 else { return }
 
         for definition in ExerciseSeedData.exercises {

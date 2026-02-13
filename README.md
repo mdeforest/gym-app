@@ -1,13 +1,18 @@
-# Pulse
+<p align="center">
+  <img src="Pulse/Resources/Assets.xcassets/Logo.imageset/Logo.png" alt="Pulse" width="300">
+</p>
 
-A minimal, no-nonsense workout tracker for iOS. Log weight training and cardio sessions fast, track progressive overload, and review training history — all without the bloat of social features, paywalls, or unnecessary complexity.
+<p align="center">
+  A minimal, no-nonsense workout tracker for iOS. Log weight training and cardio sessions fast, track progressive overload, and review training history — all without the bloat of social features, paywalls, or unnecessary complexity.
+</p>
 
 ## Features
 
 - **Workout logging** — Start a session, add exercises, and log sets (weight, reps) with minimal taps
 - **Cardio logging** — Cardio exercises use dedicated time/distance inputs instead of weight/reps
+- **Workout templates** — Save named routines (e.g. "Push Day") with exercises, set counts, and optional weight/reps defaults. Create templates from scratch or save a completed workout as a template. Start a pre-populated workout from any template with one tap.
 - **Rest timer** — Auto-starts on set completion (configurable per exercise). Floating pill with countdown, expandable to full controls (+30s, -30s, Skip). Haptic + sound on completion; local notification when backgrounded. Timer continues counting in the background.
-- **Exercise library** — Pre-populated list of 51 common lifts categorized by muscle group, plus custom exercises
+- **Exercise library** — Pre-populated list of 52 common lifts categorized by muscle group, plus custom exercises
 - **Exercise detail panel** — Tap any exercise to view how-to instructions, primary muscles, rest timer config, and recent workout history
 - **Workout history** — Browse past workouts by date with full session details; auto-navigates to detail after finishing a workout. Only completed sets are saved.
 - **Edit completed workouts** — Tap Edit on any past workout to change start/end time, add/remove sets, modify weight/reps, or update cardio inputs
@@ -39,18 +44,21 @@ A minimal, no-nonsense workout tracker for iOS. Log weight training and cardio s
 Pulse/
 ├── App/
 │   ├── PulseApp.swift              # App entry point + SwiftData ModelContainer
-│   └── ContentView.swift         # 3-tab layout (Workout, History, Exercises)
+│   └── ContentView.swift         # 4-tab layout (Workout, History, Exercises, Templates)
 ├── Models/
 │   ├── MuscleGroup.swift         # Muscle group enum (7 groups)
 │   ├── Exercise.swift            # Exercise definition (name, muscle group, custom flag)
 │   ├── Workout.swift             # Workout session (start/end date, exercises)
 │   ├── WorkoutExercise.swift     # Exercise within a workout (+ cardio fields)
-│   └── ExerciseSet.swift         # Individual set (weight, reps, completion)
+│   ├── ExerciseSet.swift         # Individual set (weight, reps, completion)
+│   ├── WorkoutTemplate.swift     # Saved workout routine (name, exercises)
+│   └── TemplateExercise.swift    # Exercise within a template (set count, defaults)
 ├── ViewModels/
 │   ├── WorkoutViewModel.swift
 │   ├── ExerciseLibraryViewModel.swift
 │   ├── ExerciseDetailViewModel.swift
-│   └── HistoryViewModel.swift
+│   ├── HistoryViewModel.swift
+│   └── TemplateViewModel.swift
 ├── Views/
 │   ├── Workout/
 │   │   ├── WorkoutView.swift
@@ -63,6 +71,10 @@ Pulse/
 │   ├── History/
 │   │   ├── HistoryView.swift
 │   │   └── WorkoutDetailView.swift
+│   ├── Templates/
+│   │   ├── TemplatesView.swift
+│   │   ├── CreateTemplateView.swift
+│   │   └── TemplateDetailView.swift
 │   └── Components/               # Reusable UI components
 │       ├── PrimaryButton.swift
 │       ├── SecondaryButton.swift
@@ -79,16 +91,17 @@ Pulse/
 │       ├── CircularActionButton.swift
 │       ├── CircularProgressRing.swift
 │       ├── RestTimerView.swift
+│       ├── TemplateCardView.swift
 │       └── SplashView.swift
 ├── Theme/
 │   └── AppTheme.swift            # Design tokens (colors, spacing, layout)
 ├── Services/
 │   ├── DataService.swift         # ModelContainer factory
-│   ├── ExerciseSeedData.swift    # 51 pre-populated exercises
+│   ├── ExerciseSeedData.swift    # 52 pre-populated exercises
 │   └── ExerciseInstructions.swift # How-to instructions for all exercises
 └── Resources/
     ├── Assets.xcassets           # AppIcon, Logo image, AccentColor
-    └── exercises.json          # Exercise seed data (51 exercises with rest defaults)
+    └── exercises.json          # Exercise seed data (52 exercises with rest defaults)
 PulseTests/
 └── PulseTests.swift             # Unit tests (Swift Testing)
 PulseUITests/

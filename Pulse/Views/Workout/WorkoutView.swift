@@ -7,7 +7,9 @@ struct WorkoutView: View {
     @State private var contentVisible = false
 
     var splashFinished: Bool = true
+    @Binding var pendingTemplate: WorkoutTemplate?
     var onWorkoutFinished: ((Workout) -> Void)?
+    var onBrowseTemplates: (() -> Void)?
 
     var body: some View {
         NavigationStack {
@@ -33,30 +35,38 @@ struct WorkoutView: View {
                 }
             }
         }
+        .onChange(of: pendingTemplate) { _, template in
+            if let template {
+                viewModel?.startWorkout(from: template)
+                pendingTemplate = nil
+            }
+        }
     }
 
     private var startWorkoutView: some View {
         VStack {
             Spacer()
-            VStack(spacing: AppTheme.Spacing.md) {
-                Image("Logo")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 180)
+            VStack(spacing: AppTheme.Spacing.xxl) {
+                VStack(spacing: AppTheme.Spacing.sm) {
+                    Image("Logo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 180)
 
-                Text("Ready to Train?")
-                    .font(.title2.bold())
-                    .foregroundStyle(AppTheme.Colors.textPrimary)
-                    .opacity(contentVisible ? 1 : 0)
+                    Text("Ready to Train?")
+                        .font(.title2.bold())
+                        .foregroundStyle(AppTheme.Colors.textPrimary)
+                        .opacity(contentVisible ? 1 : 0)
+                }
 
-                Text("Start a workout to begin logging your exercises and sets.")
-                    .font(.body)
-                    .foregroundStyle(AppTheme.Colors.textSecondary)
-                    .multilineTextAlignment(.center)
-                    .opacity(contentVisible ? 1 : 0)
+                VStack(spacing: AppTheme.Spacing.sm) {
+                    PrimaryButton(title: "Start Empty Workout") {
+                        viewModel?.startWorkout()
+                    }
 
-                PrimaryButton(title: "Start Workout") {
-                    viewModel?.startWorkout()
+                    SecondaryButton(title: "Browse Templates") {
+                        onBrowseTemplates?()
+                    }
                 }
                 .padding(.horizontal, AppTheme.Spacing.xxl)
                 .opacity(contentVisible ? 1 : 0)
@@ -68,6 +78,13 @@ struct WorkoutView: View {
 }
 
 #Preview {
-    WorkoutView()
-        .modelContainer(for: [Workout.self, WorkoutExercise.self, ExerciseSet.self, Exercise.self], inMemory: true)
+    WorkoutView(pendingTemplate: .constant(nil))
+        .modelContainer(for: [
+            Workout.self,
+            WorkoutExercise.self,
+            ExerciseSet.self,
+            Exercise.self,
+            WorkoutTemplate.self,
+            TemplateExercise.self,
+        ], inMemory: true)
 }

@@ -101,7 +101,8 @@ Dark mode by default. Bold, premium aesthetic with warm orange accent. Colors fo
 | **Rest Timer Sheet (Expanded)** | Bottom sheet overlay when collapsed pill is tapped. `#1C1C1E` surface background, 20pt corner radius (top corners only), drag indicator at top. Contains: large circular progress ring (160pt diameter, 6pt stroke, accent-to-`#E8552B` gradient on `#2C2C2E` track), countdown in center (Hero Display 40pt bold), "REST" stat label (13pt medium, uppercase), row of 3 Circular Action Buttons: −30s (secondary), +30s (secondary), Skip (destructive). Exercise name context label below (subheadline, secondary text). | `Views/Components/RestTimerView.swift` | Done |
 | **Circular Progress Ring** | Configurable size/stroke. Track: `#2C2C2E` stroke. Fill: accent-to-`#E8552B` linear gradient, round line cap, −90° rotation. Ring drains (unfills) as time decreases. Used in rest timer at 28pt (pill) and 160pt (expanded sheet). | `Views/Components/CircularProgressRing.swift` | Done |
 | **Rest Time Picker** | Horizontal `ScrollView` of capsule pill buttons: Off, 30s, 60s, 90s, 2m, 3m. Selected: `#FF6A3D` fill, white text. Unselected: `#2C2C2E` fill, secondary text. Used in Exercise Detail and inline during active workout (via tappable rest time badge). | Inline in views | Done |
-| **Tab Bar**            | Standard iOS tab bar, 3 tabs: Workout (`dumbbell.fill`), History (`clock.fill`), Exercises (`list.bullet`). True black background, `#FF6A3D` tint. | `App/ContentView.swift` | Needs update |
+| **Template Card**      | Surface (`#1C1C1E`) background, 16pt corner radius, 20pt padding. Shows template name (headline, bold), exercise count (subheadline, secondary), and muscle group pills (capsule badges with accent text on tertiary background). Tappable to view detail. Context menu: View Details, Start Workout, Edit, Delete. | `Views/Components/TemplateCardView.swift` | Done |
+| **Tab Bar**            | Standard iOS tab bar, 4 tabs: Workout (`dumbbell.fill`), History (`clock.fill`), Exercises (`list.bullet`), Templates (`doc.on.doc`). True black background, `#FF6A3D` tint. | `App/ContentView.swift` | Done |
 | **Toast**              | Floating pill at bottom of screen above tab bar, auto-dismisses after 3 seconds. Dark surface background with white text. Slide-up animation. Pill-shaped corners. | — | Not yet built |
 | **Section Header**     | Title 2 weight (24pt bold), left-aligned, 32pt top margin, 8pt bottom margin               | Used inline in views | Needs update |
 | **Empty State**        | Centered text (secondary color) with SF Symbol icon above (semibold weight), and a primary action button below (pill-shaped). On the Workout tab, the Logo image (`Image("Logo")`, 180pt width) replaces the SF Symbol. | `Views/Components/EmptyStateView.swift` | Done |
@@ -130,10 +131,9 @@ All design tokens are centralized in `Theme/AppTheme.swift`:
 4. Splash overlay is removed once the transition completes (~3.4s total)
 
 ### Start Workout
-1. User taps the **Workout** tab — the Pulse logo is displayed above "Ready to Train?" with a "Start Workout" button
-2. Taps **Start Workout** button (pill-shaped primary button, prominent)
-3. Empty session created with current timestamp
-4. User taps **Add Exercise** to begin
+1. User taps the **Workout** tab — the Pulse logo is displayed above "Ready to Train?" with two buttons: **Start Empty Workout** and **Browse Templates**
+2. Taps **Start Empty Workout** (primary button) → empty session created with current timestamp, user taps **Add Exercise** to begin
+3. OR taps **Browse Templates** → switches to the Templates tab to pick a saved routine
 
 ### Add Exercise to Workout
 1. Full-screen modal slides up
@@ -205,6 +205,22 @@ All design tokens are centralized in `Theme/AppTheme.swift`:
    - **Remove exercise**: X button appears on each exercise header
    - **Add exercise**: **+ Add Exercise** button appears at the bottom, opening the standard exercise picker sheet
 4. Taps **Done** to apply date changes and exit edit mode. Set and exercise edits are saved immediately via SwiftData.
+
+### Workout Templates
+1. User taps the **Templates** tab — shows a list of saved templates (sorted by last used, then created date), or an empty state with a "Create Template" button
+2. Tap **+** in the toolbar or the empty state button → **Create Template** sheet appears
+3. Enter a template name and tap **+ Add Exercise** to add exercises from the exercise library
+4. For each exercise: configure set count, and optionally set default weight (lbs) and reps. Cardio exercises show duration (min) and distance (km) inputs instead.
+5. Tap **Save** to save the template; tap **Cancel** to discard
+6. Tap a template card → **Template Detail** sheet shows exercise list with summaries (e.g. "3 sets · 135 lbs · 10 reps") plus **Start Workout** and **Edit/Delete** actions
+7. Tap **Start Workout** → switches to Workout tab, creates a new workout pre-populated with the template's exercises and sets. Weight/reps use template defaults, falling back to last-session values. Template's `lastUsedDate` is updated.
+8. Long-press a template card → context menu: View Details, Start Workout, Edit, Delete
+
+### Save Workout as Template
+1. User opens a completed workout from the **History** tab
+2. Taps the **Save as Template** icon (`rectangle.stack.badge.plus`) in the toolbar
+3. **Create Template** sheet appears pre-populated with the workout's exercises, completed set counts, and last-set weight/reps
+4. User names the template and optionally adjusts defaults, then taps **Save**
 
 ### Error States
 - **Failed to save**: Toast appears at bottom — "Couldn't save. Try again." with a retry action

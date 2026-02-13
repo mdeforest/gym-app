@@ -23,7 +23,10 @@
   Visual summary of training days and rest days.
 
 - [ ] **Exercise Database**
-   Pull exercises from an available 3rd party source, but still allow custom exercises.
+  Pull exercises from an available 3rd party source, but still allow custom exercises.
+
+- [ ] **Training Partner Mode**
+  Share workouts with friends, competitions, workout together, etc.
 
 ---
 

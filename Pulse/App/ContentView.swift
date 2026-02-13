@@ -1,18 +1,26 @@
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
+    @Environment(\.modelContext) private var modelContext
     var splashFinished: Bool = true
 
     @State private var selectedTab = 0
     @State private var completedWorkout: Workout?
+    @State private var pendingTemplate: WorkoutTemplate?
+    @State private var hasSeedRun = false
 
     var body: some View {
         TabView(selection: $selectedTab) {
             WorkoutView(
                 splashFinished: splashFinished,
+                pendingTemplate: $pendingTemplate,
                 onWorkoutFinished: { workout in
                     completedWorkout = workout
                     selectedTab = 1
+                },
+                onBrowseTemplates: {
+                    selectedTab = 3
                 }
             )
             .tabItem {
@@ -31,8 +39,24 @@ struct ContentView: View {
                     Label("Exercises", systemImage: "list.bullet")
                 }
                 .tag(2)
+
+            TemplatesView { template in
+                pendingTemplate = template
+                selectedTab = 0
+            }
+            .tabItem {
+                Label("Templates", systemImage: "doc.on.doc")
+            }
+            .tag(3)
         }
         .tint(AppTheme.Colors.accent)
+        .onAppear {
+            if !hasSeedRun {
+                hasSeedRun = true
+                let vm = ExerciseLibraryViewModel(modelContext: modelContext)
+                vm.seedExercisesIfNeeded()
+            }
+        }
     }
 }
 
@@ -43,5 +67,7 @@ struct ContentView: View {
             WorkoutExercise.self,
             ExerciseSet.self,
             Exercise.self,
+            WorkoutTemplate.self,
+            TemplateExercise.self,
         ], inMemory: true)
 }

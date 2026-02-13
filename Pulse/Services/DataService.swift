@@ -9,6 +9,8 @@ enum DataService {
             WorkoutExercise.self,
             ExerciseSet.self,
             Exercise.self,
+            WorkoutTemplate.self,
+            TemplateExercise.self,
         ])
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         return try ModelContainer(for: schema, configurations: [configuration])
@@ -21,6 +23,8 @@ enum DataService {
             WorkoutExercise.self,
             ExerciseSet.self,
             Exercise.self,
+            WorkoutTemplate.self,
+            TemplateExercise.self,
         ])
         let configuration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         return try ModelContainer(for: schema, configurations: [configuration])
