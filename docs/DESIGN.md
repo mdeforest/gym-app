@@ -26,6 +26,9 @@ Dark mode by default. Bold, premium aesthetic with warm orange accent. Colors fo
 | Warning                 | `#FFB340`     | Caution states                                               |
 | Chart Active            | `#FF6A3D`     | Active/current bars in charts                                |
 | Chart Inactive          | `#3D2A1F`     | Muted warm brown for inactive/past bars in charts            |
+| Chart Purple            | `#5E5CE6`     | Arms segment in muscle group donut chart                     |
+| Chart Blue              | `#64D2FF`     | Legs segment in muscle group donut chart                     |
+| Chart Pink              | `#FF6482`     | Core segment in muscle group donut chart                     |
 
 > **Note on Accent vs. Destructive**: `#FF6A3D` (warm coral-orange) and `#FF453A` (cooler red) are visually distinct but share a warm hue family. Destructive actions should always include contextual cues (trash icons, alert dialogs, "Delete"/"Discard" labels) beyond color alone.
 
@@ -103,10 +106,14 @@ Dark mode by default. Bold, premium aesthetic with warm orange accent. Colors fo
 | **Rest Time Picker** | Horizontal `ScrollView` of capsule pill buttons: Off, 30s, 60s, 90s, 2m, 3m. Selected: `#FF6A3D` fill, white text. Unselected: `#2C2C2E` fill, secondary text. Used in Exercise Detail and inline during active workout (via tappable rest time badge). | Inline in views | Done |
 | **Template Card**      | Surface (`#1C1C1E`) background, 16pt corner radius, 20pt padding. Shows template name (headline, bold), exercise count (subheadline, secondary), and muscle group pills (capsule badges with accent text on tertiary background). Tappable to view detail. Context menu: View Details, Start Workout, Edit, Delete. | `Views/Components/TemplateCardView.swift` | Done |
 | **Tab Bar**            | Standard iOS tab bar, 4 tabs: Workout (`dumbbell.fill`), History (`clock.fill`), Exercises (`list.bullet`), Templates (`doc.on.doc`). True black background, `#FF6A3D` tint. | `App/ContentView.swift` | Done |
+| **Workout Frequency Chart** | Bar chart (Swift Charts `BarMark`) showing weekly workout count over time. Gradient bars (accent → `#E8552B`). X-axis: week dates. Y-axis: workout count. Adaptive x-axis stride based on data density. `#1C1C1E` card surface, 16pt corner radius. | `Views/History/Charts/WorkoutFrequencyChart.swift` | Done |
+| **Muscle Group Chart** | Donut chart (Swift Charts `SectorMark`) showing exercise distribution by muscle group. Inner radius 0.6, 2pt angular inset. Per-group colors: Chest=accent, Back=success, Shoulders=warning, Arms=chartPurple, Legs=chartBlue, Core=chartPink, Cardio=textSecondary. 2-column legend below chart with color dot, name, and percentage. | `Views/History/Charts/MuscleGroupChart.swift` | Done |
+| **Strength Progression Chart** | Area + line chart (Swift Charts `AreaMark`/`LineMark`/`PointMark`) showing max weight over time for a selected exercise. Catmull-Rom interpolation. Gradient fill (accent at 30% → transparent). When fewer than 2 data points, shows best-set fallback or "no data" message. | `Views/History/Charts/StrengthProgressionChart.swift` | Done |
+| **Time Range Filter** | Horizontal `ScrollView` of `PillButton`s: 1M, 3M, 6M, 1Y, All. Selected: primary style. Unselected: secondary style. Used at the top of the progress charts view. | Inline in `Views/History/ProgressView.swift` | Done |
 | **Toast**              | Floating pill at bottom of screen above tab bar, auto-dismisses after 3 seconds. Dark surface background with white text. Slide-up animation. Pill-shaped corners. | — | Not yet built |
 | **Section Header**     | Title 2 weight (24pt bold), left-aligned, 32pt top margin, 8pt bottom margin               | Used inline in views | Needs update |
 | **Empty State**        | Centered text (secondary color) with SF Symbol icon above (semibold weight), and a primary action button below (pill-shaped). On the Workout tab, the Logo image (`Image("Logo")`, 180pt width) replaces the SF Symbol. | `Views/Components/EmptyStateView.swift` | Done |
-| **Exercise Detail**    | Full-height bottom sheet (`.large` detent) with drag indicator. Header shows muscle group badge (`#FF6A3D` capsule fill) + custom tag. How-to section: description, primary muscles (in accent color), numbered steps. Rest Timer section: "Rest Timer" headline, subtitle, horizontal Rest Time Picker pills. History section: last 5 sessions with sets/reps/weight (or time/distance for cardio). | `Views/ExerciseLibrary/ExerciseDetailView.swift` | Done |
+| **Exercise Detail**    | Full-height bottom sheet (`.large` detent) with drag indicator. Toolbar: star button (top-left, strength exercises only, max 10 favorites) and "Done" button. Header shows muscle group badge (`#FF6A3D` capsule fill) + custom tag. How-to section: description, primary muscles (in accent color), numbered steps. Rest Timer section: "Rest Timer" headline, subtitle, horizontal Rest Time Picker pills. History section: last 5 sessions with sets/reps/weight (or time/distance for cardio). | `Views/ExerciseLibrary/ExerciseDetailView.swift` | Done |
 | **Cardio Inputs**      | Two-row layout inside workout exercise section: clock icon + minutes field, run icon + km field. Replaces weight/reps for exercises flagged as cardio. | Inline in `ActiveWorkoutView.swift` | Done |
 | **Splash Screen**      | Full-screen overlay on app launch. True black background. Logo (`Image("Logo")`) starts centered at 320pt width, fades in over 1s, holds for ~1.5s. Then background fades to transparent while logo shrinks to 180pt and slides up ~60pt (spring animation, 0.9s). Logo fades out last, revealing the Workout tab with its own logo in place. Text and button on Workout tab fade in simultaneously. Total duration ~3.4s. | `Views/Components/SplashView.swift` | Done |
 
@@ -114,7 +121,7 @@ Dark mode by default. Bold, premium aesthetic with warm orange accent. Colors fo
 
 All design tokens are centralized in `Theme/AppTheme.swift`:
 
-- `AppTheme.Colors` — accent, accentMuted, background, surface, surfaceTertiary, featuredSurface, featuredGradientEnd, textPrimary, textSecondary, destructive, success, warning, chartActive, chartInactive
+- `AppTheme.Colors` — accent, accentMuted, background, surface, surfaceTertiary, featuredSurface, featuredGradientEnd, textPrimary, textSecondary, destructive, success, warning, chartActive, chartInactive, chartPurple, chartBlue, chartPink
 - `AppTheme.Spacing` — xxs (4), xs (8), sm (12), md (16), lg (20), xl (24), xxl (32), xxxl (40)
 - `AppTheme.Layout` — cornerRadius (16), featuredCardRadius (20), pillButtonRadius (26), buttonHeight (52), circularButtonSize (64), minTouchTarget (44), cardPadding (20), cardSpacing (12), screenEdgePadding (20), statCardMinHeight (100), statGridSpacing (12), sectionSpacing (32)
 
@@ -183,16 +190,26 @@ All design tokens are centralized in `Theme/AppTheme.swift`:
 ### View Exercise Detail
 1. User taps any exercise in the **Exercises** tab
 2. A full-height bottom sheet appears (`.large` detent) with drag indicator
-3. **Header**: Muscle group badge (orange accent capsule) and optional "Custom" tag
-4. **How to Perform**: Description, primary muscles (in accent color), and numbered step-by-step instructions
-5. **Rest Timer**: Configurable rest duration with pill button picker (Off, 30s, 60s, 90s, 2m, 3m)
-6. **Recent History**: Last 5 sessions showing date and sets (weight × reps), or time/distance for cardio
-7. Custom exercises show "No instructions available" in the how-to section
+3. **Toolbar**: Star button (top-left) to toggle favorite status on strength exercises (max 10 favorites); "Done" button (top-right)
+4. **Header**: Muscle group badge (orange accent capsule) and optional "Custom" tag
+5. **How to Perform**: Description, primary muscles (in accent color), and numbered step-by-step instructions
+6. **Rest Timer**: Configurable rest duration with pill button picker (Off, 30s, 60s, 90s, 2m, 3m)
+7. **Recent History**: Last 5 sessions showing date and sets (weight × reps), or time/distance for cardio
+8. Custom exercises show "No instructions available" in the how-to section
 
 ### View History
-1. User taps the **History** tab
-2. Workouts listed by date (most recent first), showing date, duration, and exercise count
-3. Tap a workout → detail view with **Workout Summary Header** (stat grid) followed by all exercises, sets, weights, and reps
+1. User taps the **History** tab — a segmented control at the top toggles between **Workouts** and **Progress**
+2. **Workouts segment**: Workouts listed by date (most recent first), showing date, duration, and exercise count. Tap a workout → detail view with **Workout Summary Header** (stat grid) followed by all exercises, sets, weights, and reps
+3. **Progress segment**: Shows the Progress Charts view (see below)
+
+### View Progress Charts
+1. User switches to the **Progress** segment in the History tab
+2. **Time range filter** — horizontal pill buttons (1M, 3M, 6M, 1Y, All) filter all data below
+3. **Summary stats** — Stat Grid with 4 cards: workouts this month (Featured Stat Card), total volume lifted, day streak, and personal records
+4. **Workout Frequency chart** — bar chart showing weekly workout count over the selected time range, with gradient accent bars
+5. **Muscle Group chart** — donut chart showing exercise distribution by muscle group with color-coded legend
+6. **Strength Progression chart** — line/area chart tracking max weight over time for a selected exercise. Exercise picker (horizontal pill buttons) above the chart; favorites are shown first (up to 10), otherwise all used exercises. When fewer than 2 sessions exist, shows a single "best set" stat or "no data" message
+7. Empty state shown when no completed workouts exist yet
 
 ### Edit Completed Workout
 1. User opens a workout from the **History** tab

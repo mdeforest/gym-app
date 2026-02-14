@@ -57,6 +57,16 @@ final class ExerciseLibraryViewModel {
         fetchExercises()
     }
 
+    var favoriteCount: Int {
+        exercises.filter(\.isFavorite).count
+    }
+
+    func toggleFavorite(_ exercise: Exercise) {
+        if !exercise.isFavorite && favoriteCount >= 10 { return }
+        exercise.isFavorite.toggle()
+        save()
+    }
+
     func deleteExercise(_ exercise: Exercise) {
         guard exercise.isCustom else { return }
         modelContext.delete(exercise)

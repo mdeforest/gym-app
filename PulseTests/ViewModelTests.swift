@@ -617,6 +617,62 @@ struct ExerciseLibraryViewModelTests {
         vm.seedExercisesIfNeeded()
         #expect(!vm.exercises.isEmpty)
     }
+
+    // MARK: Favorites
+
+    @Test func toggleFavoriteOnAndOff() {
+        let context = makeFreshContext()
+        let vm = ExerciseLibraryViewModel(modelContext: context)
+
+        let exercise = Exercise(name: "Bench Press", muscleGroup: .chest)
+        context.insert(exercise)
+        vm.exercises = [exercise]
+
+        #expect(!exercise.isFavorite)
+        vm.toggleFavorite(exercise)
+        #expect(exercise.isFavorite)
+        vm.toggleFavorite(exercise)
+        #expect(!exercise.isFavorite)
+    }
+
+    @Test func toggleFavoriteRespectsLimit() {
+        let context = makeFreshContext()
+        let vm = ExerciseLibraryViewModel(modelContext: context)
+
+        var exercises: [Exercise] = []
+        for i in 0..<11 {
+            let e = Exercise(name: "Exercise \(i)", muscleGroup: .chest)
+            e.isFavorite = i < 10
+            context.insert(e)
+            exercises.append(e)
+        }
+        vm.exercises = exercises
+
+        #expect(vm.favoriteCount == 10)
+
+        let unfavorited = exercises[10]
+        vm.toggleFavorite(unfavorited)
+        #expect(!unfavorited.isFavorite)
+        #expect(vm.favoriteCount == 10)
+    }
+
+    @Test func toggleFavoriteAllowsUnfavoriteWhenAtLimit() {
+        let context = makeFreshContext()
+        let vm = ExerciseLibraryViewModel(modelContext: context)
+
+        var exercises: [Exercise] = []
+        for i in 0..<10 {
+            let e = Exercise(name: "Exercise \(i)", muscleGroup: .chest)
+            e.isFavorite = true
+            context.insert(e)
+            exercises.append(e)
+        }
+        vm.exercises = exercises
+
+        vm.toggleFavorite(exercises[0])
+        #expect(!exercises[0].isFavorite)
+        #expect(vm.favoriteCount == 9)
+    }
 }
 
 // MARK: - TemplateViewModel Tests

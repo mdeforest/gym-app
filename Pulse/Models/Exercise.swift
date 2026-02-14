@@ -12,6 +12,7 @@ final class Exercise {
     var instructions: String
     var lastUsedDate: Date?
     var defaultRestSeconds: Int?
+    var isFavorite: Bool = false
 
     @Relationship(deleteRule: .cascade, inverse: \WorkoutExercise.exercise)
     var workoutExercises: [WorkoutExercise] = []

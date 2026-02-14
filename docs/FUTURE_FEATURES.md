@@ -5,21 +5,20 @@
 
 ---
 
+## ✅ Delivered
+
+- [x] **Workout templates** — Save and reuse named routines with exercises, set counts, and defaults
+- [x] **Rest timer** — Per-exercise configurable countdown with floating pill, haptics, and background notifications
+- [x] **Progress charts** — Workout frequency, muscle group split, and strength progression charts with time range filtering and summary stats
+
+---
+
 ## 💡 Feature Ideas
 
-- [ ] **Workout templates**  
-  Save a predefined set of exercises as a reusable routine.
-
-- [ ] **Rest timer**  
-  Optional countdown between sets with notification and vibration.
-
-- [ ] **Progress charts**  
-  Visualize volume, PRs, or muscle group activity over time.
-
-- [ ] **Bodyweight tracking**  
+- [ ] **Bodyweight tracking**
   Track weight or measurements weekly; optional sync with HealthKit.
 
-- [ ] **Calendar view**  
+- [ ] **Calendar view**
   Visual summary of training days and rest days.
 
 - [ ] **Exercise Database**
@@ -27,6 +26,12 @@
 
 - [ ] **Training Partner Mode**
   Share workouts with friends, competitions, workout together, etc.
+
+- [ ] **Integration with Apple Health**
+  Integrate with Apple Health to add workouts, and use other health stats alongside workouts.
+
+- [ ] **Data export**
+  Export workout history as CSV or JSON for backup or analysis in external tools.
 
 ---
 

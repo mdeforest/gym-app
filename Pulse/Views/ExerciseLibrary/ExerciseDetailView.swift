@@ -20,6 +20,17 @@ struct ExerciseDetailView: View {
             .navigationTitle(exercise.name)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                if !exercise.isCardio {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button {
+                            exercise.isFavorite.toggle()
+                            try? modelContext.save()
+                        } label: {
+                            Image(systemName: exercise.isFavorite ? "star.fill" : "star")
+                                .foregroundStyle(exercise.isFavorite ? AppTheme.Colors.accent : AppTheme.Colors.textSecondary)
+                        }
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { dismiss() }
                 }

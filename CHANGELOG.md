@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.5.0] - 02/14/26
+
+### Added
+- Progress charts & analytics — segmented "Progress" view within the History tab
+- Workout frequency bar chart (weekly count over time, gradient accent bars)
+- Muscle group donut chart with color-coded legend (7 groups)
+- Strength progression line/area chart with per-exercise max weight over time
+- Summary stat cards: workouts this month, total volume, day streak, personal records
+- Time range filter (1M, 3M, 6M, 1Y, All) for all progress data
+- Exercise favorites — star up to 10 strength exercises in library or detail panel
+- Favorites prioritized in progress charts exercise picker
+- `ProgressViewModel` with volume formatting, streak calculation, PR detection
+- 3 new chart color tokens: chartPurple, chartBlue, chartPink
+- Comprehensive `ProgressViewModelTests` (20 tests) and favorites unit tests
+
+### Changed
+- History tab now uses segmented control (Workouts | Progress)
+- Exercise model gains `isFavorite` property
+- ExerciseLibraryViewModel gains `toggleFavorite` with 10-favorite limit
+- ExerciseDetailView toolbar now includes star button for favorites
+- ExerciseLibraryView rows now show star toggle for strength exercises
+- Updated README, PROJECT_BRIEF, DESIGN, and FUTURE_FEATURES docs
+- UI test fix for tab bar button matching
+
 ## [0.4.0] - 02/13/26
 
 ### Added

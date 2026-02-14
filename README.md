@@ -13,7 +13,9 @@
 - **Workout templates** — Save named routines (e.g. "Push Day") with exercises, set counts, and optional weight/reps defaults. Create templates from scratch or save a completed workout as a template. Start a pre-populated workout from any template with one tap.
 - **Rest timer** — Auto-starts on set completion (configurable per exercise). Floating pill with countdown, expandable to full controls (+30s, -30s, Skip). Haptic + sound on completion; local notification when backgrounded. Timer continues counting in the background.
 - **Exercise library** — Pre-populated list of 52 common lifts categorized by muscle group, plus custom exercises
+- **Exercise favorites** — Star up to 10 exercises in the library or detail panel; favorites are prioritized in progress charts
 - **Exercise detail panel** — Tap any exercise to view how-to instructions, primary muscles, rest timer config, and recent workout history
+- **Progress charts** — Segmented "Progress" view in History with workout frequency (bar chart), muscle group split (donut chart), and per-exercise strength progression (line chart). Filter by time range (1M, 3M, 6M, 1Y, All). Summary stats: workouts this month, total volume, day streak, and personal records.
 - **Workout history** — Browse past workouts by date with full session details; auto-navigates to detail after finishing a workout. Only completed sets are saved.
 - **Edit completed workouts** — Tap Edit on any past workout to change start/end time, add/remove sets, modify weight/reps, or update cardio inputs
 - **Last-session reference** — Sets are pre-filled with last session's weight/reps for easy progressive overload tracking
@@ -34,6 +36,7 @@
 | Platform       | iOS 17+                   |
 | Language       | Swift 6                   |
 | UI Framework   | SwiftUI                   |
+| Charts         | Swift Charts              |
 | Persistence    | SwiftData                 |
 | Architecture   | MVVM                      |
 | Project Gen    | XcodeGen                  |
@@ -58,6 +61,7 @@ Pulse/
 │   ├── ExerciseLibraryViewModel.swift
 │   ├── ExerciseDetailViewModel.swift
 │   ├── HistoryViewModel.swift
+│   ├── ProgressViewModel.swift
 │   └── TemplateViewModel.swift
 ├── Views/
 │   ├── Workout/
@@ -70,7 +74,12 @@ Pulse/
 │   │   └── AddCustomExerciseView.swift
 │   ├── History/
 │   │   ├── HistoryView.swift
-│   │   └── WorkoutDetailView.swift
+│   │   ├── ProgressView.swift
+│   │   ├── WorkoutDetailView.swift
+│   │   └── Charts/
+│   │       ├── WorkoutFrequencyChart.swift
+│   │       ├── MuscleGroupChart.swift
+│   │       └── StrengthProgressionChart.swift
 │   ├── Templates/
 │   │   ├── TemplatesView.swift
 │   │   ├── CreateTemplateView.swift
@@ -103,7 +112,8 @@ Pulse/
     ├── Assets.xcassets           # AppIcon, Logo image, AccentColor
     └── exercises.json          # Exercise seed data (52 exercises with rest defaults)
 PulseTests/
-└── PulseTests.swift             # Unit tests (Swift Testing)
+├── ViewModelTests.swift         # Unit tests (Swift Testing)
+└── ProgressViewModelTests.swift # Progress analytics tests
 PulseUITests/
 └── PulseUITests.swift           # UI tests (XCTest)
 project.yml                       # XcodeGen project configuration

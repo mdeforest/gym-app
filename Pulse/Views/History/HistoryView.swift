@@ -6,6 +6,12 @@ struct HistoryView: View {
     @State private var viewModel: HistoryViewModel?
     @Binding var navigateToWorkout: Workout?
     @State private var navigationPath = NavigationPath()
+    @State private var selectedSegment: HistorySegment = .workouts
+
+    enum HistorySegment: String, CaseIterable {
+        case workouts = "Workouts"
+        case progress = "Progress"
+    }
 
     init(navigateToWorkout: Binding<Workout?> = .constant(nil)) {
         _navigateToWorkout = navigateToWorkout
@@ -13,16 +19,33 @@ struct HistoryView: View {
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            Group {
-                if let viewModel {
-                    if viewModel.workouts.isEmpty {
-                        emptyState
-                    } else {
-                        workoutList(viewModel: viewModel)
+            VStack(spacing: 0) {
+                Picker("View", selection: $selectedSegment) {
+                    ForEach(HistorySegment.allCases, id: \.self) { segment in
+                        Text(segment.rawValue).tag(segment)
                     }
-                } else {
-                    ProgressView()
                 }
+                .pickerStyle(.segmented)
+                .padding(.horizontal, AppTheme.Layout.screenEdgePadding)
+                .padding(.bottom, AppTheme.Spacing.sm)
+
+                Group {
+                    switch selectedSegment {
+                    case .workouts:
+                        if let viewModel {
+                            if viewModel.workouts.isEmpty {
+                                emptyState
+                            } else {
+                                workoutList(viewModel: viewModel)
+                            }
+                        } else {
+                            SwiftUI.ProgressView()
+                        }
+                    case .progress:
+                        ProgressChartsView()
+                    }
+                }
+                .frame(maxHeight: .infinity)
             }
             .navigationTitle("History")
             .navigationDestination(for: Workout.self) { workout in
@@ -41,6 +64,7 @@ struct HistoryView: View {
         .onChange(of: navigateToWorkout) { _, workout in
             if let workout {
                 viewModel?.fetchWorkouts()
+                selectedSegment = .workouts
                 navigationPath.append(workout)
                 navigateToWorkout = nil
             }

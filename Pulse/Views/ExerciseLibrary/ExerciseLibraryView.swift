@@ -66,6 +66,16 @@ struct ExerciseLibraryView: View {
                                         .font(.caption2)
                                         .foregroundStyle(AppTheme.Colors.accent)
                                 }
+                                if !exercise.isCardio {
+                                    Button {
+                                        viewModel?.toggleFavorite(exercise)
+                                    } label: {
+                                        Image(systemName: exercise.isFavorite ? "star.fill" : "star")
+                                            .font(.body)
+                                            .foregroundStyle(exercise.isFavorite ? AppTheme.Colors.accent : AppTheme.Colors.textSecondary)
+                                    }
+                                    .buttonStyle(.plain)
+                                }
                                 Image(systemName: "chevron.right")
                                     .font(.caption)
                                     .foregroundStyle(AppTheme.Colors.textSecondary)

@@ -16,7 +16,7 @@ final class PulseUITests: XCTestCase {
         XCTAssertTrue(app.tabBars.buttons["Exercises"].exists)
 
         // Navigate between tabs
-        app.tabBars.buttons["History"].tap()
+        app.tabBars.firstMatch.buttons["History"].tap()
         XCTAssertTrue(app.navigationBars["History"].exists)
 
         app.tabBars.buttons["Exercises"].tap()

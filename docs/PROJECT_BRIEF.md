@@ -17,7 +17,7 @@ A personal workout tracker built for a single user who primarily lifts weights a
 - **Primary goal**: Provide a fast, minimal interface to log weight training workouts (exercises, sets, reps, weight) and review history
 - **Stretch goals (post-MVP)**:
   - ~~Workout templates / saved routines~~ **Delivered** — see Core Features
-  - Progress charts and analytics (PR tracking, volume over time)
+  - ~~Progress charts and analytics (PR tracking, volume over time)~~ **Delivered** — see Core Features
   - ~~Rest timer~~ **Delivered** — see Core Features
   - Body weight / measurement tracking
   - Workout calendar view
@@ -35,6 +35,8 @@ A personal workout tracker built for a single user who primarily lifts weights a
 - [x] **Rest timer**: Auto-starts when completing a set if the exercise has a configured rest duration. Floating pill overlay with countdown, expandable to full controls (±30s, Skip). Haptic + sound on completion; local notification when backgrounded. Each exercise has a configurable `defaultRestSeconds` (editable in Exercise Detail and inline during workouts). Timer uses wall-clock dates so it continues counting while the app is backgrounded.
 - [x] **Branding & splash screen**: Custom app icon (dumbbell on dark background) and horizontal logo lockup. Animated splash screen on launch — logo fades in centered, then shrinks and transitions into its resting position on the Workout tab.
 - [x] **Workout templates**: Save named routines (e.g. "Push Day") with exercises, set counts, and optional default weight/reps. Create templates from scratch via the dedicated Templates tab or save a completed workout as a template from the History detail view. Start a pre-populated workout from any template with one tap — sets are pre-filled from template defaults, falling back to last-session values. Edit, rename, reorder exercises, and delete templates. Dedicated 4th tab in the tab bar.
+- [x] **Exercise favorites**: Star up to 10 strength exercises in the exercise library or detail panel. Favorites are prioritized in the progress charts exercise picker.
+- [x] **Progress charts & analytics**: Segmented "Progress" view within the History tab. Summary stats (workouts this month, total volume lifted, day streak, personal records). Three chart types: weekly workout frequency (bar chart), muscle group split (donut chart with legend), and per-exercise strength progression (line/area chart with max weight over time). Time range filter (1M, 3M, 6M, 1Y, All). Exercise picker prioritizes favorites, falls back to all used exercises. Built with Swift Charts.
 
 ## Design and User Experience Vibe
 - **Tone**: Minimal and functional — get in, log, get out. No gamification, no fluff
