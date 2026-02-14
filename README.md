@@ -16,6 +16,7 @@
 - **Exercise favorites** — Star up to 10 exercises in the library or detail panel; favorites are prioritized in progress charts
 - **Exercise detail panel** — Tap any exercise to view how-to instructions, primary muscles, rest timer config, and recent workout history
 - **Progress charts** — Segmented "Progress" view in History with workout frequency (bar chart), muscle group split (donut chart), and per-exercise strength progression (line chart). Filter by time range (1M, 3M, 6M, 1Y, All). Summary stats: workouts this month, total volume, day streak, and personal records.
+- **Calendar view** — Monthly calendar at the top of the History tab showing workout days with accent-colored dots. Tap a day to filter the workout list; tap again to clear. Navigate to past months with chevron buttons (future months disabled). Select any past day to add a backdated workout.
 - **Workout history** — Browse past workouts by date with full session details; auto-navigates to detail after finishing a workout. Only completed sets are saved.
 - **Edit completed workouts** — Tap Edit on any past workout to change start/end time, add/remove sets, modify weight/reps, or update cardio inputs
 - **Last-session reference** — Sets are pre-filled with last session's weight/reps for easy progressive overload tracking
@@ -74,6 +75,8 @@ Pulse/
 │   │   └── AddCustomExerciseView.swift
 │   ├── History/
 │   │   ├── HistoryView.swift
+│   │   ├── CalendarView.swift
+│   │   ├── CalendarDayCell.swift
 │   │   ├── ProgressView.swift
 │   │   ├── WorkoutDetailView.swift
 │   │   └── Charts/

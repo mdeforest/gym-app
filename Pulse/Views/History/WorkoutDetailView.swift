@@ -12,9 +12,10 @@ struct WorkoutDetailView: View {
     @State private var editedStartDate: Date
     @State private var editedEndDate: Date
 
-    init(workout: Workout, viewModel: HistoryViewModel) {
+    init(workout: Workout, viewModel: HistoryViewModel, initiallyEditing: Bool = false) {
         self.workout = workout
         self.viewModel = viewModel
+        _isEditing = State(initialValue: initiallyEditing)
         _editedStartDate = State(initialValue: workout.startDate)
         _editedEndDate = State(initialValue: workout.endDate ?? .now)
     }

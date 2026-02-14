@@ -436,6 +436,163 @@ struct HistoryViewModelTests {
     }
 }
 
+// MARK: - Calendar Tests
+
+@Suite("Calendar Tests", .serialized)
+@MainActor
+struct CalendarTests {
+
+    @Test func daysInMonthReturnsMultipleOfSeven() {
+        let vm = HistoryViewModel(modelContext: makeFreshContext())
+        let days = vm.daysInMonth()
+        #expect(days.count % 7 == 0)
+        #expect(!days.isEmpty)
+    }
+
+    @Test func daysInMonthMarksToday() {
+        let vm = HistoryViewModel(modelContext: makeFreshContext())
+        let days = vm.daysInMonth()
+        let todayCells = days.filter { $0.isToday }
+        #expect(todayCells.count == 1)
+        #expect(todayCells.first?.isCurrentMonth == true)
+    }
+
+    @Test func daysInMonthMarksOutOfMonthDays() {
+        let vm = HistoryViewModel(modelContext: makeFreshContext())
+        // January 2026 starts on Thursday, so there will be leading days from December
+        vm.displayedMonth = Calendar.current.date(from: DateComponents(year: 2026, month: 1, day: 1))!
+        let days = vm.daysInMonth()
+
+        let currentMonthDays = days.filter { $0.isCurrentMonth }
+        let outOfMonthDays = days.filter { !$0.isCurrentMonth }
+        #expect(currentMonthDays.count == 31)
+        #expect(!outOfMonthDays.isEmpty)
+    }
+
+    @Test func hasWorkoutReturnsTrueForWorkoutDates() {
+        let context = makeFreshContext()
+        let vm = HistoryViewModel(modelContext: context)
+
+        let workout = Workout(startDate: Date())
+        workout.endDate = Date()
+        context.insert(workout)
+        try? context.save()
+        vm.fetchWorkouts()
+
+        #expect(vm.hasWorkout(on: Date()))
+    }
+
+    @Test func hasWorkoutReturnsFalseForEmptyDates() {
+        let vm = HistoryViewModel(modelContext: makeFreshContext())
+        vm.fetchWorkouts()
+
+        let distantPast = Calendar.current.date(from: DateComponents(year: 2020, month: 1, day: 1))!
+        #expect(!vm.hasWorkout(on: distantPast))
+    }
+
+    @Test func selectDateTogglesSelection() {
+        let vm = HistoryViewModel(modelContext: makeFreshContext())
+        let date = Date()
+
+        #expect(vm.selectedDate == nil)
+
+        vm.selectDate(date)
+        #expect(vm.selectedDate != nil)
+
+        vm.selectDate(date)
+        #expect(vm.selectedDate == nil)
+    }
+
+    @Test func selectDifferentDateChangesSelection() {
+        let vm = HistoryViewModel(modelContext: makeFreshContext())
+        let today = Date()
+        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: today)!
+
+        vm.selectDate(today)
+        #expect(Calendar.current.isDate(vm.selectedDate!, inSameDayAs: today))
+
+        vm.selectDate(yesterday)
+        #expect(Calendar.current.isDate(vm.selectedDate!, inSameDayAs: yesterday))
+    }
+
+    @Test func clearDateSelectionResetsToNil() {
+        let vm = HistoryViewModel(modelContext: makeFreshContext())
+        vm.selectDate(Date())
+        #expect(vm.selectedDate != nil)
+
+        vm.clearDateSelection()
+        #expect(vm.selectedDate == nil)
+    }
+
+    @Test func filteredWorkoutsReturnsAllWhenNoSelection() {
+        let context = makeFreshContext()
+        let vm = HistoryViewModel(modelContext: context)
+
+        let w1 = Workout(startDate: Date())
+        w1.endDate = Date()
+        let w2 = Workout(startDate: Calendar.current.date(byAdding: .day, value: -1, to: Date())!)
+        w2.endDate = Date()
+        context.insert(w1)
+        context.insert(w2)
+        try? context.save()
+        vm.fetchWorkouts()
+
+        #expect(vm.filteredWorkouts.count == vm.workouts.count)
+    }
+
+    @Test func filteredWorkoutsFiltersWhenDateSelected() {
+        let context = makeFreshContext()
+        let vm = HistoryViewModel(modelContext: context)
+
+        // Use distant past dates to avoid collisions with other test data
+        let dateA = Calendar.current.date(from: DateComponents(year: 2020, month: 6, day: 15))!
+        let dateB = Calendar.current.date(from: DateComponents(year: 2020, month: 6, day: 16))!
+
+        let w1 = Workout(startDate: dateA)
+        w1.endDate = dateA
+        let w2 = Workout(startDate: dateB)
+        w2.endDate = dateB
+        context.insert(w1)
+        context.insert(w2)
+        try? context.save()
+        vm.fetchWorkouts()
+
+        vm.selectDate(dateA)
+        let filtered = vm.filteredWorkouts
+        let matchingCount = filtered.filter { Calendar.current.isDate($0.startDate, inSameDayAs: dateA) }.count
+        #expect(matchingCount == 1)
+    }
+
+    @Test func goToPreviousMonthChangesMonth() {
+        let vm = HistoryViewModel(modelContext: makeFreshContext())
+        let originalMonth = Calendar.current.component(.month, from: vm.displayedMonth)
+
+        vm.goToPreviousMonth()
+        let newMonth = Calendar.current.component(.month, from: vm.displayedMonth)
+
+        let expected = originalMonth == 1 ? 12 : originalMonth - 1
+        #expect(newMonth == expected)
+    }
+
+    @Test func goToNextMonthChangesMonth() {
+        let vm = HistoryViewModel(modelContext: makeFreshContext())
+        let originalMonth = Calendar.current.component(.month, from: vm.displayedMonth)
+
+        vm.goToNextMonth()
+        let newMonth = Calendar.current.component(.month, from: vm.displayedMonth)
+
+        let expected = originalMonth == 12 ? 1 : originalMonth + 1
+        #expect(newMonth == expected)
+    }
+
+    @Test func formattedMonthYearFormat() {
+        let vm = HistoryViewModel(modelContext: makeFreshContext())
+        let date = Calendar.current.date(from: DateComponents(year: 2026, month: 2, day: 1))!
+        let result = vm.formattedMonthYear(date)
+        #expect(result == "February 2026")
+    }
+}
+
 // MARK: - ExerciseLibraryViewModel Tests
 
 @Suite("ExerciseLibraryViewModel Tests", .serialized)

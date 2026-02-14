@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.6.0] - 02/14/26
+
+### Added
+- Calendar view — monthly calendar grid embedded at the top of the History tab's Workouts segment
+- Workout day indicators (accent-colored dots) on calendar days with logged workouts
+- Date filtering — tap a calendar day to filter the workout list to that day's sessions
+- Month navigation with chevron buttons (past months only, future months disabled)
+- Backdated workout creation — select any past day and add a workout that opens in edit mode
+- Today highlighting with muted accent circle background
+- "Clear" pill button (orange) in list header to reset date filter
+- "+ Add Workout" prompt when selecting a day with no workouts
+- `CalendarDay` model with day number, month membership, today/future flags, and workout indicator
+- `CalendarView` and `CalendarDayCell` components
+- `canGoToNextMonth` computed property to prevent future month navigation
+- 12 new calendar unit tests (grid structure, today marking, date selection, filtering, month navigation)
+
+### Changed
+- HistoryView workout list now shows calendar card above workout rows
+- Workout rows display accent-colored icons for duration and exercise count
+- WorkoutDetailView accepts `initiallyEditing` parameter for backdated workouts
+- Updated README, PROJECT_BRIEF, DESIGN, and FUTURE_FEATURES docs
+
 ## [0.5.0] - 02/14/26
 
 ### Added

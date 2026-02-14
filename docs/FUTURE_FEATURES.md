@@ -10,19 +10,20 @@
 - [x] **Workout templates** — Save and reuse named routines with exercises, set counts, and defaults
 - [x] **Rest timer** — Per-exercise configurable countdown with floating pill, haptics, and background notifications
 - [x] **Progress charts** — Workout frequency, muscle group split, and strength progression charts with time range filtering and summary stats
+- [x] **Calendar view** — Monthly calendar in History tab with workout day indicators, date filtering, month navigation, and backdated workout creation
 
 ---
 
 ## 💡 Feature Ideas
 
+- [ ] **Settings Page**
+  This should include personal information, settings for setting things like healthkit, and notification settings.
+
 - [ ] **Bodyweight tracking**
   Track weight or measurements weekly; optional sync with HealthKit.
 
-- [ ] **Calendar view**
-  Visual summary of training days and rest days.
-
 - [ ] **Exercise Database**
-  Pull exercises from an available 3rd party source, but still allow custom exercises.
+  Pull exercises from an available 3rd party source to greatly expand options in the app, but still allow custom exercises.
 
 - [ ] **Training Partner Mode**
   Share workouts with friends, competitions, workout together, etc.
@@ -33,6 +34,18 @@
 - [ ] **Data export**
   Export workout history as CSV or JSON for backup or analysis in external tools.
 
+- [ ] **Advanced workout features**
+  Includes features such as supersets, drop sets, RPE
+
+- [ ] **Workout “suggestions”** 
+  This is purely based on muscle group recovery
+
+- [ ] **Calculators**
+  Plate Calculator, Global Stopwatch/Timer, RPE Calculator, etc.
+
+- [ ] **Schedule Workouts**
+  Allow the user to schedule workouts for the future.
+
 ---
 
 ## 🔍 Experimental or Ambitious
@@ -40,10 +53,8 @@
 - [ ] AI-based set suggestions (based on history or fatigue estimation)
 - [ ] WatchOS companion app
 - [ ] Siri shortcuts: “Start Workout” or “Log Set”
-
+- [ ] AI-based full workout plans
+- [ ] Personal Trainer AI for chatting/questions
 ---
 
-## 🧪 Post-MVP Risky Ideas
 
-- Advanced features like supersets, drop sets, RPE
-- Workout “suggestions” based on muscle group recovery

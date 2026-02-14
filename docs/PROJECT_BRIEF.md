@@ -19,8 +19,8 @@ A personal workout tracker built for a single user who primarily lifts weights a
   - ~~Workout templates / saved routines~~ **Delivered** — see Core Features
   - ~~Progress charts and analytics (PR tracking, volume over time)~~ **Delivered** — see Core Features
   - ~~Rest timer~~ **Delivered** — see Core Features
+  - ~~Workout calendar view~~ **Delivered** — see Core Features
   - Body weight / measurement tracking
-  - Workout calendar view
   - Data export (CSV/JSON)
 
 ## Core Features
@@ -37,6 +37,7 @@ A personal workout tracker built for a single user who primarily lifts weights a
 - [x] **Workout templates**: Save named routines (e.g. "Push Day") with exercises, set counts, and optional default weight/reps. Create templates from scratch via the dedicated Templates tab or save a completed workout as a template from the History detail view. Start a pre-populated workout from any template with one tap — sets are pre-filled from template defaults, falling back to last-session values. Edit, rename, reorder exercises, and delete templates. Dedicated 4th tab in the tab bar.
 - [x] **Exercise favorites**: Star up to 10 strength exercises in the exercise library or detail panel. Favorites are prioritized in the progress charts exercise picker.
 - [x] **Progress charts & analytics**: Segmented "Progress" view within the History tab. Summary stats (workouts this month, total volume lifted, day streak, personal records). Three chart types: weekly workout frequency (bar chart), muscle group split (donut chart with legend), and per-exercise strength progression (line/area chart with max weight over time). Time range filter (1M, 3M, 6M, 1Y, All). Exercise picker prioritizes favorites, falls back to all used exercises. Built with Swift Charts.
+- [x] **Calendar view**: Monthly calendar grid embedded at the top of the History tab's Workouts segment. Workout days marked with accent-colored dots. Tap a day to filter the list below to that day's sessions; tap again to deselect. Month navigation via chevron buttons (past only — future months disabled). Select any past day to create a backdated workout that opens in edit mode. Today is highlighted with a muted accent circle.
 
 ## Design and User Experience Vibe
 - **Tone**: Minimal and functional — get in, log, get out. No gamification, no fluff

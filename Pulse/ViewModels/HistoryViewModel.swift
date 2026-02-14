@@ -2,15 +2,31 @@ import Foundation
 import SwiftData
 import Observation
 
+struct CalendarDay: Identifiable {
+    let id = UUID()
+    let date: Date
+    let dayNumber: Int
+    let isCurrentMonth: Bool
+    let isToday: Bool
+    let hasWorkout: Bool
+    let isFuture: Bool
+}
+
 @Observable
 final class HistoryViewModel {
     var workouts: [Workout] = []
+    var displayedMonth: Date = Date()
+    var selectedDate: Date? = nil
+    private var workoutDays: Set<DateComponents> = []
 
     private let modelContext: ModelContext
+    private let calendar = Calendar.current
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
     }
+
+    // MARK: - Data Fetching
 
     func fetchWorkouts() {
         let descriptor = FetchDescriptor<Workout>(
@@ -18,6 +34,137 @@ final class HistoryViewModel {
             sortBy: [SortDescriptor(\.startDate, order: .reverse)]
         )
         workouts = (try? modelContext.fetch(descriptor)) ?? []
+        updateWorkoutDays()
+    }
+
+    // MARK: - Calendar
+
+    var filteredWorkouts: [Workout] {
+        guard let selectedDate else { return workouts }
+        return workouts.filter { calendar.isDate($0.startDate, inSameDayAs: selectedDate) }
+    }
+
+    func selectDate(_ date: Date) {
+        if let current = selectedDate, calendar.isDate(current, inSameDayAs: date) {
+            selectedDate = nil
+        } else {
+            selectedDate = date
+        }
+    }
+
+    func clearDateSelection() {
+        selectedDate = nil
+    }
+
+    func goToPreviousMonth() {
+        if let newMonth = calendar.date(byAdding: .month, value: -1, to: displayedMonth) {
+            displayedMonth = newMonth
+        }
+    }
+
+    var canGoToNextMonth: Bool {
+        let now = Date()
+        let currentMonth = calendar.dateComponents([.year, .month], from: now)
+        let displayed = calendar.dateComponents([.year, .month], from: displayedMonth)
+        return displayed.year! < currentMonth.year! ||
+            (displayed.year == currentMonth.year && displayed.month! < currentMonth.month!)
+    }
+
+    func goToNextMonth() {
+        guard canGoToNextMonth,
+              let newMonth = calendar.date(byAdding: .month, value: 1, to: displayedMonth) else { return }
+        displayedMonth = newMonth
+    }
+
+    func hasWorkout(on date: Date) -> Bool {
+        let components = calendar.dateComponents([.year, .month, .day], from: date)
+        return workoutDays.contains(components)
+    }
+
+    func formattedMonthYear(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM yyyy"
+        return formatter.string(from: date)
+    }
+
+    func daysInMonth() -> [CalendarDay] {
+        guard let monthInterval = calendar.dateInterval(of: .month, for: displayedMonth),
+              let monthRange = calendar.range(of: .day, in: .month, for: displayedMonth) else {
+            return []
+        }
+
+        let firstDayOfMonth = monthInterval.start
+        let firstWeekday = calendar.component(.weekday, from: firstDayOfMonth)
+        let leadingEmptyDays = firstWeekday - calendar.firstWeekday
+        let adjustedLeading = leadingEmptyDays < 0 ? leadingEmptyDays + 7 : leadingEmptyDays
+
+        var days: [CalendarDay] = []
+
+        let today = calendar.startOfDay(for: Date())
+
+        // Leading days from previous month
+        for offset in (0..<adjustedLeading).reversed() {
+            if let date = calendar.date(byAdding: .day, value: -(offset + 1), to: firstDayOfMonth) {
+                days.append(CalendarDay(
+                    date: date,
+                    dayNumber: calendar.component(.day, from: date),
+                    isCurrentMonth: false,
+                    isToday: false,
+                    hasWorkout: false,
+                    isFuture: false
+                ))
+            }
+        }
+
+        // Days in current month
+        for day in monthRange {
+            if let date = calendar.date(byAdding: .day, value: day - 1, to: firstDayOfMonth) {
+                days.append(CalendarDay(
+                    date: date,
+                    dayNumber: day,
+                    isCurrentMonth: true,
+                    isToday: calendar.isDateInToday(date),
+                    hasWorkout: hasWorkout(on: date),
+                    isFuture: calendar.startOfDay(for: date) > today
+                ))
+            }
+        }
+
+        // Trailing days to complete the last row
+        let remainder = days.count % 7
+        if remainder > 0 {
+            let trailingDays = 7 - remainder
+            let lastDayOfMonth = monthInterval.end
+            for offset in 0..<trailingDays {
+                if let date = calendar.date(byAdding: .day, value: offset, to: lastDayOfMonth) {
+                    days.append(CalendarDay(
+                        date: date,
+                        dayNumber: calendar.component(.day, from: date),
+                        isCurrentMonth: false,
+                        isToday: false,
+                        hasWorkout: false,
+                        isFuture: false
+                    ))
+                }
+            }
+        }
+
+        return days
+    }
+
+    private func updateWorkoutDays() {
+        workoutDays = Set(workouts.map { calendar.dateComponents([.year, .month, .day], from: $0.startDate) })
+    }
+
+    func createBackdatedWorkout(on date: Date) -> Workout {
+        let startOfDay = calendar.startOfDay(for: date)
+        let endOfDay = calendar.date(byAdding: .hour, value: 1, to: startOfDay) ?? startOfDay
+        let workout = Workout(startDate: startOfDay)
+        workout.endDate = endOfDay
+        modelContext.insert(workout)
+        save()
+        fetchWorkouts()
+        return workout
     }
 
     func deleteWorkout(_ workout: Workout) {

@@ -45,4 +45,4 @@ Error Fix Strategy:
 - Parse `build.log` for errors.
 - Prompt Claude: "Here is a failed iOS build log, identify the issue and suggest a fix."
 - Implement changes in code or config as needed, confirm build success.
-- Use the simulator named "iPhone 16 Pro Max"
+- Use the simulator named "iPhone 16 Pro Max" at all times.

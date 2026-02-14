@@ -7,6 +7,7 @@ struct HistoryView: View {
     @Binding var navigateToWorkout: Workout?
     @State private var navigationPath = NavigationPath()
     @State private var selectedSegment: HistorySegment = .workouts
+    @State private var backdatedWorkout: Workout?
 
     enum HistorySegment: String, CaseIterable {
         case workouts = "Workouts"
@@ -50,7 +51,16 @@ struct HistoryView: View {
             .navigationTitle("History")
             .navigationDestination(for: Workout.self) { workout in
                 if let viewModel {
-                    WorkoutDetailView(workout: workout, viewModel: viewModel)
+                    WorkoutDetailView(
+                        workout: workout,
+                        viewModel: viewModel,
+                        initiallyEditing: workout === backdatedWorkout
+                    )
+                    .onAppear {
+                        if workout === backdatedWorkout {
+                            backdatedWorkout = nil
+                        }
+                    }
                 }
             }
             .background(AppTheme.Colors.background)
@@ -86,7 +96,45 @@ struct HistoryView: View {
     @ViewBuilder
     private func workoutList(viewModel: HistoryViewModel) -> some View {
         List {
-            ForEach(viewModel.workouts) { workout in
+            Section {
+                workoutListHeader(viewModel: viewModel)
+            }
+            .listRowInsets(EdgeInsets(
+                top: AppTheme.Spacing.xs,
+                leading: AppTheme.Layout.screenEdgePadding,
+                bottom: AppTheme.Spacing.xxs,
+                trailing: AppTheme.Layout.screenEdgePadding
+            ))
+            .listRowSeparator(.hidden)
+            .listRowBackground(Color.clear)
+
+            Section {
+                CalendarView(viewModel: viewModel)
+            }
+            .listRowInsets(EdgeInsets(
+                top: AppTheme.Spacing.xxs,
+                leading: AppTheme.Layout.screenEdgePadding,
+                bottom: AppTheme.Spacing.xs,
+                trailing: AppTheme.Layout.screenEdgePadding
+            ))
+            .listRowSeparator(.hidden)
+            .listRowBackground(Color.clear)
+
+            if viewModel.selectedDate != nil && viewModel.filteredWorkouts.isEmpty {
+                Section {
+                    addWorkoutPrompt(viewModel: viewModel)
+                }
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(
+                    top: AppTheme.Spacing.xxxl,
+                    leading: AppTheme.Layout.screenEdgePadding,
+                    bottom: 0,
+                    trailing: AppTheme.Layout.screenEdgePadding
+                ))
+                .listRowBackground(Color.clear)
+            }
+
+            ForEach(viewModel.filteredWorkouts) { workout in
                 NavigationLink(value: workout) {
                     workoutRow(workout, viewModel: viewModel)
                 }
@@ -99,12 +147,72 @@ struct HistoryView: View {
                 ))
             }
             .onDelete { indexSet in
+                let filtered = viewModel.filteredWorkouts
                 for index in indexSet {
-                    viewModel.deleteWorkout(viewModel.workouts[index])
+                    viewModel.deleteWorkout(filtered[index])
                 }
+            }
+
+            if viewModel.selectedDate != nil && !viewModel.filteredWorkouts.isEmpty {
+                Section {
+                    addWorkoutButton(viewModel: viewModel)
+                }
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(
+                    top: AppTheme.Spacing.md,
+                    leading: AppTheme.Layout.screenEdgePadding,
+                    bottom: 0,
+                    trailing: AppTheme.Layout.screenEdgePadding
+                ))
+                .listRowBackground(Color.clear)
             }
         }
         .listStyle(.plain)
+    }
+
+    private func workoutListHeader(viewModel: HistoryViewModel) -> some View {
+        HStack {
+            if let selectedDate = viewModel.selectedDate {
+                Text(viewModel.formattedDate(selectedDate))
+                    .font(.headline)
+                    .foregroundStyle(AppTheme.Colors.textPrimary)
+
+                Spacer()
+
+                PillButton(title: "Clear", icon: "xmark", style: .primary) {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        viewModel.clearDateSelection()
+                    }
+                }
+            } else {
+                Text("All Workouts")
+                    .font(.headline)
+                    .foregroundStyle(AppTheme.Colors.textPrimary)
+
+                Spacer()
+            }
+        }
+    }
+
+    private func addWorkoutPrompt(viewModel: HistoryViewModel) -> some View {
+        VStack(spacing: AppTheme.Spacing.md) {
+            Text("No workouts on this day")
+                .font(.subheadline)
+                .foregroundStyle(AppTheme.Colors.textSecondary)
+
+            addWorkoutButton(viewModel: viewModel)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    private func addWorkoutButton(viewModel: HistoryViewModel) -> some View {
+        SecondaryButton(title: "+ Add Workout") {
+            if let date = viewModel.selectedDate {
+                let workout = viewModel.createBackdatedWorkout(on: date)
+                backdatedWorkout = workout
+                navigationPath.append(workout)
+            }
+        }
     }
 
     private func workoutRow(_ workout: Workout, viewModel: HistoryViewModel) -> some View {
@@ -114,8 +222,18 @@ struct HistoryView: View {
                 .foregroundStyle(AppTheme.Colors.textPrimary)
 
             HStack(spacing: AppTheme.Spacing.md) {
-                Label(viewModel.formattedDuration(workout), systemImage: "clock")
-                Label("\(workout.exercises.count) exercises", systemImage: "figure.strengthtraining.traditional")
+                Label {
+                    Text(viewModel.formattedDuration(workout))
+                } icon: {
+                    Image(systemName: "clock")
+                        .foregroundStyle(AppTheme.Colors.accent)
+                }
+                Label {
+                    Text("\(workout.exercises.count) exercises")
+                } icon: {
+                    Image(systemName: "figure.strengthtraining.traditional")
+                        .foregroundStyle(AppTheme.Colors.accent)
+                }
             }
             .font(.subheadline)
             .foregroundStyle(AppTheme.Colors.textSecondary)
