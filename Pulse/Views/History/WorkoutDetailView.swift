@@ -49,28 +49,30 @@ struct WorkoutDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .background(AppTheme.Colors.background)
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                HStack(spacing: AppTheme.Spacing.md) {
-                    if !isEditing {
-                        Button {
-                            showingSaveAsTemplate = true
-                        } label: {
-                            Image(systemName: "rectangle.stack.badge.plus")
-                                .foregroundStyle(AppTheme.Colors.accent)
-                        }
+            if !isEditing {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showingSaveAsTemplate = true
+                    } label: {
+                        Image(systemName: "rectangle.stack.badge.plus")
                     }
-                    Button(isEditing ? "Done" : "Edit") {
-                        if isEditing {
-                            viewModel.updateDates(for: workout, startDate: editedStartDate, endDate: editedEndDate)
-                        } else {
-                            editedStartDate = workout.startDate
-                            editedEndDate = workout.endDate ?? .now
-                        }
-                        isEditing.toggle()
-                    }
-                    .fontWeight(isEditing ? .semibold : .regular)
                     .foregroundStyle(AppTheme.Colors.accent)
                 }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    if isEditing {
+                        viewModel.updateDates(for: workout, startDate: editedStartDate, endDate: editedEndDate)
+                    } else {
+                        editedStartDate = workout.startDate
+                        editedEndDate = workout.endDate ?? .now
+                    }
+                    isEditing.toggle()
+                } label: {
+                    Text(isEditing ? "Done" : "Edit")
+                        .fontWeight(isEditing ? .semibold : .regular)
+                }
+                .foregroundStyle(AppTheme.Colors.accent)
             }
         }
         .sheet(isPresented: $showingAddExercise) {

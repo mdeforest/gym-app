@@ -66,6 +66,13 @@ struct HistoryView: View {
                 NavigationLink(value: workout) {
                     workoutRow(workout, viewModel: viewModel)
                 }
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(
+                    top: AppTheme.Spacing.sm,
+                    leading: AppTheme.Spacing.xl,
+                    bottom: AppTheme.Spacing.sm,
+                    trailing: AppTheme.Spacing.xl
+                ))
             }
             .onDelete { indexSet in
                 for index in indexSet {
@@ -77,7 +84,7 @@ struct HistoryView: View {
     }
 
     private func workoutRow(_ workout: Workout, viewModel: HistoryViewModel) -> some View {
-        VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
             Text(viewModel.formattedDate(workout.startDate))
                 .font(.headline)
                 .foregroundStyle(AppTheme.Colors.textPrimary)
@@ -88,8 +95,12 @@ struct HistoryView: View {
             }
             .font(.subheadline)
             .foregroundStyle(AppTheme.Colors.textSecondary)
+
+            Rectangle()
+                .fill(AppTheme.Colors.surfaceTertiary)
+                .frame(height: 0.5)
+                .padding(.top, AppTheme.Spacing.xs)
         }
-        .padding(.vertical, AppTheme.Spacing.xxs)
     }
 }
 
