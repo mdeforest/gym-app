@@ -43,6 +43,7 @@ struct StrengthDataPoint: Identifiable {
     let date: Date
     let maxWeight: Double
     let estimatedOneRepMax: Double
+    let averageRPE: Double?
 }
 
 // MARK: - ViewModel
@@ -169,7 +170,7 @@ final class ProgressViewModel {
         var volume: Double = 0
         for workout in workouts {
             for workoutExercise in workout.exercises {
-                for set in workoutExercise.sets where set.isCompleted {
+                for set in workoutExercise.sets where set.isCompleted && set.setType == .normal {
                     volume += set.weight * Double(set.reps)
                 }
             }
@@ -213,7 +214,7 @@ final class ProgressViewModel {
             for workoutExercise in workout.exercises {
                 guard let exercise = workoutExercise.exercise, !exercise.isCardio else { continue }
                 let maxWeight = workoutExercise.sets
-                    .filter(\.isCompleted)
+                    .filter { $0.isCompleted && $0.setType == .normal }
                     .map(\.weight)
                     .max() ?? 0
                 let id = exercise.persistentModelID
@@ -227,7 +228,7 @@ final class ProgressViewModel {
             for workoutExercise in workout.exercises {
                 guard let exercise = workoutExercise.exercise, !exercise.isCardio else { continue }
                 let maxWeight = workoutExercise.sets
-                    .filter(\.isCompleted)
+                    .filter { $0.isCompleted && $0.setType == .normal }
                     .map(\.weight)
                     .max() ?? 0
                 let id = exercise.persistentModelID
@@ -315,7 +316,7 @@ final class ProgressViewModel {
             for workoutExercise in workout.exercises {
                 guard workoutExercise.exercise?.persistentModelID == exercise.persistentModelID else { continue }
 
-                let completedSets = workoutExercise.sets.filter(\.isCompleted)
+                let completedSets = workoutExercise.sets.filter { $0.isCompleted && $0.setType == .normal }
                 guard !completedSets.isEmpty else { continue }
 
                 let bestSet = completedSets.max(by: { $0.weight < $1.weight })!
@@ -324,10 +325,14 @@ final class ProgressViewModel {
                     ? maxWeight * (1 + Double(bestSet.reps) / 30.0)
                     : maxWeight
 
+                let rpeValues = completedSets.compactMap(\.rpe)
+                let avgRPE: Double? = rpeValues.isEmpty ? nil : rpeValues.reduce(0, +) / Double(rpeValues.count)
+
                 dataPoints.append(StrengthDataPoint(
                     date: workout.startDate,
                     maxWeight: maxWeight,
-                    estimatedOneRepMax: oneRM
+                    estimatedOneRepMax: oneRM,
+                    averageRPE: avgRPE
                 ))
             }
         }

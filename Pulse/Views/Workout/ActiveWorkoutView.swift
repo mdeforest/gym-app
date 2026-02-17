@@ -8,12 +8,46 @@ struct ActiveWorkoutView: View {
         ZStack(alignment: .bottom) {
             ScrollView {
                 LazyVStack(spacing: AppTheme.Spacing.md) {
-                    if let workout = viewModel.activeWorkout {
-                        ForEach(workout.exercises.sorted(by: { $0.order < $1.order })) { workoutExercise in
-                            WorkoutExerciseSection(
-                                workoutExercise: workoutExercise,
-                                viewModel: viewModel
-                            )
+                    if viewModel.activeWorkout != nil {
+                        let groups = viewModel.groupedExercises()
+                        ForEach(Array(groups.enumerated()), id: \.offset) { groupIndex, group in
+                            VStack(spacing: 0) {
+                                if group.count > 1 {
+                                    SupersetGroupView(
+                                        exercises: group,
+                                        viewModel: viewModel,
+                                        onMoveUp: groupIndex > 0 ? {
+                                            withAnimation { viewModel.moveExerciseGroup(from: groupIndex, to: groupIndex - 1) }
+                                        } : nil,
+                                        onMoveDown: groupIndex < groups.count - 1 ? {
+                                            withAnimation { viewModel.moveExerciseGroup(from: groupIndex, to: groupIndex + 1) }
+                                        } : nil
+                                    )
+                                } else if let single = group.first {
+                                    WorkoutExerciseSection(
+                                        workoutExercise: single,
+                                        viewModel: viewModel,
+                                        onMoveUp: groupIndex > 0 ? {
+                                            withAnimation { viewModel.moveExerciseGroup(from: groupIndex, to: groupIndex - 1) }
+                                        } : nil,
+                                        onMoveDown: groupIndex < groups.count - 1 ? {
+                                            withAnimation { viewModel.moveExerciseGroup(from: groupIndex, to: groupIndex + 1) }
+                                        } : nil
+                                    )
+                                }
+
+                                // Link button between groups
+                                if groupIndex < groups.count - 1 {
+                                    Button {
+                                        if let lastOfCurrent = group.last,
+                                           let firstOfNext = groups[groupIndex + 1].first {
+                                            viewModel.linkAsSuperset(lastOfCurrent, firstOfNext)
+                                        }
+                                    } label: {
+                                        SupersetLinkLabel()
+                                    }
+                                }
+                            }
                         }
                     }
 
@@ -69,6 +103,7 @@ struct ActiveWorkoutView: View {
             }
         }
     }
+
 }
 
 // MARK: - Workout Exercise Section
@@ -76,7 +111,10 @@ struct ActiveWorkoutView: View {
 private struct WorkoutExerciseSection: View {
     let workoutExercise: WorkoutExercise
     let viewModel: WorkoutViewModel
+    var onMoveUp: (() -> Void)?
+    var onMoveDown: (() -> Void)?
     @State private var showingRestPicker = false
+    @State private var showingRPEPickerForSet: UUID?
 
     private var isCardio: Bool {
         workoutExercise.exercise?.isCardio ?? false
@@ -107,6 +145,26 @@ private struct WorkoutExerciseSection: View {
                 }
 
                 Spacer()
+
+                if onMoveUp != nil || onMoveDown != nil {
+                    HStack(spacing: AppTheme.Spacing.xxs) {
+                        Button {
+                            withAnimation { onMoveUp?() }
+                        } label: {
+                            Image(systemName: "arrow.up.circle.fill")
+                                .foregroundStyle(onMoveUp != nil ? AppTheme.Colors.textSecondary : AppTheme.Colors.surfaceTertiary)
+                        }
+                        .disabled(onMoveUp == nil)
+
+                        Button {
+                            withAnimation { onMoveDown?() }
+                        } label: {
+                            Image(systemName: "arrow.down.circle.fill")
+                                .foregroundStyle(onMoveDown != nil ? AppTheme.Colors.textSecondary : AppTheme.Colors.surfaceTertiary)
+                        }
+                        .disabled(onMoveDown == nil)
+                    }
+                }
 
                 Button {
                     viewModel.removeExercise(workoutExercise)
@@ -264,28 +322,56 @@ private struct WorkoutExerciseSection: View {
 
             // Set rows
             ForEach(workoutExercise.sortedSets) { exerciseSet in
-                SetRowView(
-                    setNumber: exerciseSet.order + 1,
-                    weight: Binding(
-                        get: { String(format: "%g", exerciseSet.weight) },
-                        set: { newValue in
-                            exerciseSet.weight = Double(newValue) ?? 0
-                            viewModel.propagateValues(from: exerciseSet, in: workoutExercise)
+                VStack(spacing: 0) {
+                    SetRowView(
+                        setNumber: exerciseSet.order + 1,
+                        setType: exerciseSet.setType,
+                        weight: Binding(
+                            get: { String(format: "%g", exerciseSet.weight) },
+                            set: { newValue in
+                                exerciseSet.weight = Double(newValue) ?? 0
+                                viewModel.propagateValues(from: exerciseSet, in: workoutExercise)
+                            }
+                        ),
+                        reps: Binding(
+                            get: { "\(exerciseSet.reps)" },
+                            set: { newValue in
+                                exerciseSet.reps = Int(newValue) ?? 0
+                                viewModel.propagateValues(from: exerciseSet, in: workoutExercise)
+                            }
+                        ),
+                        isCompleted: exerciseSet.isCompleted,
+                        onComplete: { viewModel.completeSet(exerciseSet) },
+                        onDelete: workoutExercise.sets.count > 1 ? {
+                            viewModel.deleteSet(exerciseSet, from: workoutExercise)
+                        } : nil,
+                        onToggleSetType: { viewModel.toggleSetType(exerciseSet) },
+                        rpe: Binding(
+                            get: { exerciseSet.rpe },
+                            set: { exerciseSet.rpe = $0 }
+                        ),
+                        onRPETap: {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                showingRPEPickerForSet = showingRPEPickerForSet == exerciseSet.id ? nil : exerciseSet.id
+                            }
                         }
-                    ),
-                    reps: Binding(
-                        get: { "\(exerciseSet.reps)" },
-                        set: { newValue in
-                            exerciseSet.reps = Int(newValue) ?? 0
-                            viewModel.propagateValues(from: exerciseSet, in: workoutExercise)
-                        }
-                    ),
-                    isCompleted: exerciseSet.isCompleted,
-                    onComplete: { viewModel.completeSet(exerciseSet) },
-                    onDelete: workoutExercise.sets.count > 1 ? {
-                        viewModel.deleteSet(exerciseSet, from: workoutExercise)
-                    } : nil
-                )
+                    )
+
+                    if showingRPEPickerForSet == exerciseSet.id {
+                        RPEPickerView(
+                            selectedRPE: Binding(
+                                get: { exerciseSet.rpe },
+                                set: { exerciseSet.rpe = $0 }
+                            ),
+                            onDismiss: {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    showingRPEPickerForSet = nil
+                                }
+                            }
+                        )
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                    }
+                }
             }
 
             // Add set button

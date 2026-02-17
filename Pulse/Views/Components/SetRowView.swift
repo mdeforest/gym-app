@@ -2,11 +2,15 @@ import SwiftUI
 
 struct SetRowView: View {
     let setNumber: Int
+    var setType: SetType = .normal
     @Binding var weight: String
     @Binding var reps: String
     let isCompleted: Bool
     var onComplete: (() -> Void)?
     var onDelete: (() -> Void)?
+    var onToggleSetType: (() -> Void)?
+    var rpe: Binding<Double?>?
+    var onRPETap: (() -> Void)?
 
     @State private var offset: CGFloat = 0
     @State private var showingDelete = false
@@ -36,10 +40,16 @@ struct SetRowView: View {
 
             // Main row content
             HStack(spacing: AppTheme.Spacing.sm) {
-                Text("\(setNumber)")
-                    .font(.callout.weight(.medium))
-                    .foregroundStyle(AppTheme.Colors.textSecondary)
-                    .frame(width: 28)
+                Button {
+                    onToggleSetType?()
+                } label: {
+                    Text(setType == .warmup ? "W" : "\(setNumber)")
+                        .font(.callout.weight(.medium))
+                        .foregroundStyle(setType == .warmup ? AppTheme.Colors.warning : AppTheme.Colors.textSecondary)
+                        .frame(width: 28)
+                }
+                .buttonStyle(.borderless)
+                .disabled(onToggleSetType == nil)
 
                 NumberInputField(label: "lbs", value: $weight)
 
@@ -57,10 +67,18 @@ struct SetRowView: View {
                     }
                     .frame(width: AppTheme.Layout.minTouchTarget, height: AppTheme.Layout.minTouchTarget)
                 }
+
+                if let rpe, let onRPETap {
+                    RPEBadgeView(rpe: rpe.wrappedValue, onTap: onRPETap)
+                }
             }
             .padding(.horizontal, AppTheme.Spacing.md)
             .padding(.vertical, AppTheme.Spacing.xs)
-            .background(isCompleted ? AppTheme.Colors.accentMuted.opacity(0.4) : AppTheme.Colors.surface)
+            .background(
+                isCompleted
+                    ? (setType == .warmup ? AppTheme.Colors.warning.opacity(0.15) : AppTheme.Colors.accentMuted.opacity(0.4))
+                    : (setType == .warmup ? AppTheme.Colors.surfaceTertiary.opacity(0.5) : AppTheme.Colors.surface)
+            )
             .offset(x: offset)
             .gesture(
                 onDelete != nil

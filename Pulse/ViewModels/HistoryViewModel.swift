@@ -210,7 +210,54 @@ final class HistoryViewModel {
     }
 
     func removeExercise(_ workoutExercise: WorkoutExercise) {
+        if workoutExercise.isInSuperset {
+            removeFromSuperset(workoutExercise)
+        }
         modelContext.delete(workoutExercise)
+        save()
+    }
+
+    func linkAsSuperset(_ exerciseA: WorkoutExercise, _ exerciseB: WorkoutExercise) {
+        if let existingGroup = exerciseA.supersetGroupId {
+            exerciseB.supersetGroupId = existingGroup
+        } else if let existingGroup = exerciseB.supersetGroupId {
+            exerciseA.supersetGroupId = existingGroup
+        } else {
+            let groupId = UUID()
+            exerciseA.supersetGroupId = groupId
+            exerciseB.supersetGroupId = groupId
+        }
+        save()
+    }
+
+    func removeFromSuperset(_ workoutExercise: WorkoutExercise) {
+        guard let groupId = workoutExercise.supersetGroupId,
+              let workout = workoutExercise.workout else { return }
+
+        workoutExercise.supersetGroupId = nil
+
+        let remaining = workout.exercises.filter { $0.supersetGroupId == groupId }
+        if remaining.count == 1 {
+            remaining.first?.supersetGroupId = nil
+        }
+        save()
+    }
+
+    func groupedExercises(for workout: Workout) -> [[WorkoutExercise]] {
+        WorkoutViewModel.groupExercises(workout.exercises)
+    }
+
+    func moveExerciseGroup(from source: Int, to destination: Int, in workout: Workout) {
+        var groups = groupedExercises(for: workout)
+        guard source != destination, source < groups.count, destination < groups.count else { return }
+        let moved = groups.remove(at: source)
+        groups.insert(moved, at: destination)
+        WorkoutViewModel.reassignOrders(groups)
+        save()
+    }
+
+    func toggleSetType(_ exerciseSet: ExerciseSet) {
+        exerciseSet.setType = (exerciseSet.setType == .normal) ? .warmup : .normal
         save()
     }
 

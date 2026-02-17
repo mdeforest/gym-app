@@ -18,6 +18,7 @@ enum AppTheme {
         static let chartActive = Color(hex: 0xFF6A3D)
         static let chartInactive = Color(hex: 0x3D2A1F)
         static let chartPurple = Color(hex: 0x5E5CE6)
+        static let supersetAccent = chartPurple
         static let chartBlue = Color(hex: 0x64D2FF)
         static let chartPink = Color(hex: 0xFF6482)
     }

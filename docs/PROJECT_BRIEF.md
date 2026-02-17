@@ -22,6 +22,7 @@ A personal workout tracker built for a single user who primarily lifts weights a
   - ~~Workout calendar view~~ **Delivered** — see Core Features
   - ~~Data export (CSV/JSON)~~ **Delivered** — see Core Features
   - ~~Settings page~~ **Delivered** — see Core Features
+  - ~~Advanced workout features (warm-up sets, RPE, supersets)~~ **Delivered** — see Core Features
   - Body weight / measurement tracking
 
 ## Core Features
@@ -40,7 +41,11 @@ A personal workout tracker built for a single user who primarily lifts weights a
 - [x] **Progress charts & analytics**: Segmented "Progress" view within the History tab. Summary stats (workouts this month, total volume lifted, day streak, personal records). Three chart types: weekly workout frequency (bar chart), muscle group split (donut chart with legend), and per-exercise strength progression (line/area chart with max weight over time). Time range filter (1M, 3M, 6M, 1Y, All). Exercise picker prioritizes favorites, falls back to all used exercises. Built with Swift Charts.
 - [x] **Calendar view**: Monthly calendar grid embedded at the top of the History tab's Workouts segment. Workout days marked with accent-colored dots. Tap a day to filter the list below to that day's sessions; tap again to deselect. Month navigation via chevron buttons (past only — future months disabled). Select any past day to create a backdated workout that opens in edit mode. Today is highlighted with a muted accent circle.
 - [x] **Settings page**: Accessible via profile avatar button on the Workout tab. Profile section (name, body weight, weight unit). Data export (CSV/JSON via share sheet). Clear all data with destructive confirmation. App version display. Presented as a modal sheet with inset grouped list styling.
-- [x] **Data export**: Export full workout history as CSV or JSON via `ExportService`. CSV includes date, duration, exercise, muscle group, type, sets, weight, reps, and cardio data. JSON includes structured workout objects with ISO 8601 dates. Files are shared via the iOS share sheet (`UIActivityViewController`).
+- [x] **Data export**: Export full workout history as CSV or JSON via `ExportService`. CSV includes date, duration, exercise, muscle group, type, sets, weight, reps, set type, RPE, superset group, and cardio data. JSON includes structured workout objects with ISO 8601 dates. Files are shared via the iOS share sheet (`UIActivityViewController`).
+- [x] **Warm-up sets**: Toggle any set between normal and warm-up by tapping the set number. Warm-up sets show a "W" badge in warning color and are excluded from progress stats, volume calculations, and PR tracking. Templates preserve warm-up set counts.
+- [x] **RPE tracking**: Optional RPE (Rate of Perceived Exertion) rating per set, 6.0–10.0 in 0.5 increments. Color-coded badges (green 6–7, yellow 7.5–8.5, red 9–10) with inline horizontal picker. RPE data displayed on strength progression chart point marks.
+- [x] **Supersets**: Link exercises to perform back-to-back via a purple "Link" pill button between exercise groups. Superset groups render with a purple bracket and "SUPERSET" label. Rest timer only fires after the last exercise in a superset. Superset grouping preserved in templates. Link/unlink available during active workouts and when editing completed workouts.
+- [x] **Exercise reordering**: Move exercises or superset groups up/down during active workouts and while editing completed workouts via inline arrow buttons in each card header.
 
 ## Design and User Experience Vibe
 - **Tone**: Minimal and functional — get in, log, get out. No gamification, no fluff
@@ -63,7 +68,7 @@ A personal workout tracker built for a single user who primarily lifts weights a
 - iCloud sync is a nice-to-have post-MVP
 
 ## Risks / Open Questions
-- **Data model complexity**: Supersets, drop sets, and RPE tracking add complexity — keep them out of MVP?
+- ~~**Data model complexity**: Supersets, drop sets, and RPE tracking add complexity — keep them out of MVP?~~ **Resolved**: Warm-up sets, RPE tracking, and supersets implemented with additive optional properties on existing models (lightweight SwiftData migration)
 - ~~**Exercise library scope**: How large should the default exercise list be?~~ **Resolved**: 51 exercises across 7 muscle groups, seeded on first launch
 - **App Store review**: Ensure compliance with Apple's Human Interface Guidelines and App Review Guidelines
 - ~~**Cardio UI**: Data model supports cardio (duration/distance fields) but no dedicated input UI yet — needed for MVP?~~ **Resolved**: Dedicated time/distance inputs built for cardio exercises

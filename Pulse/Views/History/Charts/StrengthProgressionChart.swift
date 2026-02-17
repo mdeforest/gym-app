@@ -53,7 +53,7 @@ struct StrengthProgressionChart: View {
                 x: .value("Date", point.date),
                 y: .value("Weight", point.maxWeight)
             )
-            .foregroundStyle(AppTheme.Colors.chartActive)
+            .foregroundStyle(rpeColor(for: point.averageRPE))
             .symbolSize(30)
         }
         .chartXAxis {
@@ -71,6 +71,11 @@ struct StrengthProgressionChart: View {
             }
         }
         .frame(height: 200)
+    }
+
+    private func rpeColor(for rpe: Double?) -> Color {
+        guard let rpe else { return AppTheme.Colors.chartActive }
+        return RPEBadgeView.rpeColor(for: rpe)
     }
 
     private var insufficientDataView: some View {

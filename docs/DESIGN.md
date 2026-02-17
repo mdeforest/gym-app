@@ -26,7 +26,7 @@ Dark mode by default. Bold, premium aesthetic with warm orange accent. Colors fo
 | Warning                 | `#FFB340`     | Caution states                                               |
 | Chart Active            | `#FF6A3D`     | Active/current bars in charts                                |
 | Chart Inactive          | `#3D2A1F`     | Muted warm brown for inactive/past bars in charts            |
-| Chart Purple            | `#5E5CE6`     | Arms segment in muscle group donut chart                     |
+| Chart Purple            | `#5E5CE6`     | Arms segment in muscle group donut chart, superset accent (bracket, labels, link buttons) |
 | Chart Blue              | `#64D2FF`     | Legs segment in muscle group donut chart                     |
 | Chart Pink              | `#FF6482`     | Core segment in muscle group donut chart                     |
 
@@ -91,7 +91,7 @@ Dark mode by default. Bold, premium aesthetic with warm orange accent. Colors fo
 | **Secondary Button**   | Full-width, 52pt height, `#2C2C2E` fill, white label, 16pt corner radius                    | `Views/Components/SecondaryButton.swift`| Needs update |
 | **Destructive Button** | Full-width, 52pt height, `#FF453A` fill, white label, 16pt corner radius                    | `Views/Components/DestructiveButton.swift` | Needs update |
 | **Pill Button**        | Auto-width (not full-width), 36pt height, pill-shaped (18pt corner radius). Primary variant: `#FF6A3D` fill. Secondary variant: `#2C2C2E` fill. White label with optional leading/trailing SF Symbol icon. For inline actions like "+ Add Set", "View All". | `Views/Components/PillButton.swift` | Done |
-| **Set Row**            | Horizontal row: set number, weight field, reps field, optional checkmark button. Pre-filled from last session. Tap field to edit via numeric keypad. Swipe left to reveal delete button. Editing values propagates to subsequent incomplete sets. Checkmark is hidden when `onComplete` is nil (e.g., in history edit mode). Confirmed sets get a subtle `#FF6A3D` at 8% opacity background tint. | `Views/Components/SetRowView.swift` | Needs update |
+| **Set Row**            | Horizontal row: set number (tappable to toggle warm-up/normal), weight field, reps field, optional checkmark button, optional RPE badge. Pre-filled from last session. Tap field to edit via numeric keypad. Swipe left to reveal delete button. Editing values propagates to subsequent incomplete sets of the same type. Checkmark is hidden when `onComplete` is nil (e.g., in history edit mode). Confirmed sets get a subtle `#FF6A3D` at 8% opacity background tint. Warm-up sets show "W" in warning color (`#FFB340`) with warm-up-specific tint when completed. RPE badge appears after checkmark when set. | `Views/Components/SetRowView.swift` | Done |
 | **Exercise Card**      | Surface (`#1C1C1E`) background, 16pt corner radius, 20pt padding, 12pt gap between cards. Shows exercise name (headline, bold) and last session summary (subheadline, secondary text). | `Views/Components/ExerciseCard.swift` | Needs update |
 | **Number Input**       | `#2C2C2E` background, 12pt corner radius, centered text (callout, medium weight), numeric keyboard. Tap to select all for quick overwrite. | `Views/Components/NumberInputField.swift` | Needs update |
 | **Stat Card**          | Single metric display for 2-column grids. `#1C1C1E` surface background, 16pt corner radius, 20pt internal padding, 100pt minimum height. Contains: Hero Display number (40pt bold, white) and Stat Label below (13pt medium, uppercase, secondary text color). Optional SF Symbol icon (top-right, 20pt, secondary color). | `Views/Components/StatCard.swift` | Done |
@@ -114,7 +114,7 @@ Dark mode by default. Bold, premium aesthetic with warm orange accent. Colors fo
 | **Tab Bar**            | Standard iOS tab bar, 4 tabs: Workout (`dumbbell.fill`), History (`clock.fill`), Exercises (`list.bullet`), Templates (`doc.on.doc`). True black background, `#FF6A3D` tint. | `App/ContentView.swift` | Done |
 | **Workout Frequency Chart** | Bar chart (Swift Charts `BarMark`) showing weekly workout count over time. Gradient bars (accent → `#E8552B`). X-axis: week dates. Y-axis: workout count. Adaptive x-axis stride based on data density. `#1C1C1E` card surface, 16pt corner radius. | `Views/History/Charts/WorkoutFrequencyChart.swift` | Done |
 | **Muscle Group Chart** | Donut chart (Swift Charts `SectorMark`) showing exercise distribution by muscle group. Inner radius 0.6, 2pt angular inset. Per-group colors: Chest=accent, Back=success, Shoulders=warning, Arms=chartPurple, Legs=chartBlue, Core=chartPink, Cardio=textSecondary. 2-column legend below chart with color dot, name, and percentage. | `Views/History/Charts/MuscleGroupChart.swift` | Done |
-| **Strength Progression Chart** | Area + line chart (Swift Charts `AreaMark`/`LineMark`/`PointMark`) showing max weight over time for a selected exercise. Catmull-Rom interpolation. Gradient fill (accent at 30% → transparent). When fewer than 2 data points, shows best-set fallback or "no data" message. | `Views/History/Charts/StrengthProgressionChart.swift` | Done |
+| **Strength Progression Chart** | Area + line chart (Swift Charts `AreaMark`/`LineMark`/`PointMark`) showing max weight over time for a selected exercise. Catmull-Rom interpolation. Gradient fill (accent at 30% → transparent). Point marks color-coded by average RPE when available (green/yellow/red). Warm-up sets excluded from data. When fewer than 2 data points, shows best-set fallback or "no data" message. | `Views/History/Charts/StrengthProgressionChart.swift` | Done |
 | **Time Range Filter** | Horizontal `ScrollView` of `PillButton`s: 1M, 3M, 6M, 1Y, All. Selected: primary style. Unselected: secondary style. Used at the top of the progress charts view. | Inline in `Views/History/ProgressView.swift` | Done |
 | **Toast**              | Floating pill at bottom of screen above tab bar, auto-dismisses after 3 seconds. Dark surface background with white text. Slide-up animation. Pill-shaped corners. | — | Not yet built |
 | **Section Header**     | Title 2 weight (24pt bold), left-aligned, 32pt top margin, 8pt bottom margin               | Used inline in views | Needs update |
@@ -122,12 +122,16 @@ Dark mode by default. Bold, premium aesthetic with warm orange accent. Colors fo
 | **Exercise Detail**    | Full-height bottom sheet (`.large` detent) with drag indicator. Toolbar: star button (top-left, strength exercises only, max 10 favorites) and "Done" button. Header shows muscle group badge (`#FF6A3D` capsule fill) + custom tag. How-to section: description, primary muscles (in accent color), numbered steps. Rest Timer section: "Rest Timer" headline, subtitle, horizontal Rest Time Picker pills. History section: last 5 sessions with sets/reps/weight (or time/distance for cardio). | `Views/ExerciseLibrary/ExerciseDetailView.swift` | Done |
 | **Cardio Inputs**      | Two-row layout inside workout exercise section: clock icon + minutes field, run icon + km field. Replaces weight/reps for exercises flagged as cardio. | Inline in `ActiveWorkoutView.swift` | Done |
 | **Splash Screen**      | Full-screen overlay on app launch. True black background. Logo (`Image("Logo")`) starts centered at 320pt width, fades in over 1s, holds for ~1.5s. Then background fades to transparent while logo shrinks to 180pt and slides up ~60pt (spring animation, 0.9s). Logo fades out last, revealing the Workout tab with its own logo in place. Text and button on Workout tab fade in simultaneously. Total duration ~3.4s. | `Views/Components/SplashView.swift` | Done |
+| **RPE Badge**          | Compact capsule pill displaying RPE value. Shows "RPE" placeholder when nil, "RPE 8" when set. Color-coded: 6–7 green (success), 7.5–8.5 yellow (warning), 9–10 red (destructive). Tappable with `.buttonStyle(.borderless)`. Used in set rows and read-only history views. | `Views/Components/RPEBadgeView.swift` | Done |
+| **RPE Picker**         | Inline horizontal picker appearing below a set row. Row of capsule pills: 6, 6.5, 7, 7.5, 8, 8.5, 9, 9.5, 10. Each pill color-coded by RPE range. Selected pill: full opacity + white border ring. Unselected: 0.4 opacity. Dismisses on selection. Animated in/out with opacity + move transition. | `Views/Components/RPEPickerView.swift` | Done |
+| **Superset Group**     | Visual wrapper for 2+ linked exercises. Purple bracket (4pt wide `RoundedRectangle` in `chartPurple`) on the left edge. "SUPERSET" label (caption bold, `chartPurple`, 1pt kerning) in header. Optional reorder buttons (arrow.up/down.circle.fill) in header when provided. Contains exercise sections with dividers between them. Surface background with standard corner radius. | `Views/Workout/SupersetGroupView.swift` | Done |
+| **Superset Link Label** | Button label shown between exercise groups for linking as superset. Purple pill capsule with link icon + "Link" text in `chartPurple`, on 15% opacity purple background. Flanked by subtle purple connector lines. Full-width with screen edge padding. | `Views/Components/SupersetLinkLabel.swift` | Done |
 
 ### Design Tokens
 
 All design tokens are centralized in `Theme/AppTheme.swift`:
 
-- `AppTheme.Colors` — accent, accentMuted, background, surface, surfaceTertiary, featuredSurface, featuredGradientEnd, textPrimary, textSecondary, destructive, success, warning, chartActive, chartInactive, chartPurple, chartBlue, chartPink
+- `AppTheme.Colors` — accent, accentMuted, background, surface, surfaceTertiary, featuredSurface, featuredGradientEnd, textPrimary, textSecondary, destructive, success, warning, chartActive, chartInactive, chartPurple, supersetAccent (alias for chartPurple), chartBlue, chartPink
 - `AppTheme.Spacing` — xxs (4), xs (8), sm (12), md (16), lg (20), xl (24), xxl (32), xxxl (40)
 - `AppTheme.Layout` — cornerRadius (16), featuredCardRadius (20), pillButtonRadius (26), buttonHeight (52), circularButtonSize (64), minTouchTarget (44), cardPadding (20), cardSpacing (12), screenEdgePadding (20), statCardMinHeight (100), statGridSpacing (12), sectionSpacing (32)
 
@@ -158,11 +162,13 @@ All design tokens are centralized in `Theme/AppTheme.swift`:
 ### Log Sets (Strength)
 1. After adding a strength exercise, set rows appear pre-filled with last session's values (weight + reps)
 2. User taps a number field to adjust → numeric keypad appears, value is auto-selected for quick overwrite
-3. Editing a set's weight or reps auto-propagates the values to all subsequent incomplete sets
+3. Editing a set's weight or reps auto-propagates the values to all subsequent incomplete sets of the same type
 4. User taps the **checkmark** button on the row to confirm the set — row gets subtle accent background tint
-5. Tap **+ Add Set** (pill button) to add another row (pre-filled with the same weight/reps as the previous set)
-6. Swipe left on a set row to reveal a delete button (hidden when only 1 set remains)
-7. Logging a set takes 2-3 taps when values don't change from last session
+5. Tap the **set number** to toggle between normal and warm-up. Warm-up sets show "W" in warning color and get a warning-tinted background when completed. Warm-up sets are excluded from progress stats.
+6. After confirming a set, tap the **RPE badge** to rate effort. An inline picker appears below the row with color-coded pills (6–10 in 0.5 increments). Tap a value to set; picker auto-dismisses.
+7. Tap **+ Add Set** (pill button) to add another row (pre-filled with the same weight/reps as the previous set)
+8. Swipe left on a set row to reveal a delete button (hidden when only 1 set remains)
+9. Logging a set takes 2-3 taps when values don't change from last session
 
 ### Log Cardio
 1. After adding a cardio exercise (Running, Cycling, etc.), time and distance inputs appear instead of set rows
@@ -179,6 +185,15 @@ All design tokens are centralized in `Theme/AppTheme.swift`:
 7. Completing another set while a timer is running resets to the new exercise's rest duration (or continues unchanged if the new exercise has no rest configured)
 8. The timer is purely UI state — it does not persist. The local notification is scheduled when the timer starts and canceled on skip/dismiss
 9. Each exercise section header shows a small rest time badge (e.g., "90s") when configured. Tapping the badge during a workout opens an inline Rest Time Picker to change the value
+
+### Supersets
+1. After adding 2+ exercises, a purple **Link** pill button appears between each exercise group
+2. Tap the Link button to combine the two adjacent exercises (or groups) into a superset
+3. Superset groups render with a purple bracket on the left and a "SUPERSET" header label
+4. Each exercise within a superset has a purple link icon — tap it to access "Remove from Superset" option
+5. Rest timer only starts after completing a set on the **last** exercise in the superset group
+6. Exercises and superset groups can be reordered via **arrow up/down** buttons in each card/group header
+7. Supersets are preserved when saving a workout as a template and restored when starting from that template
 
 ### Finish Workout
 1. User taps **Finish** button in the navigation bar
@@ -224,8 +239,10 @@ All design tokens are centralized in `Theme/AppTheme.swift`:
 3. View switches to edit mode:
    - **Date pickers** appear at top for start and end time (end constrained to after start)
    - **Duration** in summary header updates live as dates change
-   - **Strength exercises**: Set rows become editable via `SetRowView` (no checkmarks shown). Swipe left to delete sets; tap **+ Add Set** to add new sets.
+   - **Strength exercises**: Set rows become editable via `SetRowView` (no checkmarks shown). Swipe left to delete sets; tap **+ Add Set** to add new sets. Tap set number to toggle warm-up.
    - **Cardio exercises**: Duration and distance fields become editable via `NumberInputField`
+   - **Reorder exercises**: Arrow up/down buttons in each exercise card header (and superset group header)
+   - **Supersets**: Purple Link pill buttons between exercise groups to create supersets; link icon on superset members to remove from group
    - **Remove exercise**: X button appears on each exercise header
    - **Add exercise**: **+ Add Exercise** button appears at the bottom, opening the standard exercise picker sheet
 4. Taps **Done** to apply date changes and exit edit mode. Set and exercise edits are saved immediately via SwiftData.

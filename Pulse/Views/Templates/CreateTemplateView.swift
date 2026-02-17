@@ -137,6 +137,19 @@ struct CreateTemplateView: View {
     private func strengthInputs(_ templateExercise: TemplateExercise) -> some View {
         HStack(spacing: AppTheme.Spacing.sm) {
             VStack(spacing: AppTheme.Spacing.xxs) {
+                Text("WARMUP")
+                    .font(.caption)
+                    .foregroundStyle(AppTheme.Colors.warning)
+                NumberInputField(
+                    label: "#",
+                    value: Binding(
+                        get: { templateExercise.warmupSetCount > 0 ? "\(templateExercise.warmupSetCount)" : "" },
+                        set: { templateExercise.warmupSetCount = max(0, Int($0) ?? 0) }
+                    )
+                )
+            }
+
+            VStack(spacing: AppTheme.Spacing.xxs) {
                 Text("SETS")
                     .font(.caption)
                     .foregroundStyle(AppTheme.Colors.textSecondary)

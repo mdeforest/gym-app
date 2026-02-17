@@ -29,11 +29,89 @@ struct WorkoutDetailView: View {
 
                 summaryHeader
 
-                ForEach(workout.exercises.sorted(by: { $0.order < $1.order })) { workoutExercise in
-                    if isEditing {
-                        editableExerciseCard(workoutExercise)
-                    } else {
-                        readOnlyExerciseCard(workoutExercise)
+                let groups = viewModel.groupedExercises(for: workout)
+                ForEach(Array(groups.enumerated()), id: \.offset) { groupIndex, group in
+                    VStack(spacing: 0) {
+                        if group.count > 1 {
+                            // Superset group
+                            HStack(alignment: .top, spacing: 0) {
+                                RoundedRectangle(cornerRadius: 2)
+                                    .fill(AppTheme.Colors.chartPurple)
+                                    .frame(width: 4)
+                                    .padding(.vertical, AppTheme.Spacing.sm)
+
+                                VStack(alignment: .leading, spacing: 0) {
+                                    HStack {
+                                        Text("SUPERSET")
+                                            .font(.caption.weight(.bold))
+                                            .foregroundStyle(AppTheme.Colors.chartPurple)
+                                            .kerning(1)
+                                        Spacer()
+
+                                        if isEditing, groups.count > 1 {
+                                            HStack(spacing: AppTheme.Spacing.xxs) {
+                                                Button {
+                                                    withAnimation { viewModel.moveExerciseGroup(from: groupIndex, to: groupIndex - 1, in: workout) }
+                                                } label: {
+                                                    Image(systemName: "arrow.up.circle.fill")
+                                                        .foregroundStyle(groupIndex > 0 ? AppTheme.Colors.textSecondary : AppTheme.Colors.surfaceTertiary)
+                                                }
+                                                .disabled(groupIndex == 0)
+
+                                                Button {
+                                                    withAnimation { viewModel.moveExerciseGroup(from: groupIndex, to: groupIndex + 1, in: workout) }
+                                                } label: {
+                                                    Image(systemName: "arrow.down.circle.fill")
+                                                        .foregroundStyle(groupIndex < groups.count - 1 ? AppTheme.Colors.textSecondary : AppTheme.Colors.surfaceTertiary)
+                                                }
+                                                .disabled(groupIndex == groups.count - 1)
+                                            }
+                                            .buttonStyle(.borderless)
+                                        }
+                                    }
+                                    .padding(.horizontal, AppTheme.Spacing.md)
+                                    .padding(.top, AppTheme.Spacing.sm)
+                                    .padding(.bottom, AppTheme.Spacing.xs)
+
+                                    ForEach(group.sorted(by: { $0.order < $1.order })) { workoutExercise in
+                                        if isEditing {
+                                            editableExerciseCard(workoutExercise, inSuperset: true)
+                                        } else {
+                                            readOnlyExerciseCard(workoutExercise, inSuperset: true)
+                                        }
+                                    }
+                                }
+                            }
+                            .background(AppTheme.Colors.surface)
+                            .clipShape(RoundedRectangle(cornerRadius: AppTheme.Layout.cornerRadius))
+                            .padding(.horizontal, AppTheme.Layout.screenEdgePadding)
+                        } else if let single = group.first {
+                            if isEditing {
+                                editableExerciseCard(
+                                    single,
+                                    onMoveUp: groupIndex > 0 ? {
+                                        withAnimation { viewModel.moveExerciseGroup(from: groupIndex, to: groupIndex - 1, in: workout) }
+                                    } : nil,
+                                    onMoveDown: groupIndex < groups.count - 1 ? {
+                                        withAnimation { viewModel.moveExerciseGroup(from: groupIndex, to: groupIndex + 1, in: workout) }
+                                    } : nil
+                                )
+                            } else {
+                                readOnlyExerciseCard(single)
+                            }
+                        }
+
+                        // Link button between groups (edit mode only)
+                        if isEditing, groupIndex < groups.count - 1 {
+                            Button {
+                                if let lastOfCurrent = group.last,
+                                   let firstOfNext = groups[groupIndex + 1].first {
+                                    viewModel.linkAsSuperset(lastOfCurrent, firstOfNext)
+                                }
+                            } label: {
+                                SupersetLinkLabel()
+                            }
+                        }
                     }
                 }
 
@@ -154,21 +232,21 @@ struct WorkoutDetailView: View {
 
     // MARK: - Read-Only Exercise Card
 
-    private func readOnlyExerciseCard(_ workoutExercise: WorkoutExercise) -> some View {
+    private func readOnlyExerciseCard(_ workoutExercise: WorkoutExercise, inSuperset: Bool = false) -> some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
             Text(workoutExercise.exercise?.name ?? "Unknown")
                 .font(.headline)
                 .foregroundStyle(AppTheme.Colors.accent)
-                .padding(.horizontal, AppTheme.Layout.cardPadding)
+                .padding(.horizontal, inSuperset ? AppTheme.Spacing.md : AppTheme.Layout.cardPadding)
 
             if workoutExercise.exercise?.isCardio ?? false {
                 readOnlyCardioDetails(workoutExercise)
             } else {
                 ForEach(workoutExercise.sortedSets.filter(\.isCompleted)) { exerciseSet in
                     HStack {
-                        Text("Set \(exerciseSet.order + 1)")
+                        Text(exerciseSet.setType == .warmup ? "W" : "Set \(exerciseSet.order + 1)")
                             .font(.subheadline)
-                            .foregroundStyle(AppTheme.Colors.textSecondary)
+                            .foregroundStyle(exerciseSet.setType == .warmup ? AppTheme.Colors.warning : AppTheme.Colors.textSecondary)
                             .frame(width: 50, alignment: .leading)
                         Text("\(String(format: "%g", exerciseSet.weight)) lbs")
                             .font(.body)
@@ -178,16 +256,27 @@ struct WorkoutDetailView: View {
                         Text("\(exerciseSet.reps) reps")
                             .font(.body)
                             .foregroundStyle(AppTheme.Colors.textPrimary)
+
+                        if let rpe = exerciseSet.rpe {
+                            Text("RPE \(rpe.formatted(.number.precision(.fractionLength(0...1))))")
+                                .font(.caption2.weight(.semibold))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, AppTheme.Spacing.xs)
+                                .padding(.vertical, 3)
+                                .background(RPEBadgeView.rpeColor(for: rpe))
+                                .clipShape(Capsule())
+                        }
+
                         Spacer()
                     }
-                    .padding(.horizontal, AppTheme.Layout.cardPadding)
+                    .padding(.horizontal, inSuperset ? AppTheme.Spacing.md : AppTheme.Layout.cardPadding)
                 }
             }
         }
         .padding(.vertical, AppTheme.Spacing.sm)
-        .background(AppTheme.Colors.surface)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Layout.cornerRadius))
-        .padding(.horizontal, AppTheme.Layout.screenEdgePadding)
+        .background(inSuperset ? Color.clear : AppTheme.Colors.surface)
+        .clipShape(RoundedRectangle(cornerRadius: inSuperset ? 0 : AppTheme.Layout.cornerRadius))
+        .padding(.horizontal, inSuperset ? 0 : AppTheme.Layout.screenEdgePadding)
     }
 
     private func readOnlyCardioDetails(_ workoutExercise: WorkoutExercise) -> some View {
@@ -206,13 +295,47 @@ struct WorkoutDetailView: View {
 
     // MARK: - Editable Exercise Card
 
-    private func editableExerciseCard(_ workoutExercise: WorkoutExercise) -> some View {
+    private func editableExerciseCard(_ workoutExercise: WorkoutExercise, inSuperset: Bool = false, onMoveUp: (() -> Void)? = nil, onMoveDown: (() -> Void)? = nil) -> some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.xs) {
             HStack {
                 Text(workoutExercise.exercise?.name ?? "Unknown Exercise")
                     .font(.headline)
                     .foregroundStyle(AppTheme.Colors.accent)
+
+                if inSuperset {
+                    Menu {
+                        Button("Remove from Superset", role: .destructive) {
+                            viewModel.removeFromSuperset(workoutExercise)
+                        }
+                    } label: {
+                        Image(systemName: "link")
+                            .font(.caption)
+                            .foregroundStyle(AppTheme.Colors.chartPurple)
+                    }
+                }
+
                 Spacer()
+
+                if onMoveUp != nil || onMoveDown != nil {
+                    HStack(spacing: AppTheme.Spacing.xxs) {
+                        Button {
+                            onMoveUp?()
+                        } label: {
+                            Image(systemName: "arrow.up.circle.fill")
+                                .foregroundStyle(onMoveUp != nil ? AppTheme.Colors.textSecondary : AppTheme.Colors.surfaceTertiary)
+                        }
+                        .disabled(onMoveUp == nil)
+
+                        Button {
+                            onMoveDown?()
+                        } label: {
+                            Image(systemName: "arrow.down.circle.fill")
+                                .foregroundStyle(onMoveDown != nil ? AppTheme.Colors.textSecondary : AppTheme.Colors.surfaceTertiary)
+                        }
+                        .disabled(onMoveDown == nil)
+                    }
+                }
+
                 Button {
                     viewModel.removeExercise(workoutExercise)
                 } label: {
@@ -220,7 +343,8 @@ struct WorkoutDetailView: View {
                         .foregroundStyle(AppTheme.Colors.textSecondary)
                 }
             }
-            .padding(.horizontal, AppTheme.Layout.screenEdgePadding)
+            .buttonStyle(.borderless)
+            .padding(.horizontal, inSuperset ? AppTheme.Spacing.md : AppTheme.Layout.screenEdgePadding)
 
             if workoutExercise.exercise?.isCardio ?? false {
                 editableCardioInputs(workoutExercise)
@@ -229,9 +353,9 @@ struct WorkoutDetailView: View {
             }
         }
         .padding(.vertical, AppTheme.Spacing.sm)
-        .background(AppTheme.Colors.surface)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.Layout.cornerRadius))
-        .padding(.horizontal, AppTheme.Layout.screenEdgePadding)
+        .background(inSuperset ? Color.clear : AppTheme.Colors.surface)
+        .clipShape(RoundedRectangle(cornerRadius: inSuperset ? 0 : AppTheme.Layout.cornerRadius))
+        .padding(.horizontal, inSuperset ? 0 : AppTheme.Layout.screenEdgePadding)
     }
 
     // MARK: - Editable Strength Inputs
@@ -255,6 +379,7 @@ struct WorkoutDetailView: View {
             ForEach(workoutExercise.sortedSets) { exerciseSet in
                 SetRowView(
                     setNumber: exerciseSet.order + 1,
+                    setType: exerciseSet.setType,
                     weight: Binding(
                         get: { String(format: "%g", exerciseSet.weight) },
                         set: { exerciseSet.weight = Double($0) ?? 0 }
@@ -266,7 +391,8 @@ struct WorkoutDetailView: View {
                     isCompleted: true,
                     onDelete: workoutExercise.sets.count > 1 ? {
                         viewModel.deleteSet(exerciseSet, from: workoutExercise)
-                    } : nil
+                    } : nil,
+                    onToggleSetType: { viewModel.toggleSetType(exerciseSet) }
                 )
             }
 

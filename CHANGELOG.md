@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.8.0] - 02/17/26
+
+### Added
+- Warm-up sets — toggle any set between normal and warm-up by tapping the set number; "W" badge in warning color; excluded from progress stats, volume, and PRs
+- RPE tracking — optional per-set RPE rating (6.0–10.0 in 0.5 increments) with color-coded badges (green/yellow/red) and inline horizontal picker
+- Supersets — link exercises into groups via purple "Link" pill button between exercise cards; purple bracket and "SUPERSET" label; rest timer only fires after last exercise in group
+- Exercise reordering — arrow up/down buttons in exercise card headers and superset group headers during active workouts and history editing
+- `RPEBadgeView` component — compact color-coded RPE capsule pill
+- `RPEPickerView` component — inline horizontal picker with color-coded pills
+- `SupersetGroupView` component — visual wrapper with purple bracket for linked exercises
+- `SupersetLinkLabel` component — purple pill button label with dashed connector lines
+- `SetType` enum (normal/warmup) on `ExerciseSet` model
+- `rpe` optional property on `ExerciseSet` model
+- `supersetGroupId` optional property on `WorkoutExercise` model
+- `warmupSetCount` and `supersetGroupId` on `TemplateExercise` model
+- Superset and warm-up set preservation in templates (create from workout and start from template)
+- Exercise group reordering logic shared between `WorkoutViewModel` and `HistoryViewModel`
+- Set type, RPE, and superset group columns in CSV/JSON export
+- RPE color-coding on strength progression chart point marks
+- `supersetAccent` color token (alias for chartPurple)
+
+### Changed
+- Warm-up sets excluded from progress stats, volume calculations, and PR tracking
+- Set value auto-propagation now only applies to sets of the same type
+- Strength progression chart excludes warm-up set data
+- Updated README, PROJECT_BRIEF, DESIGN, and FUTURE_FEATURES docs
+
 ## [0.7.0] - 02/16/26
 
 ### Added

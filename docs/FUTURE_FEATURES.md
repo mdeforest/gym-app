@@ -13,6 +13,10 @@
 - [x] **Calendar view** — Monthly calendar in History tab with workout day indicators, date filtering, month navigation, and backdated workout creation
 - [x] **Settings page** — Profile setup (name, body weight, weight unit), data export, clear all data, app version display
 - [x] **Data export** — CSV and JSON export of full workout history via iOS share sheet
+- [x] **Warm-up sets** — Toggle sets between normal and warm-up; warm-up sets excluded from stats and PRs
+- [x] **RPE tracking** — Per-set RPE rating (6–10) with color-coded badges and inline picker
+- [x] **Supersets** — Link exercises into superset groups with purple bracket UI, preserved in templates
+- [x] **Exercise reordering** — Move exercises/groups up and down during workouts and history editing
 
 ---
 
@@ -30,10 +34,7 @@
 - [ ] **Integration with Apple Health**
   Integrate with Apple Health to add workouts, and use other health stats alongside workouts.
 
-- [ ] **Advanced workout features**
-  Includes features such as supersets, drop sets, RPE
-
-- [ ] **Workout “suggestions”** 
+- [ ] **Workout "suggestions"**
   This is purely based on muscle group recovery
 
 - [ ] **Calculators**
@@ -51,6 +52,7 @@
 - [ ] Siri shortcuts: “Start Workout” or “Log Set”
 - [ ] AI-based full workout plans
 - [ ] Personal Trainer AI for chatting/questions
+- [ ] More interesting charts
 ---
 
 

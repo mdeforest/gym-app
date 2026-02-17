@@ -60,7 +60,7 @@ final class WorkoutViewModel {
         for templateExercise in template.sortedExercises {
             guard let exercise = templateExercise.exercise else { continue }
 
-            let workoutExercise = WorkoutExercise(order: templateExercise.order, exercise: exercise)
+            let workoutExercise = WorkoutExercise(order: templateExercise.order, exercise: exercise, supersetGroupId: templateExercise.supersetGroupId)
             workoutExercise.workout = workout
 
             if exercise.isCardio {
@@ -73,15 +73,27 @@ final class WorkoutViewModel {
                 let lastSession = fetchLastSession(for: exercise)
                 let lastSet = lastSession?.sortedSets.first
 
+                let workingWeight = templateExercise.defaultWeight > 0
+                    ? templateExercise.defaultWeight
+                    : (lastSet?.weight ?? 0)
+                let workingReps = templateExercise.defaultReps > 0
+                    ? templateExercise.defaultReps
+                    : (lastSet?.reps ?? 0)
+
+                // Generate warm-up sets first
+                for warmupIndex in 0..<templateExercise.warmupSetCount {
+                    let set = ExerciseSet(order: warmupIndex, setType: .warmup)
+                    set.weight = (workingWeight * 0.5).rounded()
+                    set.reps = workingReps
+                    set.workoutExercise = workoutExercise
+                }
+
+                // Then generate working sets
+                let warmupCount = templateExercise.warmupSetCount
                 for setIndex in 0..<templateExercise.setCount {
-                    let set = ExerciseSet(order: setIndex)
-                    // Template defaults take priority, fall back to last session
-                    set.weight = templateExercise.defaultWeight > 0
-                        ? templateExercise.defaultWeight
-                        : (lastSet?.weight ?? 0)
-                    set.reps = templateExercise.defaultReps > 0
-                        ? templateExercise.defaultReps
-                        : (lastSet?.reps ?? 0)
+                    let set = ExerciseSet(order: warmupCount + setIndex)
+                    set.weight = workingWeight
+                    set.reps = workingReps
                     set.workoutExercise = workoutExercise
                 }
             }
@@ -156,6 +168,9 @@ final class WorkoutViewModel {
     }
 
     func removeExercise(_ workoutExercise: WorkoutExercise) {
+        if workoutExercise.isInSuperset {
+            removeFromSuperset(workoutExercise)
+        }
         modelContext.delete(workoutExercise)
         save()
     }
@@ -181,12 +196,32 @@ final class WorkoutViewModel {
         exerciseSet.isCompleted.toggle()
         save()
 
-        // Auto-start rest timer when completing (not un-completing) a set
-        if !wasCompleted, exerciseSet.isCompleted,
-           let exercise = exerciseSet.workoutExercise?.exercise,
-           let restSeconds = exercise.defaultRestSeconds,
-           restSeconds > 0 {
-            startRestTimer(seconds: restSeconds, exerciseName: exercise.name)
+        guard !wasCompleted, exerciseSet.isCompleted else { return }
+
+        let workoutExercise = exerciseSet.workoutExercise
+
+        // Superset-aware rest timer: only fire after the last exercise in the superset
+        if let groupId = workoutExercise?.supersetGroupId,
+           let workout = activeWorkout {
+            let supersetExercises = workout.exercises
+                .filter { $0.supersetGroupId == groupId }
+                .sorted { $0.order < $1.order }
+            let isLastInSuperset = supersetExercises.last?.id == workoutExercise?.id
+
+            if isLastInSuperset {
+                // Use the max rest time from all exercises in the superset
+                let maxRest = supersetExercises.compactMap { $0.exercise?.defaultRestSeconds }.max()
+                if let restSeconds = maxRest, restSeconds > 0 {
+                    startRestTimer(seconds: restSeconds, exerciseName: "Superset")
+                }
+            }
+        } else {
+            // Normal (non-superset) behavior
+            if let exercise = workoutExercise?.exercise,
+               let restSeconds = exercise.defaultRestSeconds,
+               restSeconds > 0 {
+                startRestTimer(seconds: restSeconds, exerciseName: exercise.name)
+            }
         }
     }
 
@@ -206,13 +241,98 @@ final class WorkoutViewModel {
         guard let changedIndex = sorted.firstIndex(where: { $0.id == changedSet.id }) else { return }
 
         // Only propagate to sets after the changed one that haven't been completed
+        // and share the same set type (warm-up values don't overwrite working sets)
         for index in (changedIndex + 1)..<sorted.count {
             let set = sorted[index]
             guard !set.isCompleted else { continue }
+            guard set.setType == changedSet.setType else { continue }
             set.weight = changedSet.weight
             set.reps = changedSet.reps
         }
         save()
+    }
+
+    func toggleSetType(_ exerciseSet: ExerciseSet) {
+        exerciseSet.setType = (exerciseSet.setType == .normal) ? .warmup : .normal
+        save()
+    }
+
+    // MARK: - Supersets
+
+    func linkAsSuperset(_ exerciseA: WorkoutExercise, _ exerciseB: WorkoutExercise) {
+        if let existingGroup = exerciseA.supersetGroupId {
+            exerciseB.supersetGroupId = existingGroup
+        } else if let existingGroup = exerciseB.supersetGroupId {
+            exerciseA.supersetGroupId = existingGroup
+        } else {
+            let groupId = UUID()
+            exerciseA.supersetGroupId = groupId
+            exerciseB.supersetGroupId = groupId
+        }
+        save()
+    }
+
+    func removeFromSuperset(_ workoutExercise: WorkoutExercise) {
+        guard let groupId = workoutExercise.supersetGroupId,
+              let workout = activeWorkout else { return }
+
+        workoutExercise.supersetGroupId = nil
+
+        // Dissolve group if only 1 exercise remains
+        let remaining = workout.exercises.filter { $0.supersetGroupId == groupId }
+        if remaining.count == 1 {
+            remaining.first?.supersetGroupId = nil
+        }
+        save()
+    }
+
+    func groupedExercises() -> [[WorkoutExercise]] {
+        guard let workout = activeWorkout else { return [] }
+        return Self.groupExercises(workout.exercises)
+    }
+
+    func moveExerciseGroup(from source: Int, to destination: Int) {
+        var groups = groupedExercises()
+        guard source != destination, source < groups.count, destination < groups.count else { return }
+        let moved = groups.remove(at: source)
+        groups.insert(moved, at: destination)
+        Self.reassignOrders(groups)
+        save()
+    }
+
+    nonisolated static func groupExercises(_ exercises: [WorkoutExercise]) -> [[WorkoutExercise]] {
+        let sorted = exercises.sorted { $0.order < $1.order }
+        var groups: [[WorkoutExercise]] = []
+        var currentGroup: [WorkoutExercise] = []
+        var currentGroupId: UUID?
+
+        for exercise in sorted {
+            if let gid = exercise.supersetGroupId {
+                if gid == currentGroupId {
+                    currentGroup.append(exercise)
+                } else {
+                    if !currentGroup.isEmpty { groups.append(currentGroup) }
+                    currentGroup = [exercise]
+                    currentGroupId = gid
+                }
+            } else {
+                if !currentGroup.isEmpty { groups.append(currentGroup) }
+                currentGroup = [exercise]
+                currentGroupId = nil
+            }
+        }
+        if !currentGroup.isEmpty { groups.append(currentGroup) }
+        return groups
+    }
+
+    nonisolated static func reassignOrders(_ groups: [[WorkoutExercise]]) {
+        var order = 0
+        for group in groups {
+            for exercise in group.sorted(by: { $0.order < $1.order }) {
+                exercise.order = order
+                order += 1
+            }
+        }
     }
 
     // MARK: - Last Session Reference

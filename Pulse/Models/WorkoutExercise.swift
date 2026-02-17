@@ -15,13 +15,21 @@ final class WorkoutExercise {
     var durationSeconds: Int?
     var distanceMeters: Double?
 
+    // Superset grouping
+    var supersetGroupId: UUID?
+
     var sortedSets: [ExerciseSet] {
         sets.sorted { $0.order < $1.order }
     }
 
-    init(order: Int, exercise: Exercise? = nil) {
+    var isInSuperset: Bool {
+        supersetGroupId != nil
+    }
+
+    init(order: Int, exercise: Exercise? = nil, supersetGroupId: UUID? = nil) {
         self.id = UUID()
         self.order = order
         self.exercise = exercise
+        self.supersetGroupId = supersetGroupId
     }
 }

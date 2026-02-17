@@ -3,7 +3,7 @@ import Foundation
 enum ExportService {
 
     static func exportCSV(workouts: [Workout]) -> String {
-        var csv = "Date,Duration (min),Exercise,Muscle Group,Type,Set #,Weight (lbs),Reps,Duration (s),Distance (km)\n"
+        var csv = "Date,Duration (min),Exercise,Muscle Group,Type,Set #,Set Type,Weight (lbs),Reps,RPE,Superset Group,Duration (s),Distance (km)\n"
 
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
@@ -16,14 +16,16 @@ enum ExportService {
                 let exerciseName = workoutExercise.exercise?.name ?? "Unknown"
                 let muscleGroup = workoutExercise.exercise?.muscleGroup.displayName ?? ""
                 let isCardio = workoutExercise.exercise?.isCardio ?? false
+                let supersetGroup = workoutExercise.supersetGroupId?.uuidString ?? ""
 
                 if isCardio {
                     let durSec = workoutExercise.durationSeconds ?? 0
                     let distKm = (workoutExercise.distanceMeters ?? 0) / 1000.0
-                    csv += "\(dateStr),\(durationMin),\(exerciseName),\(muscleGroup),cardio,,,\(durSec),\(String(format: "%.2f", distKm))\n"
+                    csv += "\(dateStr),\(durationMin),\(exerciseName),\(muscleGroup),cardio,,,,,,\(supersetGroup),\(durSec),\(String(format: "%.2f", distKm))\n"
                 } else {
                     for set in workoutExercise.sortedSets where set.isCompleted {
-                        csv += "\(dateStr),\(durationMin),\(exerciseName),\(muscleGroup),strength,\(set.order + 1),\(String(format: "%g", set.weight)),\(set.reps),,\n"
+                        let rpeStr = set.rpe.map { String(format: "%g", $0) } ?? ""
+                        csv += "\(dateStr),\(durationMin),\(exerciseName),\(muscleGroup),strength,\(set.order + 1),\(set.setType.rawValue),\(String(format: "%g", set.weight)),\(set.reps),\(rpeStr),\(supersetGroup),,\n"
                     }
                 }
             }
@@ -54,6 +56,10 @@ enum ExportService {
                     "muscleGroup": we.exercise?.muscleGroup.rawValue ?? "",
                 ]
 
+                if let supersetGroupId = we.supersetGroupId {
+                    exDict["supersetGroupId"] = supersetGroupId.uuidString
+                }
+
                 if we.exercise?.isCardio == true {
                     exDict["type"] = "cardio"
                     exDict["durationSeconds"] = we.durationSeconds ?? 0
@@ -61,11 +67,16 @@ enum ExportService {
                 } else {
                     exDict["type"] = "strength"
                     exDict["sets"] = we.sortedSets.filter(\.isCompleted).map { set in
-                        [
+                        var setDict: [String: Any] = [
                             "setNumber": set.order + 1,
                             "weight": set.weight,
                             "reps": set.reps,
-                        ] as [String: Any]
+                            "setType": set.setType.rawValue,
+                        ]
+                        if let rpe = set.rpe {
+                            setDict["rpe"] = rpe
+                        }
+                        return setDict
                     }
                 }
 
