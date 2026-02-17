@@ -93,15 +93,6 @@ struct ExerciseLibraryView: View {
                 .searchable(text: $searchText, prompt: "Search exercises")
             }
             .navigationTitle("Exercises")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showingAddExercise = true
-                    } label: {
-                        Image(systemName: "plus")
-                    }
-                }
-            }
             .sheet(isPresented: $showingAddExercise) {
                 if let viewModel {
                     AddCustomExerciseView(viewModel: viewModel)
@@ -113,6 +104,23 @@ struct ExerciseLibraryView: View {
                     .presentationDragIndicator(.visible)
             }
             .background(AppTheme.Colors.background)
+        }
+        .overlay(alignment: .topTrailing) {
+            Button {
+                showingAddExercise = true
+            } label: {
+                ZStack {
+                    Circle()
+                        .fill(AppTheme.Colors.surfaceTertiary)
+                        .frame(width: 40, height: 40)
+                    Image(systemName: "plus")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(AppTheme.Colors.accent)
+                }
+            }
+            .buttonStyle(.plain)
+            .padding(.trailing, AppTheme.Layout.screenEdgePadding)
+            .padding(.top, 54)
         }
         .onAppear {
             if viewModel == nil {

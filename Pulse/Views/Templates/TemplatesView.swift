@@ -26,17 +26,23 @@ struct TemplatesView: View {
             }
             .navigationTitle("Templates")
             .background(AppTheme.Colors.background)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        showingCreateTemplate = true
-                    } label: {
-                        Image(systemName: "plus")
-                            .fontWeight(.semibold)
-                            .foregroundStyle(AppTheme.Colors.accent)
-                    }
+        }
+        .overlay(alignment: .topTrailing) {
+            Button {
+                showingCreateTemplate = true
+            } label: {
+                ZStack {
+                    Circle()
+                        .fill(AppTheme.Colors.surfaceTertiary)
+                        .frame(width: 40, height: 40)
+                    Image(systemName: "plus")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(AppTheme.Colors.accent)
                 }
             }
+            .buttonStyle(.plain)
+            .padding(.trailing, AppTheme.Layout.screenEdgePadding)
+            .padding(.top, 54)
         }
         .onAppear {
             if templateViewModel == nil {

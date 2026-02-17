@@ -92,7 +92,7 @@ struct WorkoutDetailView: View {
 
     private var dateEditSection: some View {
         VStack(spacing: AppTheme.Spacing.sm) {
-            DatePicker("Start", selection: $editedStartDate)
+            DatePicker("Start", selection: $editedStartDate, in: ...editedEndDate)
                 .datePickerStyle(.compact)
                 .foregroundStyle(AppTheme.Colors.textPrimary)
             DatePicker("End", selection: $editedEndDate, in: editedStartDate...)

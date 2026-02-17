@@ -5,6 +5,8 @@ struct WorkoutView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel: WorkoutViewModel?
     @State private var contentVisible = false
+    @State private var showingSettings = false
+    @AppStorage("userName") private var userName: String = ""
 
     var splashFinished: Bool = true
     @Binding var pendingTemplate: WorkoutTemplate?
@@ -22,6 +24,21 @@ struct WorkoutView: View {
             }
             .navigationTitle("Workout")
             .background(AppTheme.Colors.background)
+            .sheet(isPresented: $showingSettings) {
+                SettingsView()
+            }
+        }
+        .overlay(alignment: .topTrailing) {
+            if viewModel?.activeWorkout == nil {
+                Button {
+                    showingSettings = true
+                } label: {
+                    profileAvatar
+                }
+                .buttonStyle(.plain)
+                .padding(.trailing, AppTheme.Layout.screenEdgePadding)
+                .padding(.top, 54)
+            }
         }
         .onAppear {
             if viewModel == nil {
@@ -39,6 +56,31 @@ struct WorkoutView: View {
             if let template {
                 viewModel?.startWorkout(from: template)
                 pendingTemplate = nil
+            }
+        }
+    }
+
+    private var profileAvatar: some View {
+        let initials = userName
+            .split(separator: " ")
+            .prefix(2)
+            .compactMap(\.first)
+            .map(String.init)
+            .joined()
+
+        return ZStack {
+            Circle()
+                .fill(AppTheme.Colors.surfaceTertiary)
+                .frame(width: 40, height: 40)
+
+            if initials.isEmpty {
+                Image(systemName: "person.fill")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(AppTheme.Colors.textSecondary)
+            } else {
+                Text(initials.uppercased())
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(AppTheme.Colors.textPrimary)
             }
         }
     }

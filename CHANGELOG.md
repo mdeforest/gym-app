@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.7.0] - 02/16/26
+
+### Added
+- Settings page — accessible via profile avatar button on the Workout tab
+- Profile section with name, body weight, and weight unit (lbs/kg) persisted via `@AppStorage`
+- Data export — CSV and JSON export of full workout history via `ExportService` and iOS share sheet
+- Clear all data option with destructive confirmation alert and success feedback
+- App version and build number display in settings
+- `SettingsViewModel` with export data generation and clear data logic
+- `ExportService` with CSV and JSON formatters and temporary file writing
+- Profile avatar component showing user initials or fallback person icon
+
+### Changed
+- Toolbar "+" buttons on Exercises and Templates tabs replaced with circular overlay buttons for visual consistency
+- Workout tab now shows profile avatar (top-right) when no active workout is in progress
+- Updated README, PROJECT_BRIEF, DESIGN, and FUTURE_FEATURES docs
+
+### Fixed
+- WorkoutDetailView start date picker now constrained to not exceed end date
+
 ## [0.6.0] - 02/14/26
 
 ### Added

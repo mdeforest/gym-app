@@ -28,7 +28,7 @@ targets:
         INFOPLIST_KEY_UIUserInterfaceStyle: Dark
         GENERATE_INFOPLIST_FILE: true
         CURRENT_PROJECT_VERSION: "1"
-        MARKETING_VERSION: "0.1.0"
+        MARKETING_VERSION: "0.7.0"
         PRODUCT_BUNDLE_IDENTIFIER: com.pulse.Pulse
         PRODUCT_NAME: "Pulse"
         CODE_SIGN_STYLE: Automatic

@@ -20,6 +20,7 @@ Steps:
    > “Do you want to tag this as a versioned release?”  
    Suggest a version like:
    - If last tag is `v1.1.2`, suggest `v1.1.3`
+   - When choosing the next tag, take into account whether the changes ammount to a patch, minor, or major version.
    - Let user override or enter custom version
 
 3. Run:
@@ -56,7 +57,10 @@ Steps:
    git commit -m "[message]"
 
 6. If version selected:
-   git tag v1.1.3  
+   - Update `MARKETING_VERSION` in `project.yml` to match the new version (without the `v` prefix)
+   - Run `xcodegen generate` to regenerate the Xcode project
+   - Stage the updated `project.yml` and `Pulse.xcodeproj` before committing
+   git tag v1.1.3
    git push origin --tags
 
 7. Push:

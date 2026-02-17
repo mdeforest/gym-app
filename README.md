@@ -22,6 +22,8 @@
 - **Last-session reference** — Sets are pre-filled with last session's weight/reps for easy progressive overload tracking
 - **Set management** — Swipe left to delete sets; editing a set auto-populates remaining incomplete sets
 - **Cancel workout** — Dedicated cancel button with confirmation to discard an in-progress workout
+- **Settings page** — Profile setup (name, body weight, weight unit), data export (CSV/JSON via share sheet), clear all data with confirmation, and app version display. Accessed via a profile avatar button on the Workout tab.
+- **Data export** — Export full workout history as CSV or JSON. Includes exercise names, muscle groups, sets, weight, reps, and cardio data. Share via the iOS share sheet.
 - **Animated splash screen** — Logo fades in centered, then shrinks and slides into position on the Workout tab as the app reveals
 
 ## Design Goals
@@ -63,7 +65,8 @@ Pulse/
 │   ├── ExerciseDetailViewModel.swift
 │   ├── HistoryViewModel.swift
 │   ├── ProgressViewModel.swift
-│   └── TemplateViewModel.swift
+│   ├── TemplateViewModel.swift
+│   └── SettingsViewModel.swift
 ├── Views/
 │   ├── Workout/
 │   │   ├── WorkoutView.swift
@@ -87,6 +90,10 @@ Pulse/
 │   │   ├── TemplatesView.swift
 │   │   ├── CreateTemplateView.swift
 │   │   └── TemplateDetailView.swift
+│   ├── Settings/
+│   │   ├── SettingsView.swift
+│   │   ├── ProfileSectionView.swift
+│   │   └── DataManagementSectionView.swift
 │   └── Components/               # Reusable UI components
 │       ├── PrimaryButton.swift
 │       ├── SecondaryButton.swift
@@ -110,7 +117,8 @@ Pulse/
 ├── Services/
 │   ├── DataService.swift         # ModelContainer factory
 │   ├── ExerciseSeedData.swift    # 52 pre-populated exercises
-│   └── ExerciseInstructions.swift # How-to instructions for all exercises
+│   ├── ExerciseInstructions.swift # How-to instructions for all exercises
+│   └── ExportService.swift       # CSV/JSON workout data export
 └── Resources/
     ├── Assets.xcassets           # AppIcon, Logo image, AccentColor
     └── exercises.json          # Exercise seed data (52 exercises with rest defaults)

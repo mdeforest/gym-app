@@ -20,8 +20,9 @@ A personal workout tracker built for a single user who primarily lifts weights a
   - ~~Progress charts and analytics (PR tracking, volume over time)~~ **Delivered** — see Core Features
   - ~~Rest timer~~ **Delivered** — see Core Features
   - ~~Workout calendar view~~ **Delivered** — see Core Features
+  - ~~Data export (CSV/JSON)~~ **Delivered** — see Core Features
+  - ~~Settings page~~ **Delivered** — see Core Features
   - Body weight / measurement tracking
-  - Data export (CSV/JSON)
 
 ## Core Features
 - [x] **Workout logging**: Start a workout session, add exercises, and log sets (weight, reps) with minimal taps. Cancel button with confirmation to discard in-progress workouts.
@@ -38,6 +39,8 @@ A personal workout tracker built for a single user who primarily lifts weights a
 - [x] **Exercise favorites**: Star up to 10 strength exercises in the exercise library or detail panel. Favorites are prioritized in the progress charts exercise picker.
 - [x] **Progress charts & analytics**: Segmented "Progress" view within the History tab. Summary stats (workouts this month, total volume lifted, day streak, personal records). Three chart types: weekly workout frequency (bar chart), muscle group split (donut chart with legend), and per-exercise strength progression (line/area chart with max weight over time). Time range filter (1M, 3M, 6M, 1Y, All). Exercise picker prioritizes favorites, falls back to all used exercises. Built with Swift Charts.
 - [x] **Calendar view**: Monthly calendar grid embedded at the top of the History tab's Workouts segment. Workout days marked with accent-colored dots. Tap a day to filter the list below to that day's sessions; tap again to deselect. Month navigation via chevron buttons (past only — future months disabled). Select any past day to create a backdated workout that opens in edit mode. Today is highlighted with a muted accent circle.
+- [x] **Settings page**: Accessible via profile avatar button on the Workout tab. Profile section (name, body weight, weight unit). Data export (CSV/JSON via share sheet). Clear all data with destructive confirmation. App version display. Presented as a modal sheet with inset grouped list styling.
+- [x] **Data export**: Export full workout history as CSV or JSON via `ExportService`. CSV includes date, duration, exercise, muscle group, type, sets, weight, reps, and cardio data. JSON includes structured workout objects with ISO 8601 dates. Files are shared via the iOS share sheet (`UIActivityViewController`).
 
 ## Design and User Experience Vibe
 - **Tone**: Minimal and functional — get in, log, get out. No gamification, no fluff
