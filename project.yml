@@ -19,6 +19,11 @@ targets:
       - Pulse
     resources:
       - Pulse/Resources
+    entitlements:
+      path: Pulse/Pulse.entitlements
+      properties:
+        com.apple.developer.healthkit: true
+        com.apple.developer.healthkit.access: []
     settings:
       base:
         INFOPLIST_KEY_UIApplicationSceneManifest_Generation: true
@@ -26,15 +31,21 @@ targets:
         INFOPLIST_KEY_UILaunchScreen_Generation: true
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: UIInterfaceOrientationPortrait
         INFOPLIST_KEY_UIUserInterfaceStyle: Dark
+        INFOPLIST_KEY_NSHealthShareUsageDescription: "Pulse reads your body weight from Apple Health to display in your profile."
+        INFOPLIST_KEY_NSHealthUpdateUsageDescription: "Pulse saves your completed workouts to Apple Health."
         GENERATE_INFOPLIST_FILE: true
         CURRENT_PROJECT_VERSION: "1"
-        MARKETING_VERSION: "0.8.0"
+        MARKETING_VERSION: "0.9.0"
         PRODUCT_BUNDLE_IDENTIFIER: com.pulse.Pulse
         PRODUCT_NAME: "Pulse"
         CODE_SIGN_STYLE: Automatic
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         SWIFT_STRICT_CONCURRENCY: complete
+    attributes:
+      SystemCapabilities:
+        com.apple.HealthKit:
+          enabled: true
 
   PulseTests:
     type: bundle.unit-test

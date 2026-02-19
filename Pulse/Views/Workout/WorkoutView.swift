@@ -128,5 +128,6 @@ struct WorkoutView: View {
             Exercise.self,
             WorkoutTemplate.self,
             TemplateExercise.self,
+            TemplateSet.self,
         ], inMemory: true)
 }

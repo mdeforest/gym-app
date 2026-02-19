@@ -7,9 +7,14 @@ struct StrengthProgressionChart: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
-            Text("Strength Progression")
-                .font(.headline)
-                .foregroundStyle(AppTheme.Colors.textPrimary)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Strength Progression")
+                    .font(.headline)
+                    .foregroundStyle(AppTheme.Colors.textPrimary)
+                Text("Estimated 1RM")
+                    .font(.caption)
+                    .foregroundStyle(AppTheme.Colors.textSecondary)
+            }
 
             if data.count < 2 {
                 insufficientDataView
@@ -23,11 +28,19 @@ struct StrengthProgressionChart: View {
         .padding(.horizontal, AppTheme.Layout.screenEdgePadding)
     }
 
+    private var yDomain: ClosedRange<Double> {
+        let values = data.map(\.estimatedOneRepMax)
+        let minVal = values.min() ?? 0
+        let maxVal = values.max() ?? 0
+        let padding = max((maxVal - minVal) * 0.15, 10)
+        return max(0, minVal - padding)...(maxVal + padding)
+    }
+
     private var chart: some View {
         Chart(data) { point in
             AreaMark(
                 x: .value("Date", point.date),
-                y: .value("Weight", point.maxWeight)
+                y: .value("Est. 1RM", point.estimatedOneRepMax)
             )
             .foregroundStyle(
                 LinearGradient(
@@ -39,19 +52,19 @@ struct StrengthProgressionChart: View {
                     endPoint: .bottom
                 )
             )
-            .interpolationMethod(.catmullRom)
+            .interpolationMethod(.monotone)
 
             LineMark(
                 x: .value("Date", point.date),
-                y: .value("Weight", point.maxWeight)
+                y: .value("Est. 1RM", point.estimatedOneRepMax)
             )
             .foregroundStyle(AppTheme.Colors.chartActive)
             .lineStyle(StrokeStyle(lineWidth: 2.5))
-            .interpolationMethod(.catmullRom)
+            .interpolationMethod(.monotone)
 
             PointMark(
                 x: .value("Date", point.date),
-                y: .value("Weight", point.maxWeight)
+                y: .value("Est. 1RM", point.estimatedOneRepMax)
             )
             .foregroundStyle(rpeColor(for: point.averageRPE))
             .symbolSize(30)
@@ -70,6 +83,7 @@ struct StrengthProgressionChart: View {
                     .foregroundStyle(AppTheme.Colors.textSecondary)
             }
         }
+        .chartYScale(domain: yDomain)
         .frame(height: 200)
     }
 
@@ -81,11 +95,11 @@ struct StrengthProgressionChart: View {
     private var insufficientDataView: some View {
         VStack(spacing: AppTheme.Spacing.xs) {
             if data.count == 1 {
-                Text("\(Int(data[0].maxWeight)) lbs")
+                Text("\(Int(data[0].estimatedOneRepMax)) lbs")
                     .font(.system(size: 40, weight: .bold))
                     .foregroundStyle(AppTheme.Colors.textPrimary)
 
-                Text("Best set for \(exerciseName)")
+                Text("Est. 1RM for \(exerciseName)")
                     .font(.subheadline)
                     .foregroundStyle(AppTheme.Colors.textSecondary)
 

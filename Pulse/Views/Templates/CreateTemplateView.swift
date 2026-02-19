@@ -130,70 +130,71 @@ struct CreateTemplateView: View {
         .background(AppTheme.Colors.surface)
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.Layout.cornerRadius))
         .padding(.horizontal, AppTheme.Layout.screenEdgePadding)
+        .onAppear {
+            if let templateViewModel, !(templateExercise.exercise?.isCardio ?? false) {
+                templateViewModel.migrateToSetsIfNeeded(templateExercise)
+            }
+        }
     }
 
     // MARK: - Strength Inputs
 
     private func strengthInputs(_ templateExercise: TemplateExercise) -> some View {
-        HStack(spacing: AppTheme.Spacing.sm) {
-            VStack(spacing: AppTheme.Spacing.xxs) {
-                Text("WARMUP")
-                    .font(.caption)
-                    .foregroundStyle(AppTheme.Colors.warning)
-                NumberInputField(
-                    label: "#",
-                    value: Binding(
-                        get: { templateExercise.warmupSetCount > 0 ? "\(templateExercise.warmupSetCount)" : "" },
-                        set: { templateExercise.warmupSetCount = max(0, Int($0) ?? 0) }
-                    )
-                )
-            }
-
-            VStack(spacing: AppTheme.Spacing.xxs) {
-                Text("SETS")
-                    .font(.caption)
-                    .foregroundStyle(AppTheme.Colors.textSecondary)
-                NumberInputField(
-                    label: "#",
-                    value: Binding(
-                        get: { "\(templateExercise.setCount)" },
-                        set: { templateExercise.setCount = max(1, Int($0) ?? 1) }
-                    )
-                )
-            }
-
-            VStack(spacing: AppTheme.Spacing.xxs) {
+        VStack(alignment: .leading, spacing: AppTheme.Spacing.xxs) {
+            // Column headers
+            HStack(spacing: AppTheme.Spacing.sm) {
+                Text("SET")
+                    .frame(width: 28)
                 Text("LBS")
-                    .font(.caption)
-                    .foregroundStyle(AppTheme.Colors.textSecondary)
-                NumberInputField(
-                    label: "—",
-                    value: Binding(
-                        get: {
-                            templateExercise.defaultWeight > 0
-                                ? String(format: "%g", templateExercise.defaultWeight) : ""
-                        },
-                        set: { templateExercise.defaultWeight = Double($0) ?? 0 }
-                    )
-                )
+                    .frame(maxWidth: .infinity)
+                Text("")
+                    .frame(width: 14)
+                Text("REPS")
+                    .frame(maxWidth: .infinity)
+            }
+            .font(.caption)
+            .foregroundStyle(AppTheme.Colors.textSecondary)
+            .padding(.horizontal, AppTheme.Spacing.md)
+
+            // Per-set rows
+            ForEach(templateExercise.sortedSets) { templateSet in
+                templateSetRow(templateSet, in: templateExercise)
             }
 
-            VStack(spacing: AppTheme.Spacing.xxs) {
-                Text("REPS")
-                    .font(.caption)
-                    .foregroundStyle(AppTheme.Colors.textSecondary)
-                NumberInputField(
-                    label: "—",
-                    value: Binding(
-                        get: {
-                            templateExercise.defaultReps > 0
-                                ? "\(templateExercise.defaultReps)" : ""
-                        },
-                        set: { templateExercise.defaultReps = Int($0) ?? 0 }
-                    )
-                )
+            // Add set button
+            Button {
+                templateViewModel?.addTemplateSet(to: templateExercise)
+            } label: {
+                Text("+ Add Set")
+                    .font(.subheadline)
+                    .foregroundStyle(AppTheme.Colors.accent)
+                    .padding(.vertical, AppTheme.Spacing.xs)
+                    .padding(.horizontal, AppTheme.Spacing.md)
             }
+            .buttonStyle(.borderless)
         }
+    }
+
+    private func templateSetRow(_ templateSet: TemplateSet, in templateExercise: TemplateExercise) -> some View {
+        SetRowView(
+            setNumber: templateSet.order + 1,
+            setType: templateSet.setType,
+            weight: Binding(
+                get: { templateSet.weight > 0 ? String(format: "%g", templateSet.weight) : "" },
+                set: { templateSet.weight = Double($0) ?? 0 }
+            ),
+            reps: Binding(
+                get: { templateSet.reps > 0 ? "\(templateSet.reps)" : "" },
+                set: { templateSet.reps = Int($0) ?? 0 }
+            ),
+            isCompleted: false,
+            onDelete: templateExercise.sets.count > 1 ? {
+                templateViewModel?.deleteTemplateSet(templateSet, from: templateExercise)
+            } : nil,
+            onToggleSetType: {
+                templateViewModel?.toggleTemplateSetType(templateSet)
+            }
+        )
     }
 
     // MARK: - Cardio Inputs

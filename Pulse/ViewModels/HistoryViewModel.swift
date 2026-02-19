@@ -19,6 +19,12 @@ final class HistoryViewModel {
     var selectedDate: Date? = nil
     private var workoutDays: Set<DateComponents> = []
 
+    private static let monthYearFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMMM yyyy"
+        return formatter
+    }()
+
     private let modelContext: ModelContext
     private let calendar = Calendar.current
 
@@ -82,9 +88,7 @@ final class HistoryViewModel {
     }
 
     func formattedMonthYear(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMMM yyyy"
-        return formatter.string(from: date)
+        Self.monthYearFormatter.string(from: date)
     }
 
     func daysInMonth() -> [CalendarDay] {
@@ -258,6 +262,9 @@ final class HistoryViewModel {
 
     func toggleSetType(_ exerciseSet: ExerciseSet) {
         exerciseSet.setType = (exerciseSet.setType == .normal) ? .warmup : .normal
+        if exerciseSet.setType == .warmup {
+            exerciseSet.rpe = nil
+        }
         save()
     }
 

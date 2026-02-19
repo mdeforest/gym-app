@@ -44,6 +44,11 @@ final class WorkoutViewModel {
         fetchActiveWorkout()
     }
 
+    nonisolated deinit {
+        // Timer task and pending notifications are cleaned up
+        // when the workout is discarded or finished via skipRestTimer()
+    }
+
     // MARK: - Workout Lifecycle
 
     func startWorkout() {
@@ -69,18 +74,30 @@ final class WorkoutViewModel {
                     ?? lastSession?.durationSeconds
                 workoutExercise.distanceMeters = templateExercise.defaultDistanceMeters
                     ?? lastSession?.distanceMeters
+            } else if templateExercise.hasMigratedSets {
+                // Copy individual template sets directly
+                for templateSet in templateExercise.sortedSets {
+                    let set = ExerciseSet(
+                        order: templateSet.order,
+                        weight: templateSet.weight,
+                        reps: templateSet.reps,
+                        setType: templateSet.setType
+                    )
+                    set.workoutExercise = workoutExercise
+                }
             } else {
+                // Legacy fallback for unmigrated templates
                 let lastSession = fetchLastSession(for: exercise)
-                let lastSet = lastSession?.sortedSets.first
+                let lastNormalSet = lastSession?.sortedSets.first { $0.setType == .normal }
+                    ?? lastSession?.sortedSets.first
 
                 let workingWeight = templateExercise.defaultWeight > 0
                     ? templateExercise.defaultWeight
-                    : (lastSet?.weight ?? 0)
+                    : (lastNormalSet?.weight ?? 0)
                 let workingReps = templateExercise.defaultReps > 0
                     ? templateExercise.defaultReps
-                    : (lastSet?.reps ?? 0)
+                    : (lastNormalSet?.reps ?? 0)
 
-                // Generate warm-up sets first
                 for warmupIndex in 0..<templateExercise.warmupSetCount {
                     let set = ExerciseSet(order: warmupIndex, setType: .warmup)
                     set.weight = (workingWeight * 0.5).rounded()
@@ -88,7 +105,6 @@ final class WorkoutViewModel {
                     set.workoutExercise = workoutExercise
                 }
 
-                // Then generate working sets
                 let warmupCount = templateExercise.warmupSetCount
                 for setIndex in 0..<templateExercise.setCount {
                     let set = ExerciseSet(order: warmupCount + setIndex)
@@ -126,6 +142,15 @@ final class WorkoutViewModel {
         workout.endDate = .now
         activeWorkout = nil
         save()
+
+        // Sync to Apple Health if enabled
+        let healthService = HealthKitService.shared
+        if healthService.isEnabled {
+            Task {
+                await healthService.saveWorkout(workout)
+            }
+        }
+
         return workout
     }
 
@@ -254,6 +279,9 @@ final class WorkoutViewModel {
 
     func toggleSetType(_ exerciseSet: ExerciseSet) {
         exerciseSet.setType = (exerciseSet.setType == .normal) ? .warmup : .normal
+        if exerciseSet.setType == .warmup {
+            exerciseSet.rpe = nil
+        }
         save()
     }
 

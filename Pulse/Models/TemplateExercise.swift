@@ -15,6 +15,18 @@ final class TemplateExercise {
     var warmupSetCount: Int = 0
     var supersetGroupId: UUID?
 
+    @Relationship(deleteRule: .cascade, inverse: \TemplateSet.templateExercise)
+    var sets: [TemplateSet] = []
+
+    var sortedSets: [TemplateSet] {
+        sets.sorted { $0.order < $1.order }
+    }
+
+    /// Whether this exercise has been migrated to per-set configuration
+    var hasMigratedSets: Bool {
+        !sets.isEmpty
+    }
+
     init(order: Int, exercise: Exercise? = nil, setCount: Int = 3, defaultWeight: Double = 0, defaultReps: Int = 0, warmupSetCount: Int = 0, supersetGroupId: UUID? = nil) {
         self.id = UUID()
         self.order = order

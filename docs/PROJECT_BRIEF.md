@@ -23,6 +23,7 @@ A personal workout tracker built for a single user who primarily lifts weights a
   - ~~Data export (CSV/JSON)~~ **Delivered** — see Core Features
   - ~~Settings page~~ **Delivered** — see Core Features
   - ~~Advanced workout features (warm-up sets, RPE, supersets)~~ **Delivered** — see Core Features
+  - ~~Apple Health integration~~ **Delivered** — see Core Features
   - Body weight / measurement tracking
 
 ## Core Features
@@ -36,7 +37,7 @@ A personal workout tracker built for a single user who primarily lifts weights a
 - [x] **Set management**: Swipe left to delete individual sets. Editing a set's weight/reps auto-propagates values to subsequent incomplete sets.
 - [x] **Rest timer**: Auto-starts when completing a set if the exercise has a configured rest duration. Floating pill overlay with countdown, expandable to full controls (±30s, Skip). Haptic + sound on completion; local notification when backgrounded. Each exercise has a configurable `defaultRestSeconds` (editable in Exercise Detail and inline during workouts). Timer uses wall-clock dates so it continues counting while the app is backgrounded.
 - [x] **Branding & splash screen**: Custom app icon (dumbbell on dark background) and horizontal logo lockup. Animated splash screen on launch — logo fades in centered, then shrinks and transitions into its resting position on the Workout tab.
-- [x] **Workout templates**: Save named routines (e.g. "Push Day") with exercises, set counts, and optional default weight/reps. Create templates from scratch via the dedicated Templates tab or save a completed workout as a template from the History detail view. Start a pre-populated workout from any template with one tap — sets are pre-filled from template defaults, falling back to last-session values. Edit, rename, reorder exercises, and delete templates. Dedicated 4th tab in the tab bar.
+- [x] **Workout templates**: Save named routines (e.g. "Push Day") with per-set configuration (individual weight, reps, and warm-up/normal type via `TemplateSet` model). Create templates from scratch via the dedicated Templates tab or save a completed workout as a template — exact set configurations are captured. Start a pre-populated workout from any template with one tap — sets are pre-filled from template defaults, falling back to last-session values. Superset grouping preserved. Edit, rename, reorder exercises, and delete templates. Dedicated 4th tab in the tab bar. Legacy templates auto-migrate to per-set format on first use.
 - [x] **Exercise favorites**: Star up to 10 strength exercises in the exercise library or detail panel. Favorites are prioritized in the progress charts exercise picker.
 - [x] **Progress charts & analytics**: Segmented "Progress" view within the History tab. Summary stats (workouts this month, total volume lifted, day streak, personal records). Three chart types: weekly workout frequency (bar chart), muscle group split (donut chart with legend), and per-exercise strength progression (line/area chart with max weight over time). Time range filter (1M, 3M, 6M, 1Y, All). Exercise picker prioritizes favorites, falls back to all used exercises. Built with Swift Charts.
 - [x] **Calendar view**: Monthly calendar grid embedded at the top of the History tab's Workouts segment. Workout days marked with accent-colored dots. Tap a day to filter the list below to that day's sessions; tap again to deselect. Month navigation via chevron buttons (past only — future months disabled). Select any past day to create a backdated workout that opens in edit mode. Today is highlighted with a muted accent circle.
@@ -46,6 +47,7 @@ A personal workout tracker built for a single user who primarily lifts weights a
 - [x] **RPE tracking**: Optional RPE (Rate of Perceived Exertion) rating per set, 6.0–10.0 in 0.5 increments. Color-coded badges (green 6–7, yellow 7.5–8.5, red 9–10) with inline horizontal picker. RPE data displayed on strength progression chart point marks.
 - [x] **Supersets**: Link exercises to perform back-to-back via a purple "Link" pill button between exercise groups. Superset groups render with a purple bracket and "SUPERSET" label. Rest timer only fires after the last exercise in a superset. Superset grouping preserved in templates. Link/unlink available during active workouts and when editing completed workouts.
 - [x] **Exercise reordering**: Move exercises or superset groups up/down during active workouts and while editing completed workouts via inline arrow buttons in each card header.
+- [x] **Apple Health integration**: Sync completed workouts to Apple Health with exercise count and total volume metadata. Read latest body weight from Health. Toggle sync on/off in Settings with authorization status display and link to system Settings when access is denied. Uses `HealthKitService` singleton with async/await.
 
 ## Design and User Experience Vibe
 - **Tone**: Minimal and functional — get in, log, get out. No gamification, no fluff
@@ -64,7 +66,7 @@ A personal workout tracker built for a single user who primarily lifts weights a
 - XcodeGen for Xcode project generation (`project.yml`)
 - No backend needed for MVP — all data is local on-device
 - Deployment via TestFlight (beta) and App Store Connect (production)
-- No third-party integrations needed for MVP
+- HealthKit integration for workout sync and body weight reading
 - iCloud sync is a nice-to-have post-MVP
 
 ## Risks / Open Questions

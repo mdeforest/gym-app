@@ -67,6 +67,7 @@ final class ProgressViewModel {
     var strengthProgressionData: [StrengthDataPoint] = []
 
     private let modelContext: ModelContext
+    private var cachedCompletedWorkouts: [Workout] = []
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
@@ -76,6 +77,7 @@ final class ProgressViewModel {
 
     func fetchData() {
         let allWorkouts = fetchCompletedWorkouts()
+        cachedCompletedWorkouts = allWorkouts
         let filteredWorkouts = filterByTimeRange(allWorkouts)
 
         totalWorkouts = filteredWorkouts.count
@@ -87,7 +89,7 @@ final class ProgressViewModel {
         weeklyFrequencyData = computeWeeklyFrequency(from: filteredWorkouts)
         muscleGroupData = computeMuscleGroupSplit(from: filteredWorkouts)
 
-        fetchAvailableExercises()
+        fetchAvailableExercises(filteredWorkouts: filteredWorkouts)
 
         if let exercise = selectedExercise {
             strengthProgressionData = computeStrengthProgression(for: exercise, from: filteredWorkouts)
@@ -103,7 +105,8 @@ final class ProgressViewModel {
 
     func updateSelectedExercise(_ exercise: Exercise) {
         selectedExercise = exercise
-        let workouts = filterByTimeRange(fetchCompletedWorkouts())
+        let source = cachedCompletedWorkouts.isEmpty ? fetchCompletedWorkouts() : cachedCompletedWorkouts
+        let workouts = filterByTimeRange(source)
         strengthProgressionData = computeStrengthProgression(for: exercise, from: workouts)
     }
 
@@ -135,7 +138,7 @@ final class ProgressViewModel {
         return workouts.filter { $0.startDate >= start }
     }
 
-    private func fetchAvailableExercises() {
+    private func fetchAvailableExercises(filteredWorkouts: [Workout]) {
         let descriptor = FetchDescriptor<Exercise>(
             sortBy: [SortDescriptor(\.name)]
         )
@@ -152,8 +155,9 @@ final class ProgressViewModel {
         if selectedExercise == nil || !availableExercises.contains(where: { $0.persistentModelID == selectedExercise?.persistentModelID }) {
             selectedExercise = availableExercises.first
             if let first = selectedExercise {
-                let workouts = filterByTimeRange(fetchCompletedWorkouts())
-                strengthProgressionData = computeStrengthProgression(for: first, from: workouts)
+                strengthProgressionData = computeStrengthProgression(for: first, from: filteredWorkouts)
+            } else {
+                strengthProgressionData = []
             }
         }
     }
@@ -319,7 +323,12 @@ final class ProgressViewModel {
                 let completedSets = workoutExercise.sets.filter { $0.isCompleted && $0.setType == .normal }
                 guard !completedSets.isEmpty else { continue }
 
-                let bestSet = completedSets.max(by: { $0.weight < $1.weight })!
+                // Find the set with the highest estimated 1RM (Epley formula)
+                let bestSet = completedSets.max(by: { a, b in
+                    let aRM = a.reps > 1 ? a.weight * (1 + Double(a.reps) / 30.0) : a.weight
+                    let bRM = b.reps > 1 ? b.weight * (1 + Double(b.reps) / 30.0) : b.weight
+                    return aRM < bRM
+                })!
                 let maxWeight = bestSet.weight
                 let oneRM = bestSet.reps > 1
                     ? maxWeight * (1 + Double(bestSet.reps) / 30.0)

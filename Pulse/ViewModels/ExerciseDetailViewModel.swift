@@ -7,6 +7,11 @@ final class ExerciseDetailViewModel {
     var historyEntries: [ExerciseHistoryEntry] = []
 
     private let modelContext: ModelContext
+    private static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        return formatter
+    }()
 
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
@@ -31,16 +36,17 @@ final class ExerciseDetailViewModel {
 
     func fetchHistory(for exercise: Exercise, limit: Int = 5) {
         let exerciseID = exercise.id
-        let descriptor = FetchDescriptor<WorkoutExercise>(
+        var descriptor = FetchDescriptor<WorkoutExercise>(
             predicate: #Predicate<WorkoutExercise> { workoutExercise in
                 workoutExercise.exercise?.id == exerciseID &&
                 workoutExercise.workout?.endDate != nil
             },
             sortBy: [SortDescriptor(\WorkoutExercise.workout?.startDate, order: .reverse)]
         )
+        descriptor.fetchLimit = limit
 
         let results = (try? modelContext.fetch(descriptor)) ?? []
-        historyEntries = Array(results.prefix(limit)).map { workoutExercise in
+        historyEntries = results.map { workoutExercise in
             ExerciseHistoryEntry(
                 id: workoutExercise.id,
                 workoutDate: workoutExercise.workout?.startDate ?? .distantPast,
@@ -67,9 +73,7 @@ final class ExerciseDetailViewModel {
         } else if calendar.isDateInYesterday(date) {
             return "Yesterday"
         } else {
-            let formatter = DateFormatter()
-            formatter.dateStyle = .medium
-            return formatter.string(from: date)
+            return Self.dateFormatter.string(from: date)
         }
     }
 }

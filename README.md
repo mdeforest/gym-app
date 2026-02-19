@@ -14,7 +14,7 @@
 - **RPE tracking** — Optional RPE (Rate of Perceived Exertion) rating per set, 6.0–10.0 in 0.5 increments. Color-coded badges (green/yellow/red) and an inline horizontal picker. RPE data shown on strength progression charts.
 - **Supersets** — Link two or more exercises to perform back-to-back. Grouped exercises render with a purple bracket and "SUPERSET" label. Rest timer only starts after the last exercise in a superset. Link/unlink via purple pill buttons between exercise groups.
 - **Exercise reordering** — Move exercises (or superset groups) up and down during an active workout or while editing a completed workout. Inline arrow buttons in each card header.
-- **Workout templates** — Save named routines (e.g. "Push Day") with exercises, set counts, warm-up counts, superset grouping, and optional weight/reps defaults. Create templates from scratch or save a completed workout as a template. Start a pre-populated workout from any template with one tap.
+- **Workout templates** — Save named routines (e.g. "Push Day") with per-set configuration (individual weight, reps, and warm-up/normal type for each set), superset grouping, and optional defaults. Create templates from scratch or save a completed workout as a template — exact set configurations are captured. Start a pre-populated workout from any template with one tap.
 - **Rest timer** — Auto-starts on set completion (configurable per exercise). Floating pill with countdown, expandable to full controls (+30s, -30s, Skip). Haptic + sound on completion; local notification when backgrounded. Timer continues counting in the background.
 - **Exercise library** — Pre-populated list of 52 common lifts categorized by muscle group, plus custom exercises
 - **Exercise favorites** — Star up to 10 exercises in the library or detail panel; favorites are prioritized in progress charts
@@ -26,8 +26,9 @@
 - **Last-session reference** — Sets are pre-filled with last session's weight/reps for easy progressive overload tracking
 - **Set management** — Swipe left to delete sets; editing a set auto-populates remaining incomplete sets
 - **Cancel workout** — Dedicated cancel button with confirmation to discard an in-progress workout
-- **Settings page** — Profile setup (name, body weight, weight unit), data export (CSV/JSON via share sheet), clear all data with confirmation, and app version display. Accessed via a profile avatar button on the Workout tab.
+- **Settings page** — Profile setup (name, body weight, weight unit), Apple Health sync toggle with authorization status, data export (CSV/JSON via share sheet), clear all data with confirmation, and app version display. Accessed via a profile avatar button on the Workout tab.
 - **Data export** — Export full workout history as CSV or JSON. Includes exercise names, muscle groups, sets, weight, reps, set type, RPE, superset group, and cardio data. Share via the iOS share sheet.
+- **Apple Health integration** — Sync completed workouts to Apple Health with exercise count and total volume metadata. Read latest body weight from Health. Toggle sync on/off in Settings with authorization status display.
 - **Animated splash screen** — Logo fades in centered, then shrinks and slides into position on the Workout tab as the app reveals
 
 ## Design Goals
@@ -62,7 +63,8 @@ Pulse/
 │   ├── WorkoutExercise.swift     # Exercise within a workout (+ cardio fields, superset group)
 │   ├── ExerciseSet.swift         # Individual set (weight, reps, completion, set type, RPE)
 │   ├── WorkoutTemplate.swift     # Saved workout routine (name, exercises)
-│   └── TemplateExercise.swift    # Exercise within a template (set count, defaults)
+│   ├── TemplateExercise.swift    # Exercise within a template (set count, defaults)
+│   └── TemplateSet.swift         # Individual set within a template (weight, reps, type)
 ├── ViewModels/
 │   ├── WorkoutViewModel.swift
 │   ├── ExerciseLibraryViewModel.swift
@@ -98,6 +100,7 @@ Pulse/
 │   ├── Settings/
 │   │   ├── SettingsView.swift
 │   │   ├── ProfileSectionView.swift
+│   │   ├── HealthSectionView.swift
 │   │   └── DataManagementSectionView.swift
 │   └── Components/               # Reusable UI components
 │       ├── PrimaryButton.swift
@@ -126,7 +129,8 @@ Pulse/
 │   ├── DataService.swift         # ModelContainer factory
 │   ├── ExerciseSeedData.swift    # 52 pre-populated exercises
 │   ├── ExerciseInstructions.swift # How-to instructions for all exercises
-│   └── ExportService.swift       # CSV/JSON workout data export
+│   ├── ExportService.swift       # CSV/JSON workout data export
+│   └── HealthKitService.swift    # Apple Health sync (workouts + body weight)
 └── Resources/
     ├── Assets.xcassets           # AppIcon, Logo image, AccentColor
     └── exercises.json          # Exercise seed data (52 exercises with rest defaults)

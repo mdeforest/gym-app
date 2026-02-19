@@ -81,6 +81,25 @@ final class TemplateViewModel {
             if exercise.isCardio {
                 templateExercise.defaultDurationSeconds = workoutExercise.durationSeconds
                 templateExercise.defaultDistanceMeters = workoutExercise.distanceMeters
+            } else {
+                // Create individual TemplateSet objects from completed sets
+                for (setIndex, completedSet) in completedSets.enumerated() {
+                    let templateSet = TemplateSet(
+                        order: setIndex,
+                        weight: completedSet.weight,
+                        reps: completedSet.reps,
+                        setType: completedSet.setType
+                    )
+                    templateSet.templateExercise = templateExercise
+                }
+
+                // If no completed sets, create default working sets
+                if completedSets.isEmpty {
+                    for i in 0..<setCount {
+                        let templateSet = TemplateSet(order: i)
+                        templateSet.templateExercise = templateExercise
+                    }
+                }
             }
 
             templateExercise.template = template
@@ -105,6 +124,13 @@ final class TemplateViewModel {
             setCount: exercise.isCardio ? 1 : 3
         )
         templateExercise.template = template
+
+        if !exercise.isCardio {
+            for i in 0..<3 {
+                let templateSet = TemplateSet(order: i)
+                templateSet.templateExercise = templateExercise
+            }
+        }
         save()
     }
 
@@ -127,13 +153,78 @@ final class TemplateViewModel {
         save()
     }
 
-    func updateSetCount(_ templateExercise: TemplateExercise, count: Int) {
-        templateExercise.setCount = max(1, count)
+    func renameTemplate(_ template: WorkoutTemplate, to name: String) {
+        template.name = name
         save()
     }
 
-    func renameTemplate(_ template: WorkoutTemplate, to name: String) {
-        template.name = name
+    // MARK: - Template Sets
+
+    func addTemplateSet(to templateExercise: TemplateExercise) {
+        let order = templateExercise.sets.count
+        let newSet = TemplateSet(order: order)
+
+        // Pre-fill from previous set
+        if let lastSet = templateExercise.sortedSets.last {
+            newSet.weight = lastSet.weight
+            newSet.reps = lastSet.reps
+            newSet.setType = lastSet.setType
+        }
+
+        newSet.templateExercise = templateExercise
+        syncLegacyFields(templateExercise)
+        save()
+    }
+
+    func deleteTemplateSet(_ templateSet: TemplateSet, from templateExercise: TemplateExercise) {
+        let deletedOrder = templateSet.order
+        modelContext.delete(templateSet)
+
+        for set in templateExercise.sets where set.order > deletedOrder {
+            set.order -= 1
+        }
+        syncLegacyFields(templateExercise)
+        save()
+    }
+
+    func toggleTemplateSetType(_ templateSet: TemplateSet) {
+        templateSet.setType = (templateSet.setType == .normal) ? .warmup : .normal
+        if let templateExercise = templateSet.templateExercise {
+            syncLegacyFields(templateExercise)
+        }
+        save()
+    }
+
+    func migrateToSetsIfNeeded(_ templateExercise: TemplateExercise) {
+        guard !templateExercise.hasMigratedSets else { return }
+        guard !(templateExercise.exercise?.isCardio ?? false) else { return }
+
+        var order = 0
+        let workingWeight = templateExercise.defaultWeight
+        let warmupWeight = (workingWeight * 0.5).rounded()
+
+        for _ in 0..<templateExercise.warmupSetCount {
+            let set = TemplateSet(
+                order: order,
+                weight: warmupWeight,
+                reps: templateExercise.defaultReps,
+                setType: .warmup
+            )
+            set.templateExercise = templateExercise
+            order += 1
+        }
+
+        for _ in 0..<max(templateExercise.setCount, 1) {
+            let set = TemplateSet(
+                order: order,
+                weight: workingWeight,
+                reps: templateExercise.defaultReps,
+                setType: .normal
+            )
+            set.templateExercise = templateExercise
+            order += 1
+        }
+
         save()
     }
 
@@ -161,6 +252,18 @@ final class TemplateViewModel {
             remaining.first?.supersetGroupId = nil
         }
         save()
+    }
+
+    // MARK: - Private
+
+    private func syncLegacyFields(_ templateExercise: TemplateExercise) {
+        let sorted = templateExercise.sortedSets
+        templateExercise.warmupSetCount = sorted.filter { $0.setType == .warmup }.count
+        templateExercise.setCount = max(1, sorted.filter { $0.setType == .normal }.count)
+        if let lastNormal = sorted.last(where: { $0.setType == .normal }) {
+            templateExercise.defaultWeight = lastNormal.weight
+            templateExercise.defaultReps = lastNormal.reps
+        }
     }
 
     private func save() {

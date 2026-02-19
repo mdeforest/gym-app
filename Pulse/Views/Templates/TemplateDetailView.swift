@@ -158,21 +158,41 @@ struct TemplateDetailView: View {
     }
 
     private func strengthSummary(_ templateExercise: TemplateExercise) -> some View {
-        HStack(spacing: AppTheme.Spacing.xs) {
-            if templateExercise.warmupSetCount > 0 {
-                Text("\(templateExercise.warmupSetCount)W + \(templateExercise.setCount) sets")
+        VStack(alignment: .leading, spacing: 2) {
+            if templateExercise.hasMigratedSets {
+                ForEach(templateExercise.sortedSets) { templateSet in
+                    HStack(spacing: AppTheme.Spacing.xs) {
+                        Text(templateSet.setType == .warmup ? "W" : "\(templateSet.order + 1)")
+                            .frame(width: 20, alignment: .leading)
+                            .foregroundStyle(
+                                templateSet.setType == .warmup
+                                    ? AppTheme.Colors.warning
+                                    : AppTheme.Colors.textSecondary
+                            )
+                        if templateSet.weight > 0 {
+                            Text("\(String(format: "%g", templateSet.weight)) lbs")
+                        }
+                        if templateSet.reps > 0 {
+                            Text("× \(templateSet.reps)")
+                        }
+                    }
+                }
             } else {
-                Text("\(templateExercise.setCount) sets")
-            }
-
-            if templateExercise.defaultWeight > 0 {
-                Text("·")
-                Text("\(String(format: "%g", templateExercise.defaultWeight)) lbs")
-            }
-
-            if templateExercise.defaultReps > 0 {
-                Text("·")
-                Text("\(templateExercise.defaultReps) reps")
+                HStack(spacing: AppTheme.Spacing.xs) {
+                    if templateExercise.warmupSetCount > 0 {
+                        Text("\(templateExercise.warmupSetCount)W + \(templateExercise.setCount) sets")
+                    } else {
+                        Text("\(templateExercise.setCount) sets")
+                    }
+                    if templateExercise.defaultWeight > 0 {
+                        Text("·")
+                        Text("\(String(format: "%g", templateExercise.defaultWeight)) lbs")
+                    }
+                    if templateExercise.defaultReps > 0 {
+                        Text("·")
+                        Text("\(templateExercise.defaultReps) reps")
+                    }
+                }
             }
         }
         .font(.subheadline)

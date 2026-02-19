@@ -17,13 +17,14 @@
 - [x] **RPE tracking** — Per-set RPE rating (6–10) with color-coded badges and inline picker
 - [x] **Supersets** — Link exercises into superset groups with purple bracket UI, preserved in templates
 - [x] **Exercise reordering** — Move exercises/groups up and down during workouts and history editing
+- [x] **Apple Health integration** — Sync completed workouts to Apple Health, read body weight, toggle in Settings with authorization status
 
 ---
 
 ## 💡 Feature Ideas
 
 - [ ] **Bodyweight tracking**
-  Track weight or measurements weekly; optional sync with HealthKit.
+  Track weight or measurements weekly with charts and trends; leverage HealthKit body weight data already being read.
 
 - [ ] **Exercise Database**
   Pull exercises from an available 3rd party source to greatly expand options in the app, but still allow custom exercises.
@@ -31,17 +32,17 @@
 - [ ] **Training Partner Mode**
   Share workouts with friends, competitions, workout together, etc.
 
-- [ ] **Integration with Apple Health**
-  Integrate with Apple Health to add workouts, and use other health stats alongside workouts.
-
 - [ ] **Workout "suggestions"**
   This is purely based on muscle group recovery
 
 - [ ] **Calculators**
-  Plate Calculator, Global Stopwatch/Timer, RPE Calculator, etc.
+  Plate Calculator, Global Stopwatch/Timer, RPE Calculator, 1RM calculator, etc.
 
 - [ ] **Schedule Workouts**
   Allow the user to schedule workouts for the future.
+
+- [ ] **Track Records**
+  Track weight and rep records for a particular exercise and display in history
 
 ---
 

@@ -346,18 +346,18 @@ private struct WorkoutExerciseSection: View {
                             viewModel.deleteSet(exerciseSet, from: workoutExercise)
                         } : nil,
                         onToggleSetType: { viewModel.toggleSetType(exerciseSet) },
-                        rpe: Binding(
+                        rpe: exerciseSet.setType == .warmup ? nil : Binding(
                             get: { exerciseSet.rpe },
                             set: { exerciseSet.rpe = $0 }
                         ),
-                        onRPETap: {
+                        onRPETap: exerciseSet.setType == .warmup ? nil : {
                             withAnimation(.easeInOut(duration: 0.2)) {
                                 showingRPEPickerForSet = showingRPEPickerForSet == exerciseSet.id ? nil : exerciseSet.id
                             }
                         }
                     )
 
-                    if showingRPEPickerForSet == exerciseSet.id {
+                    if showingRPEPickerForSet == exerciseSet.id, exerciseSet.setType != .warmup {
                         RPEPickerView(
                             selectedRPE: Binding(
                                 get: { exerciseSet.rpe },

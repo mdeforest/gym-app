@@ -5,9 +5,17 @@ import Observation
 @MainActor
 @Observable
 final class ExerciseLibraryViewModel {
-    var exercises: [Exercise] = []
-    var searchText = ""
-    var selectedMuscleGroup: MuscleGroup?
+    var exercises: [Exercise] = [] {
+        didSet { updateDerivedData() }
+    }
+    var searchText = "" {
+        didSet { updateDerivedData() }
+    }
+    var selectedMuscleGroup: MuscleGroup? {
+        didSet { updateDerivedData() }
+    }
+    private(set) var filteredExercises: [Exercise] = []
+    private(set) var recentExercises: [Exercise] = []
 
     private let modelContext: ModelContext
 
@@ -16,7 +24,7 @@ final class ExerciseLibraryViewModel {
         fetchExercises()
     }
 
-    var filteredExercises: [Exercise] {
+    private func updateDerivedData() {
         var result = exercises
 
         if let selectedMuscleGroup {
@@ -27,11 +35,8 @@ final class ExerciseLibraryViewModel {
             result = result.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
         }
 
-        return result
-    }
-
-    var recentExercises: [Exercise] {
-        exercises
+        filteredExercises = result
+        recentExercises = exercises
             .filter { $0.lastUsedDate != nil }
             .sorted { ($0.lastUsedDate ?? .distantPast) > ($1.lastUsedDate ?? .distantPast) }
             .prefix(5)

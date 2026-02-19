@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.9.0] - 02/19/26
+
+### Added
+- Apple Health integration — sync completed workouts to Apple Health with exercise count and total volume metadata
+- Read latest body weight from Apple Health and cache in UserDefaults
+- Health section in Settings with sync toggle, authorization status display, and link to system Settings when access is denied
+- `HealthKitService` singleton with async/await for Health operations
+- `HealthSectionView` component for Apple Health settings
+- `Pulse.entitlements` with HealthKit capability
+- `TemplateSet` SwiftData model — per-set configuration in templates with individual weight, reps, and set type (warmup/normal)
+- Per-set CRUD operations in `TemplateViewModel` (add, delete, toggle type)
+- Auto-migration from legacy template format to per-set model on first use (`migrateToSetsIfNeeded`)
+- Template superset linking/unlinking in `TemplateViewModel`
+- Template detail and create views now show individual set rows with warm-up (W) indicators
+
+### Changed
+- `WorkoutViewModel.finishWorkout()` now syncs completed workouts to Apple Health when enabled
+- `WorkoutViewModel.startWorkout(from:)` copies individual template sets directly, preserving set type and superset grouping
+- Settings view expanded from 2 sections to 3 (Profile, Health, Data Management)
+- Template creation from completed workouts captures exact per-set configurations instead of just set count
+- Strength progression chart uses estimated 1RM (Epley formula) instead of raw max weight
+- SwiftData model container updated across all files to include `TemplateSet`
+- Updated README, PROJECT_BRIEF, DESIGN, and FUTURE_FEATURES docs
+
 ## [0.8.0] - 02/17/26
 
 ### Added
