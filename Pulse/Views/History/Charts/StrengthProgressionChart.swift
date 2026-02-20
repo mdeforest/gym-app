@@ -66,8 +66,19 @@ struct StrengthProgressionChart: View {
                 x: .value("Date", point.date),
                 y: .value("Est. 1RM", point.estimatedOneRepMax)
             )
-            .foregroundStyle(rpeColor(for: point.averageRPE))
-            .symbolSize(30)
+            .foregroundStyle(point.isEstimated1RMPR ? AppTheme.Colors.warning : rpeColor(for: point.averageRPE))
+            .symbolSize(point.isEstimated1RMPR ? 50 : 30)
+            .symbol {
+                if point.isEstimated1RMPR {
+                    Image(systemName: "trophy.fill")
+                        .font(.system(size: 10))
+                        .foregroundStyle(AppTheme.Colors.warning)
+                } else {
+                    Circle()
+                        .fill(rpeColor(for: point.averageRPE))
+                        .frame(width: 6, height: 6)
+                }
+            }
         }
         .chartXAxis {
             AxisMarks { _ in

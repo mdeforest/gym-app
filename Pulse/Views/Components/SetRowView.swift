@@ -11,6 +11,7 @@ struct SetRowView: View {
     var onToggleSetType: (() -> Void)?
     var rpe: Binding<Double?>?
     var onRPETap: (() -> Void)?
+    var prTypes: [PRType] = []
 
     @State private var offset: CGFloat = 0
     @State private var showingDelete = false
@@ -70,6 +71,10 @@ struct SetRowView: View {
 
                 if let rpe, let onRPETap {
                     RPEBadgeView(rpe: rpe.wrappedValue, onTap: onRPETap)
+                }
+
+                if !prTypes.isEmpty {
+                    PRBadgeView(prTypes: prTypes, style: .compact)
                 }
             }
             .padding(.horizontal, AppTheme.Spacing.md)

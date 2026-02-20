@@ -41,6 +41,7 @@ struct ExerciseDetailView: View {
             if viewModel == nil {
                 let vm = ExerciseDetailViewModel(modelContext: modelContext)
                 vm.fetchHistory(for: exercise)
+                vm.fetchRecords(for: exercise)
                 viewModel = vm
             }
         }
@@ -53,6 +54,10 @@ struct ExerciseDetailView: View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: AppTheme.Spacing.md) {
                 headerSection
+
+                if !exercise.isCardio {
+                    recordsSection(viewModel: viewModel)
+                }
 
                 howToSection
 
@@ -91,6 +96,60 @@ struct ExerciseDetailView: View {
 
             Spacer()
         }
+    }
+
+    // MARK: - Personal Records
+
+    @ViewBuilder
+    private func recordsSection(viewModel: ExerciseDetailViewModel) -> some View {
+        if let records = viewModel.exerciseRecords, records.bestWeight > 0 {
+            VStack(alignment: .leading, spacing: AppTheme.Spacing.sm) {
+                Text("Personal Records")
+                    .font(.headline)
+                    .foregroundStyle(AppTheme.Colors.textPrimary)
+                    .padding(.horizontal, AppTheme.Layout.cardPadding)
+
+                HStack(spacing: AppTheme.Layout.cardSpacing) {
+                    recordItem(
+                        icon: "scalemass.fill",
+                        label: "Weight",
+                        value: "\(String(format: "%g", records.bestWeight)) lbs"
+                    )
+                    recordItem(
+                        icon: "bolt.fill",
+                        label: "Est. 1RM",
+                        value: "\(Int(records.bestEstimated1RM)) lbs"
+                    )
+                    recordItem(
+                        icon: "chart.bar.fill",
+                        label: "Volume",
+                        value: "\(Int(records.bestVolume)) lbs"
+                    )
+                }
+                .padding(.horizontal, AppTheme.Layout.cardPadding)
+            }
+            .padding(.vertical, AppTheme.Spacing.sm)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(AppTheme.Colors.surface)
+            .clipShape(RoundedRectangle(cornerRadius: AppTheme.Layout.cornerRadius))
+        }
+    }
+
+    private func recordItem(icon: String, label: String, value: String) -> some View {
+        VStack(spacing: AppTheme.Spacing.xxs) {
+            Image(systemName: icon)
+                .font(.body)
+                .foregroundStyle(AppTheme.Colors.warning)
+            Text(value)
+                .font(.subheadline.weight(.bold))
+                .foregroundStyle(AppTheme.Colors.textPrimary)
+                .minimumScaleFactor(0.7)
+                .lineLimit(1)
+            Text(label)
+                .font(.caption)
+                .foregroundStyle(AppTheme.Colors.textSecondary)
+        }
+        .frame(maxWidth: .infinity)
     }
 
     // MARK: - Recent History
@@ -135,6 +194,11 @@ struct ExerciseDetailView: View {
                                     Text("\(set.reps) reps")
                                         .font(.body)
                                         .foregroundStyle(AppTheme.Colors.textPrimary)
+
+                                    if !set.prTypes.isEmpty {
+                                        PRBadgeView(prTypes: set.prTypes, style: .compact)
+                                    }
+
                                     Spacer()
                                 }
                                 .padding(.horizontal, AppTheme.Layout.cardPadding)

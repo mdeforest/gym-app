@@ -5,6 +5,7 @@ import Observation
 @Observable
 final class ExerciseDetailViewModel {
     var historyEntries: [ExerciseHistoryEntry] = []
+    var exerciseRecords: ExerciseRecords?
 
     private let modelContext: ModelContext
     private static let dateFormatter: DateFormatter = {
@@ -32,6 +33,7 @@ final class ExerciseDetailViewModel {
         let order: Int
         let weight: Double
         let reps: Int
+        let prTypes: [PRType]
     }
 
     func fetchHistory(for exercise: Exercise, limit: Int = 5) {
@@ -55,13 +57,25 @@ final class ExerciseDetailViewModel {
                         id: exerciseSet.id,
                         order: exerciseSet.order,
                         weight: exerciseSet.weight,
-                        reps: exerciseSet.reps
+                        reps: exerciseSet.reps,
+                        prTypes: exerciseSet.prTypes
                     )
                 },
                 durationSeconds: workoutExercise.durationSeconds,
                 distanceMeters: workoutExercise.distanceMeters
             )
         }
+    }
+
+    func fetchRecords(for exercise: Exercise) {
+        guard !exercise.isCardio else {
+            exerciseRecords = nil
+            return
+        }
+        exerciseRecords = PersonalRecordService.fetchAllTimeRecords(
+            for: exercise,
+            modelContext: modelContext
+        )
     }
 
     // MARK: - Formatting

@@ -18,6 +18,7 @@
 - [x] **Supersets** — Link exercises into superset groups with purple bracket UI, preserved in templates
 - [x] **Exercise reordering** — Move exercises/groups up and down during workouts and history editing
 - [x] **Apple Health integration** — Sync completed workouts to Apple Health, read body weight, toggle in Settings with authorization status
+- [x] **Track Records (Personal Records)** — Per-set PR detection for weight, estimated 1RM (Epley), and volume. Gold badges on set rows, "New PR!" toast during workouts, personal records section in exercise detail, trophy annotations on strength charts. One-time backfill for existing data.
 
 ---
 
@@ -40,9 +41,6 @@
 
 - [ ] **Schedule Workouts**
   Allow the user to schedule workouts for the future.
-
-- [ ] **Track Records**
-  Track weight and rep records for a particular exercise and display in history
 
 ---
 

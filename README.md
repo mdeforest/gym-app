@@ -19,7 +19,8 @@
 - **Exercise library** — Pre-populated list of 52 common lifts categorized by muscle group, plus custom exercises
 - **Exercise favorites** — Star up to 10 exercises in the library or detail panel; favorites are prioritized in progress charts
 - **Exercise detail panel** — Tap any exercise to view how-to instructions, primary muscles, rest timer config, and recent workout history
-- **Progress charts** — Segmented "Progress" view in History with workout frequency (bar chart), muscle group split (donut chart), and per-exercise strength progression (line chart). Filter by time range (1M, 3M, 6M, 1Y, All). Summary stats: workouts this month, total volume, day streak, and personal records. Warm-up sets are excluded from all calculations.
+- **Personal records (PRs)** — Automatic per-set PR detection for three record types: heaviest weight, best estimated 1RM (Epley formula), and best single-set volume (weight × reps). Gold "PR" badges on set rows during workouts and in history. Animated "New PR!" toast with haptic feedback during active workouts. "Personal Records" section in exercise detail showing all-time bests. Trophy markers on strength progression charts. PR data included in CSV/JSON exports.
+- **Progress charts** — Segmented "Progress" view in History with workout frequency (bar chart), muscle group split (donut chart), and per-exercise strength progression (line chart with PR trophy annotations). Filter by time range (1M, 3M, 6M, 1Y, All). Summary stats: workouts this month, total volume, day streak, and personal records. Warm-up sets are excluded from all calculations.
 - **Calendar view** — Monthly calendar at the top of the History tab showing workout days with accent-colored dots. Tap a day to filter the workout list; tap again to clear. Navigate to past months with chevron buttons (future months disabled). Select any past day to add a backdated workout.
 - **Workout history** — Browse past workouts by date with full session details; auto-navigates to detail after finishing a workout. Only completed sets are saved.
 - **Edit completed workouts** — Tap Edit on any past workout to change start/end time, add/remove sets, modify weight/reps, reorder exercises, create/dissolve supersets, or update cardio inputs
@@ -61,7 +62,7 @@ Pulse/
 │   ├── Exercise.swift            # Exercise definition (name, muscle group, custom flag)
 │   ├── Workout.swift             # Workout session (start/end date, exercises)
 │   ├── WorkoutExercise.swift     # Exercise within a workout (+ cardio fields, superset group)
-│   ├── ExerciseSet.swift         # Individual set (weight, reps, completion, set type, RPE)
+│   ├── ExerciseSet.swift         # Individual set (weight, reps, completion, set type, RPE, PR flags)
 │   ├── WorkoutTemplate.swift     # Saved workout routine (name, exercises)
 │   ├── TemplateExercise.swift    # Exercise within a template (set count, defaults)
 │   └── TemplateSet.swift         # Individual set within a template (weight, reps, type)
@@ -121,6 +122,8 @@ Pulse/
 │       ├── TemplateCardView.swift
 │       ├── RPEBadgeView.swift
 │       ├── RPEPickerView.swift
+│       ├── PRBadgeView.swift
+│       ├── PRToastView.swift
 │       ├── SupersetLinkLabel.swift
 │       └── SplashView.swift
 ├── Theme/
@@ -130,6 +133,7 @@ Pulse/
 │   ├── ExerciseSeedData.swift    # 52 pre-populated exercises
 │   ├── ExerciseInstructions.swift # How-to instructions for all exercises
 │   ├── ExportService.swift       # CSV/JSON workout data export
+│   ├── PersonalRecordService.swift # PR detection, records queries, and backfill
 │   └── HealthKitService.swift    # Apple Health sync (workouts + body weight)
 └── Resources/
     ├── Assets.xcassets           # AppIcon, Logo image, AccentColor

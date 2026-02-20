@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 import SwiftData
 import Observation
 import UserNotifications
@@ -12,6 +13,11 @@ final class WorkoutViewModel {
     var showingAddExercise = false
     var showingFinishConfirmation = false
     var showingDiscardConfirmation = false
+
+    // MARK: - PR Toast State
+    var recentPRTypes: [PRType] = []
+    var showingPRToast = false
+    private var prToastDismissTask: Task<Void, Never>?
 
     // MARK: - Rest Timer State
     var restTimerActive = false
@@ -221,7 +227,35 @@ final class WorkoutViewModel {
         exerciseSet.isCompleted.toggle()
         save()
 
+        // Clear PR flags when un-completing a set
+        if wasCompleted && !exerciseSet.isCompleted {
+            exerciseSet.isWeightPR = false
+            exerciseSet.isEstimated1RMPR = false
+            exerciseSet.isVolumePR = false
+            save()
+            return
+        }
+
         guard !wasCompleted, exerciseSet.isCompleted else { return }
+
+        // Check for PR on completed normal sets
+        if let exercise = exerciseSet.workoutExercise?.exercise,
+           exerciseSet.setType == .normal,
+           !exercise.isCardio {
+            let result = PersonalRecordService.checkForPR(
+                set: exerciseSet,
+                exercise: exercise,
+                modelContext: modelContext
+            )
+            exerciseSet.isWeightPR = result.isWeightPR
+            exerciseSet.isEstimated1RMPR = result.isEstimated1RMPR
+            exerciseSet.isVolumePR = result.isVolumePR
+            save()
+
+            if result.isAnyPR {
+                showPRToast(types: result.prTypes)
+            }
+        }
 
         let workoutExercise = exerciseSet.workoutExercise
 
@@ -508,6 +542,28 @@ final class WorkoutViewModel {
     private func cancelCompletionNotification() {
         let center = UNUserNotificationCenter.current()
         center.removePendingNotificationRequests(withIdentifiers: [Self.notificationIdentifier])
+    }
+
+    // MARK: - PR Toast
+
+    private func showPRToast(types: [PRType]) {
+        prToastDismissTask?.cancel()
+        recentPRTypes = types
+
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+            showingPRToast = true
+        }
+
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
+
+        prToastDismissTask = Task { [weak self] in
+            try? await Task.sleep(for: .seconds(3))
+            guard let self, !Task.isCancelled else { return }
+            withAnimation(.easeOut(duration: 0.3)) {
+                self.showingPRToast = false
+            }
+        }
     }
 
     // MARK: - Private

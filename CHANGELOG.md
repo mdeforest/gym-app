@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.10.0] - 02/19/26
+
+### Added
+- Personal records (PRs) — per-set PR detection for three record types: heaviest weight, best estimated 1RM (Epley formula), and best single-set volume (weight × reps)
+- Gold "PR" badge on set rows during active workouts, workout history detail, and exercise detail history
+- Animated "New PR!" toast with trophy icon, PR type labels, and haptic feedback during active workouts
+- "Personal Records" section in exercise detail panel showing all-time best weight, estimated 1RM, and volume with gold icons
+- Trophy annotations on strength progression chart for estimated 1RM PR data points
+- `PersonalRecordService` with PR detection, all-time records queries, and one-time backfill for existing data
+- `PRBadgeView` component with compact and detailed styles
+- `PRToastView` component with spring animation and auto-dismiss
+- `PRType` enum on `ExerciseSet` model with `isWeightPR`, `isEstimated1RMPR`, `isVolumePR` boolean flags
+- PR flag columns in CSV and JSON exports
+- One-time backfill on first launch stamps PR flags on all existing workout history
+
+### Changed
+- `ProgressViewModel.computePRCount()` simplified to use stored PR flags instead of recomputing from scratch
+- Strength progression chart point marks now show gold trophy icon for PR data points instead of standard circle
+- Updated README, PROJECT_BRIEF, DESIGN, and FUTURE_FEATURES docs
+
 ## [0.9.0] - 02/19/26
 
 ### Added

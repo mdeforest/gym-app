@@ -171,7 +171,8 @@ private struct SupersetExerciseSection: View {
                             withAnimation(.easeInOut(duration: 0.2)) {
                                 showingRPEPickerForSet = showingRPEPickerForSet == exerciseSet.id ? nil : exerciseSet.id
                             }
-                        }
+                        },
+                        prTypes: exerciseSet.prTypes
                     )
 
                     if showingRPEPickerForSet == exerciseSet.id, exerciseSet.setType != .warmup {

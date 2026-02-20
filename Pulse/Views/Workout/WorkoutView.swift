@@ -28,6 +28,12 @@ struct WorkoutView: View {
                 SettingsView()
             }
         }
+        .overlay(alignment: .top) {
+            if viewModel?.showingPRToast == true {
+                PRToastView(prTypes: viewModel?.recentPRTypes ?? [])
+                    .padding(.top, 54)
+            }
+        }
         .overlay(alignment: .topTrailing) {
             if viewModel?.activeWorkout == nil {
                 Button {

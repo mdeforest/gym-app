@@ -5,6 +5,7 @@ struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     var splashFinished: Bool = true
 
+    @AppStorage("prBackfillCompleted") private var prBackfillCompleted = false
     @State private var selectedTab = 0
     @State private var completedWorkout: Workout?
     @State private var pendingTemplate: WorkoutTemplate?
@@ -55,6 +56,10 @@ struct ContentView: View {
                 hasSeedRun = true
                 let vm = ExerciseLibraryViewModel(modelContext: modelContext)
                 vm.seedExercisesIfNeeded()
+            }
+            if !prBackfillCompleted {
+                PersonalRecordService.backfillPRFlags(modelContext: modelContext)
+                prBackfillCompleted = true
             }
         }
     }

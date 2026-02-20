@@ -44,6 +44,7 @@ struct StrengthDataPoint: Identifiable {
     let maxWeight: Double
     let estimatedOneRepMax: Double
     let averageRPE: Double?
+    var isEstimated1RMPR: Bool = false
 }
 
 // MARK: - ViewModel
@@ -210,43 +211,18 @@ final class ProgressViewModel {
     }
 
     private func computePRCount(from filteredWorkouts: [Workout], allWorkouts: [Workout]) -> Int {
-        var prCount = 0
+        var exercisesWithPRs = Set<PersistentIdentifier>()
 
-        // Build all-time max per exercise
-        var allTimeMax: [PersistentIdentifier: Double] = [:]
-        for workout in allWorkouts {
-            for workoutExercise in workout.exercises {
-                guard let exercise = workoutExercise.exercise, !exercise.isCardio else { continue }
-                let maxWeight = workoutExercise.sets
-                    .filter { $0.isCompleted && $0.setType == .normal }
-                    .map(\.weight)
-                    .max() ?? 0
-                let id = exercise.persistentModelID
-                allTimeMax[id] = max(allTimeMax[id] ?? 0, maxWeight)
-            }
-        }
-
-        // Build max within filtered range per exercise
-        var rangeMax: [PersistentIdentifier: Double] = [:]
         for workout in filteredWorkouts {
-            for workoutExercise in workout.exercises {
-                guard let exercise = workoutExercise.exercise, !exercise.isCardio else { continue }
-                let maxWeight = workoutExercise.sets
-                    .filter { $0.isCompleted && $0.setType == .normal }
-                    .map(\.weight)
-                    .max() ?? 0
-                let id = exercise.persistentModelID
-                rangeMax[id] = max(rangeMax[id] ?? 0, maxWeight)
+            for we in workout.exercises {
+                guard let exercise = we.exercise, !exercise.isCardio else { continue }
+                for s in we.sets where s.isCompleted && s.setType == .normal && s.isAnyPR {
+                    exercisesWithPRs.insert(exercise.persistentModelID)
+                }
             }
         }
 
-        for (id, rangeValue) in rangeMax {
-            if let allTimeValue = allTimeMax[id], rangeValue >= allTimeValue, rangeValue > 0 {
-                prCount += 1
-            }
-        }
-
-        return prCount
+        return exercisesWithPRs.count
     }
 
     // MARK: - Private: Chart Computations
@@ -341,7 +317,8 @@ final class ProgressViewModel {
                     date: workout.startDate,
                     maxWeight: maxWeight,
                     estimatedOneRepMax: oneRM,
-                    averageRPE: avgRPE
+                    averageRPE: avgRPE,
+                    isEstimated1RMPR: bestSet.isEstimated1RMPR
                 ))
             }
         }

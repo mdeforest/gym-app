@@ -267,6 +267,10 @@ struct WorkoutDetailView: View {
                                 .clipShape(Capsule())
                         }
 
+                        if exerciseSet.isAnyPR {
+                            PRBadgeView(prTypes: exerciseSet.prTypes, style: .compact)
+                        }
+
                         Spacer()
                     }
                     .padding(.horizontal, inSuperset ? AppTheme.Spacing.md : AppTheme.Layout.cardPadding)

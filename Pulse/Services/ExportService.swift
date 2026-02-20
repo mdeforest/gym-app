@@ -3,7 +3,7 @@ import Foundation
 enum ExportService {
 
     static func exportCSV(workouts: [Workout]) -> String {
-        var csv = "Date,Duration (min),Exercise,Muscle Group,Type,Set #,Set Type,Weight (lbs),Reps,RPE,Superset Group,Duration (s),Distance (km)\n"
+        var csv = "Date,Duration (min),Exercise,Muscle Group,Type,Set #,Set Type,Weight (lbs),Reps,RPE,Superset Group,Duration (s),Distance (km),Weight PR,1RM PR,Volume PR\n"
 
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
@@ -21,11 +21,11 @@ enum ExportService {
                 if isCardio {
                     let durSec = workoutExercise.durationSeconds ?? 0
                     let distKm = (workoutExercise.distanceMeters ?? 0) / 1000.0
-                    csv += "\(dateStr),\(durationMin),\(exerciseName),\(muscleGroup),cardio,,,,,,\(supersetGroup),\(durSec),\(String(format: "%.2f", distKm))\n"
+                    csv += "\(dateStr),\(durationMin),\(exerciseName),\(muscleGroup),cardio,,,,,,\(supersetGroup),\(durSec),\(String(format: "%.2f", distKm)),,,\n"
                 } else {
                     for set in workoutExercise.sortedSets where set.isCompleted {
                         let rpeStr = set.rpe.map { String(format: "%g", $0) } ?? ""
-                        csv += "\(dateStr),\(durationMin),\(exerciseName),\(muscleGroup),strength,\(set.order + 1),\(set.setType.rawValue),\(String(format: "%g", set.weight)),\(set.reps),\(rpeStr),\(supersetGroup),,\n"
+                        csv += "\(dateStr),\(durationMin),\(exerciseName),\(muscleGroup),strength,\(set.order + 1),\(set.setType.rawValue),\(String(format: "%g", set.weight)),\(set.reps),\(rpeStr),\(supersetGroup),,\(set.isWeightPR),\(set.isEstimated1RMPR),\(set.isVolumePR)\n"
                     }
                 }
             }
@@ -75,6 +75,11 @@ enum ExportService {
                         ]
                         if let rpe = set.rpe {
                             setDict["rpe"] = rpe
+                        }
+                        if set.isAnyPR {
+                            setDict["isWeightPR"] = set.isWeightPR
+                            setDict["isEstimated1RMPR"] = set.isEstimated1RMPR
+                            setDict["isVolumePR"] = set.isVolumePR
                         }
                         return setDict
                     }
