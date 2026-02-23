@@ -6,6 +6,7 @@ struct WorkoutView: View {
     @State private var viewModel: WorkoutViewModel?
     @State private var contentVisible = false
     @State private var showingSettings = false
+    @State private var showingTools = false
     @AppStorage("userName") private var userName: String = ""
 
     var splashFinished: Bool = true
@@ -17,7 +18,7 @@ struct WorkoutView: View {
         NavigationStack {
             Group {
                 if let viewModel, viewModel.activeWorkout != nil {
-                    ActiveWorkoutView(viewModel: viewModel, onWorkoutFinished: onWorkoutFinished)
+                    ActiveWorkoutView(viewModel: viewModel, showingTools: $showingTools, onWorkoutFinished: onWorkoutFinished)
                 } else {
                     startWorkoutView
                 }
@@ -26,6 +27,9 @@ struct WorkoutView: View {
             .background(AppTheme.Colors.background)
             .sheet(isPresented: $showingSettings) {
                 SettingsView()
+            }
+            .sheet(isPresented: $showingTools) {
+                ToolsMenuView()
             }
         }
         .overlay(alignment: .top) {
@@ -36,12 +40,28 @@ struct WorkoutView: View {
         }
         .overlay(alignment: .topTrailing) {
             if viewModel?.activeWorkout == nil {
-                Button {
-                    showingSettings = true
-                } label: {
-                    profileAvatar
+                HStack(spacing: AppTheme.Spacing.sm) {
+                    Button {
+                        showingTools = true
+                    } label: {
+                        ZStack {
+                            Circle()
+                                .fill(AppTheme.Colors.surfaceTertiary)
+                                .frame(width: 40, height: 40)
+                            Image(systemName: "plus.forwardslash.minus")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundStyle(AppTheme.Colors.textSecondary)
+                        }
+                    }
+                    .buttonStyle(.plain)
+
+                    Button {
+                        showingSettings = true
+                    } label: {
+                        profileAvatar
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
                 .padding(.trailing, AppTheme.Layout.screenEdgePadding)
                 .padding(.top, 54)
             }

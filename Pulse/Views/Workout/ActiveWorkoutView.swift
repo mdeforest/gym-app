@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ActiveWorkoutView: View {
     @Bindable var viewModel: WorkoutViewModel
+    @Binding var showingTools: Bool
     var onWorkoutFinished: ((Workout) -> Void)?
 
     var body: some View {
@@ -70,6 +71,14 @@ struct ActiveWorkoutView: View {
                     viewModel.showingDiscardConfirmation = true
                 }
                 .foregroundStyle(AppTheme.Colors.destructive)
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showingTools = true
+                } label: {
+                    Image(systemName: "plus.forwardslash.minus")
+                        .foregroundStyle(AppTheme.Colors.textSecondary)
+                }
             }
             ToolbarItem(placement: .topBarTrailing) {
                 Button("Finish") {

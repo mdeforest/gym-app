@@ -35,7 +35,7 @@ targets:
         INFOPLIST_KEY_NSHealthUpdateUsageDescription: "Pulse saves your completed workouts to Apple Health."
         GENERATE_INFOPLIST_FILE: true
         CURRENT_PROJECT_VERSION: "1"
-        MARKETING_VERSION: "0.10.0"
+        MARKETING_VERSION: "0.11.0"
         PRODUCT_BUNDLE_IDENTIFIER: com.pulse.Pulse
         PRODUCT_NAME: "Pulse"
         CODE_SIGN_STYLE: Automatic

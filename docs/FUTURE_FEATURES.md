@@ -19,6 +19,7 @@
 - [x] **Exercise reordering** — Move exercises/groups up and down during workouts and history editing
 - [x] **Apple Health integration** — Sync completed workouts to Apple Health, read body weight, toggle in Settings with authorization status
 - [x] **Track Records (Personal Records)** — Per-set PR detection for weight, estimated 1RM (Epley), and volume. Gold badges on set rows, "New PR!" toast during workouts, personal records section in exercise detail, trophy annotations on strength charts. One-time backfill for existing data.
+- [x] **Calculators** — Plate Calculator, 1RM Calculator, RPE Chart, and Stopwatch accessible via a toolbar button on the Workout tab (idle and active states).
 
 ---
 
@@ -36,11 +37,11 @@
 - [ ] **Workout "suggestions"**
   This is purely based on muscle group recovery
 
-- [ ] **Calculators**
-  Plate Calculator, Global Stopwatch/Timer, RPE Calculator, 1RM calculator, etc.
-
 - [ ] **Schedule Workouts**
   Allow the user to schedule workouts for the future.
+
+- [ ] **Available Equipment**
+  Let the user choose what equipment they have and tailor the app to that. A stretch goal may be to allow different gym "profiles" that you can switch between. Kind of like how Fitbod does.
 
 ---
 

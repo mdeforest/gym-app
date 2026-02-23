@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.11.0] - 02/22/26
+
+### Added
+- Calculators feature — quick-access tool menu via `±` toolbar button on the Workout tab (idle overlay and active workout toolbar)
+- `ToolsMenuView` — 2×2 grid sheet presenting four tools with icon, title, and subtitle cards
+- `PlateCalculatorView` — greedy plate calculation for a target weight; bar weight pill selector (Standard, Olympic, EZ Bar, Safety Bar, Custom); visual bar diagram with color-coded plate slices; text breakdown per side with color chips; remainder warning; lbs/kg support
+- `PlateCalculatorService` — pure computation service using a greedy algorithm to calculate plates per side
+- `OneRMCalculatorView` — estimated 1RM from weight + reps (Epley formula via `PersonalRecordService`); result in FeaturedStatCard; RPE-to-percentage reference table with color-coded RPE badges
+- `RPEChartView` — RPE reference table (RPE 6–10, percentage of 1RM, RIR); optional 1RM input reveals a Weight column with target loads per RPE level in accent color
+- `StopwatchView` — MM:SS.cs monospaced display; Start/Pause, Lap, and Reset controls; lap list with split deltas and cumulative times; wall-clock date tracking for background accuracy
+
+### Changed
+- `WorkoutView` — added floating `±` button overlay (alongside profile avatar) to open tools sheet
+- `ActiveWorkoutView` — added `±` toolbar button between Cancel and Finish to open tools sheet
+- Updated README, PROJECT_BRIEF, DESIGN, and FUTURE_FEATURES docs
+
+### Fixed
+- Stopwatch display now updates in real time (timer callback was previously a no-op)
+- Stopwatch background is fully black from launch (was only filled after first lap)
+
 ## [0.10.0] - 02/19/26
 
 ### Added

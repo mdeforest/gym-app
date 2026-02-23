@@ -31,6 +31,7 @@
 - **Data export** — Export full workout history as CSV or JSON. Includes exercise names, muscle groups, sets, weight, reps, set type, RPE, superset group, and cardio data. Share via the iOS share sheet.
 - **Apple Health integration** — Sync completed workouts to Apple Health with exercise count and total volume metadata. Read latest body weight from Health. Toggle sync on/off in Settings with authorization status display.
 - **Animated splash screen** — Logo fades in centered, then shrinks and slides into position on the Workout tab as the app reveals
+- **Calculators** — Quick-access tool menu from the Workout tab (both idle and active states). Includes: Plate Calculator (target weight → plates per side with visual bar + plate breakdown, custom bar weight, lbs/kg support), 1RM Calculator (weight + reps → estimated 1RM with RPE-to-percentage reference table), RPE Chart (reference table with optional 1RM input for weight targets per RPE level), and Stopwatch (MM:SS.cs display with lap splits)
 
 ## Design Goals
 
@@ -103,6 +104,12 @@ Pulse/
 │   │   ├── ProfileSectionView.swift
 │   │   ├── HealthSectionView.swift
 │   │   └── DataManagementSectionView.swift
+│   ├── Tools/
+│   │   ├── ToolsMenuView.swift
+│   │   ├── PlateCalculatorView.swift
+│   │   ├── OneRMCalculatorView.swift
+│   │   ├── RPEChartView.swift
+│   │   └── StopwatchView.swift
 │   └── Components/               # Reusable UI components
 │       ├── PrimaryButton.swift
 │       ├── SecondaryButton.swift
@@ -134,6 +141,7 @@ Pulse/
 │   ├── ExerciseInstructions.swift # How-to instructions for all exercises
 │   ├── ExportService.swift       # CSV/JSON workout data export
 │   ├── PersonalRecordService.swift # PR detection, records queries, and backfill
+│   ├── PlateCalculatorService.swift # Greedy plate calculation for target weights
 │   └── HealthKitService.swift    # Apple Health sync (workouts + body weight)
 └── Resources/
     ├── Assets.xcassets           # AppIcon, Logo image, AccentColor

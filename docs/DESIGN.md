@@ -129,6 +129,11 @@ Dark mode by default. Bold, premium aesthetic with warm orange accent. Colors fo
 | **Superset Link Label** | Button label shown between exercise groups for linking as superset. Purple pill capsule with link icon + "Link" text in `chartPurple`, on 15% opacity purple background. Flanked by subtle purple connector lines. Full-width with screen edge padding. | `Views/Components/SupersetLinkLabel.swift` | Done |
 | **PR Badge**             | Gold capsule badge indicating personal records on set rows. Two styles: **Compact** — small "PR" text pill (warning color background, 20% opacity, bold warning text) for set rows; **Detailed** — individual badges per PR type showing icon + label (e.g., trophy + "Weight PR"). Used in active workout, history detail, and exercise detail views. | `Views/Components/PRBadgeView.swift` | Done |
 | **PR Toast**             | Animated notification overlay for new PRs during active workouts. Warning-color gradient background (`#FFB340` → darker), capsule shape with shadow. Trophy icon + "New PR!" headline + individual PR type labels. Slides down from top with spring animation, auto-dismisses after 3 seconds. Positioned in navigation bar area (54pt from top) via overlay on `WorkoutView`. | `Views/Components/PRToastView.swift` | Done |
+| **Tools Menu**           | `NavigationStack` sheet with 2×2 `LazyVGrid` of tool cards. Each card: surface background, SF Symbol icon (accent color, 28pt bold), title (headline), subtitle (caption, secondary). Cards navigate to: Plate Calculator (`scalemass.fill`), 1RM Calculator (`chart.line.uptrend.xyaxis`), RPE Chart (`chart.bar.fill`), Stopwatch (`stopwatch.fill`). "Done" toolbar button to dismiss. Triggered by `plus.forwardslash.minus` toolbar button on the Workout tab (both idle overlay and active workout toolbar). | `Views/Tools/ToolsMenuView.swift` | Done |
+| **Plate Calculator**     | Target weight input + bar weight pill selector (Standard 45 lbs / 20 kg, Olympic 44 lbs / 20 kg, EZ Bar 25 lbs / 10 kg, Safety 65 lbs / 30 kg, Custom). Custom bar weight shows an inline `NumberInputField`. Results card: "PER SIDE" label, visual bar representation (colored `RoundedRectangle` slices of varying height per plate size), then plate breakdown list with color chips (each plate size has a distinct color). Remainder warning when weight is not achievable with available plates. Resets on unit change. Uses `PlateCalculatorService` for greedy calculation. | `Views/Tools/PlateCalculatorView.swift` | Done |
+| **1RM Calculator**       | Weight + reps inputs (lbs or kg per `@AppStorage`). Calls `PersonalRecordService.estimatedOneRepMax` (Epley formula). Result displayed in a `FeaturedStatCard`. RPE-to-percentage reference table below: rows for RPE 10–6 (in 0.5 steps) showing color-coded RPE badge and percentage. Warning shown when reps > 12. | `Views/Tools/OneRMCalculatorView.swift` | Done |
+| **RPE Chart**            | Reference table mapping RPE 6–10 (in 0.5 steps) to percentage of 1RM and RIR. Optional 1RM input at top — when filled, a "Weight" column appears showing the calculated target weight per RPE level in accent color. Color-coded RPE badge pills (green ≤7, yellow 7.5–8.5, red ≥9) with uniform `minWidth: 32` sizing. | `Views/Tools/RPEChartView.swift` | Done |
+| **Stopwatch**            | MM:SS.cs monospaced display (64pt bold). Controls: Lap (when running) or Reset (when paused with time), and Start/Pause toggle. Uses wall-clock `Date` tracking for background accuracy. Lap list shows lap number, split time (accent color), and cumulative time. `ZStack` with `ignoresSafeArea` background for full black fill. | `Views/Tools/StopwatchView.swift` | Done |
 
 ### Design Tokens
 
@@ -279,6 +284,16 @@ All design tokens are centralized in `Theme/AppTheme.swift`:
 5. **Bottom section**: Version info row showing app version and build number. "Clear All Data" destructive button with two-step confirmation — first an alert ("This will permanently delete all workouts, templates, and custom exercises"), then a success alert after clearing
 6. Clear All Data deletes all workouts, templates, and custom exercises. Built-in exercises have their `lastUsedDate` and `isFavorite` reset
 7. Tap **Done** to dismiss the settings sheet
+
+### Calculators & Tools
+1. User taps the **`±` button** — available as a floating overlay on the Workout tab (idle state) or as a toolbar item during an active workout
+2. A **Tools Menu** sheet slides up showing a 2×2 grid of tool cards
+3. Tap a tool card to navigate to it within the same `NavigationStack`:
+   - **Plate Calculator**: Enter a target weight → bar weight pills select the bar type (or "Custom" for a custom bar weight) → results card shows a visual plate diagram and text breakdown per side. Changing weight unit resets the view.
+   - **1RM Calculator**: Enter weight + reps → estimated 1RM displays in a Featured Stat Card → RPE-to-percentage table below shows training targets with color-coded RPE badges
+   - **RPE Chart**: Reference table always visible. Enter an optional 1RM to reveal a "Weight" column showing target loads per RPE level in accent color
+   - **Stopwatch**: Tap Start to begin counting. Tap Lap to record a split (shown in the lap list below). Tap Pause to stop; Reset to clear. Timer uses wall-clock dates to stay accurate if the app is backgrounded.
+4. Tap **Done** in the toolbar to dismiss the tools sheet
 
 ### Save Workout as Template
 1. User opens a completed workout from the **History** tab

@@ -25,6 +25,7 @@ A personal workout tracker built for a single user who primarily lifts weights a
   - ~~Advanced workout features (warm-up sets, RPE, supersets)~~ **Delivered** — see Core Features
   - ~~Apple Health integration~~ **Delivered** — see Core Features
   - ~~Personal record tracking~~ **Delivered** — see Core Features
+  - ~~Calculators~~ **Delivered** — see Core Features
   - Body weight / measurement tracking
 
 ## Core Features
@@ -50,6 +51,7 @@ A personal workout tracker built for a single user who primarily lifts weights a
 - [x] **Exercise reordering**: Move exercises or superset groups up/down during active workouts and while editing completed workouts via inline arrow buttons in each card header.
 - [x] **Apple Health integration**: Sync completed workouts to Apple Health with exercise count and total volume metadata. Read latest body weight from Health. Toggle sync on/off in Settings with authorization status display and link to system Settings when access is denied. Uses `HealthKitService` singleton with async/await.
 - [x] **Personal records (PRs)**: Per-set PR detection for three record types: heaviest weight, best estimated 1RM (Epley formula), and best single-set volume (weight × reps). Gold "PR" badges on set rows throughout the app, animated "New PR!" toast with haptic during active workouts, "Personal Records" section in exercise detail showing all-time bests, and trophy annotations on strength progression charts. PR flags stored on `ExerciseSet` for instant display. One-time backfill stamps PRs on existing workout history. PR data included in CSV/JSON exports.
+- [x] **Calculators**: Quick-access tool menu via a `±` toolbar button on the Workout tab (both idle and active workout states). Four tools: **Plate Calculator** (greedy algorithm for plates per side given a target weight; visual bar + plate breakdown with color-coded chips; custom bar weight option; lbs/kg support), **1RM Calculator** (Epley formula estimate from weight + reps; RPE-to-percentage reference table with color-coded badges), **RPE Chart** (reference table mapping RPE 6–10 to percentages and RIR; optional 1RM input shows target weights per RPE level), and **Stopwatch** (MM:SS.cs monospaced display; lap splits with cumulative time and delta; wall-clock date tracking for background accuracy).
 
 ## Design and User Experience Vibe
 - **Tone**: Minimal and functional — get in, log, get out. No gamification, no fluff
