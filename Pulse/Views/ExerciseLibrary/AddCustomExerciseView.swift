@@ -6,6 +6,7 @@ struct AddCustomExerciseView: View {
 
     @State private var name = ""
     @State private var selectedMuscleGroup: MuscleGroup = .chest
+    @State private var selectedEquipment: Equipment = .other
 
     private var isValid: Bool {
         !name.trimmingCharacters(in: .whitespaces).isEmpty
@@ -27,6 +28,16 @@ struct AddCustomExerciseView: View {
                     .pickerStyle(.inline)
                     .labelsHidden()
                 }
+
+                Section("Equipment") {
+                    Picker("Equipment", selection: $selectedEquipment) {
+                        ForEach(Equipment.allCases) { eq in
+                            Text(eq.displayName).tag(eq)
+                        }
+                    }
+                    .pickerStyle(.inline)
+                    .labelsHidden()
+                }
             }
             .navigationTitle("New Exercise")
             .navigationBarTitleDisplayMode(.inline)
@@ -38,7 +49,8 @@ struct AddCustomExerciseView: View {
                     Button("Add") {
                         viewModel.addCustomExercise(
                             name: name.trimmingCharacters(in: .whitespaces),
-                            muscleGroup: selectedMuscleGroup
+                            muscleGroup: selectedMuscleGroup,
+                            equipment: selectedEquipment
                         )
                         dismiss()
                     }

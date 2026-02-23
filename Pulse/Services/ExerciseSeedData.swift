@@ -8,6 +8,7 @@ enum ExerciseSeedData {
         let defaultRestSeconds: Int?
         let description: String
         let instructions: String
+        let equipment: Equipment
     }
 
     static let exercises: [ExerciseDefinition] = {

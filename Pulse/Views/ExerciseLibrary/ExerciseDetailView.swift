@@ -328,8 +328,19 @@ struct ExerciseDetailView: View {
                     }
                 }
                 .padding(.horizontal, AppTheme.Layout.cardPadding)
+            } else if !exercise.instructions.isEmpty {
+                if !exercise.exerciseDescription.isEmpty {
+                    Text(exercise.exerciseDescription)
+                        .font(.body)
+                        .foregroundStyle(AppTheme.Colors.textSecondary)
+                        .padding(.horizontal, AppTheme.Layout.cardPadding)
+                }
+                Text(exercise.instructions)
+                    .font(.subheadline)
+                    .foregroundStyle(AppTheme.Colors.textSecondary)
+                    .padding(.horizontal, AppTheme.Layout.cardPadding)
             } else {
-                Text("No instructions available for custom exercises.")
+                Text("No instructions available.")
                     .font(.subheadline)
                     .foregroundStyle(AppTheme.Colors.textSecondary)
                     .frame(maxWidth: .infinity)

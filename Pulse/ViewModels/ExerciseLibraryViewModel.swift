@@ -14,6 +14,9 @@ final class ExerciseLibraryViewModel {
     var selectedMuscleGroup: MuscleGroup? {
         didSet { updateDerivedData() }
     }
+    var selectedEquipment: Equipment? {
+        didSet { updateDerivedData() }
+    }
     private(set) var filteredExercises: [Exercise] = []
     private(set) var recentExercises: [Exercise] = []
 
@@ -29,6 +32,10 @@ final class ExerciseLibraryViewModel {
 
         if let selectedMuscleGroup {
             result = result.filter { $0.muscleGroup == selectedMuscleGroup }
+        }
+
+        if let selectedEquipment {
+            result = result.filter { $0.equipment == selectedEquipment }
         }
 
         if !searchText.isEmpty {
@@ -55,8 +62,8 @@ final class ExerciseLibraryViewModel {
         }
     }
 
-    func addCustomExercise(name: String, muscleGroup: MuscleGroup) {
-        let exercise = Exercise(name: name, muscleGroup: muscleGroup, isCustom: true)
+    func addCustomExercise(name: String, muscleGroup: MuscleGroup, equipment: Equipment = .other) {
+        let exercise = Exercise(name: name, muscleGroup: muscleGroup, isCustom: true, equipment: equipment)
         modelContext.insert(exercise)
         save()
         fetchExercises()
@@ -86,23 +93,66 @@ final class ExerciseLibraryViewModel {
             count = try modelContext.fetchCount(descriptor)
         } catch {
             print("[ExerciseLibraryViewModel] fetchCount failed: \(error)")
-            count = 0
+            return
         }
-        guard count == 0 else { return }
 
-        for definition in ExerciseSeedData.exercises {
-            let exercise = Exercise(
-                name: definition.name,
-                muscleGroup: definition.muscleGroup,
-                isCardio: definition.isCardio,
-                exerciseDescription: definition.description,
-                instructions: definition.instructions,
-                defaultRestSeconds: definition.defaultRestSeconds
-            )
-            modelContext.insert(exercise)
+        // Fast path: fresh install — insert everything without name lookup
+        if count == 0 {
+            for definition in ExerciseSeedData.exercises {
+                modelContext.insert(makeExercise(from: definition))
+            }
+            save()
+            fetchExercises()
+            return
         }
-        save()
-        fetchExercises()
+
+        // Additive path: existing install — insert new exercises and repair nil equipment
+        let all: [Exercise]
+        do {
+            all = try modelContext.fetch(descriptor)
+        } catch {
+            print("[ExerciseLibraryViewModel] fetch for additive seed failed: \(error)")
+            return
+        }
+
+        let existingNames = Set(all.map(\.name))
+        let definitionsByName = Dictionary(
+            ExerciseSeedData.exercises.map { ($0.name, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
+
+        // Insert exercises that don't exist yet
+        var added = 0
+        for definition in ExerciseSeedData.exercises where !existingNames.contains(definition.name) {
+            modelContext.insert(makeExercise(from: definition))
+            added += 1
+        }
+
+        // Repair nil equipment on existing non-custom exercises (SwiftData migration leaves NULL)
+        var repaired = 0
+        for exercise in all where !exercise.isCustom && exercise.equipment == nil {
+            if let definition = definitionsByName[exercise.name] {
+                exercise.equipment = definition.equipment
+                repaired += 1
+            }
+        }
+
+        if added > 0 || repaired > 0 {
+            save()
+            fetchExercises()
+        }
+    }
+
+    private func makeExercise(from definition: ExerciseSeedData.ExerciseDefinition) -> Exercise {
+        Exercise(
+            name: definition.name,
+            muscleGroup: definition.muscleGroup,
+            isCardio: definition.isCardio,
+            exerciseDescription: definition.description,
+            instructions: definition.instructions,
+            defaultRestSeconds: definition.defaultRestSeconds,
+            equipment: definition.equipment
+        )
     }
 
     private func save() {

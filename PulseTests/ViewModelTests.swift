@@ -277,6 +277,69 @@ struct WorkoutViewModelTests {
         }
     }
 
+    @Test func propagateValuesSkipsDifferentSetType() {
+        let context = makeFreshContext()
+        let vm = WorkoutViewModel(modelContext: context)
+        vm.startWorkout()
+
+        let exercise = Exercise(name: "Bench Press", muscleGroup: .chest)
+        context.insert(exercise)
+        vm.addExercise(exercise)
+
+        guard let workoutExercise = vm.activeWorkout?.exercises.first else {
+            Issue.record("No workout exercise found")
+            return
+        }
+
+        // Add a second set, then mark set 0 as warm-up
+        vm.addSet(to: workoutExercise)
+        let sets = workoutExercise.sortedSets
+        sets[0].setType = .warmup
+        sets[0].weight = 95
+        sets[0].reps = 12
+
+        // Working set has different values
+        sets[1].weight = 185
+        sets[1].reps = 5
+
+        // Propagating from warmup set should NOT overwrite the normal (working) set
+        vm.propagateValues(from: sets[0], in: workoutExercise)
+
+        #expect(sets[1].weight == 185)
+        #expect(sets[1].reps == 5)
+    }
+
+    @Test func propagateValuesOnlyWithinSameSetType() {
+        let context = makeFreshContext()
+        let vm = WorkoutViewModel(modelContext: context)
+        vm.startWorkout()
+
+        let exercise = Exercise(name: "Squat", muscleGroup: .legs)
+        context.insert(exercise)
+        vm.addExercise(exercise)
+
+        guard let workoutExercise = vm.activeWorkout?.exercises.first else {
+            Issue.record("No workout exercise found")
+            return
+        }
+
+        // 3 sets: warmup, normal, normal
+        vm.addSet(to: workoutExercise)
+        vm.addSet(to: workoutExercise)
+        let sets = workoutExercise.sortedSets
+        sets[0].setType = .warmup
+        sets[0].weight = 95; sets[0].reps = 10
+        sets[1].weight = 225; sets[1].reps = 5
+        sets[2].weight = 0;   sets[2].reps = 0
+
+        // Propagating from the first working set should fill the second working set
+        vm.propagateValues(from: sets[1], in: workoutExercise)
+        #expect(sets[2].weight == 225)
+        #expect(sets[2].reps == 5)
+        // Warmup is before the changed set, so it shouldn't be touched regardless
+        #expect(sets[0].weight == 95)
+    }
+
     @Test func propagateValuesSkipsCompletedSets() {
         let context = makeFreshContext()
         let vm = WorkoutViewModel(modelContext: context)
@@ -576,6 +639,9 @@ struct CalendarTests {
 
     @Test func goToNextMonthChangesMonth() {
         let vm = HistoryViewModel(modelContext: makeFreshContext())
+        // Navigate to a past month so canGoToNextMonth is always true
+        let twoMonthsAgo = Calendar.current.date(byAdding: .month, value: -2, to: vm.displayedMonth)!
+        vm.displayedMonth = twoMonthsAgo
         let originalMonth = Calendar.current.component(.month, from: vm.displayedMonth)
 
         vm.goToNextMonth()
@@ -688,6 +754,76 @@ struct ExerciseLibraryViewModelTests {
         #expect(vm.filteredExercises.isEmpty)
     }
 
+    @Test func filteredExercisesByEquipment() {
+        let context = makeFreshContext()
+        let vm = ExerciseLibraryViewModel(modelContext: context)
+
+        let barbell = Exercise(name: "Barbell Row", muscleGroup: .back, equipment: .barbell)
+        let dumbbell = Exercise(name: "Dumbbell Curl", muscleGroup: .arms, equipment: .dumbbell)
+        let bw = Exercise(name: "Pull-up", muscleGroup: .back, equipment: .bodyweight)
+        context.insert(barbell)
+        context.insert(dumbbell)
+        context.insert(bw)
+        vm.exercises = [barbell, dumbbell, bw]
+
+        vm.selectedEquipment = .barbell
+        #expect(vm.filteredExercises.count == 1)
+        #expect(vm.filteredExercises.first?.name == "Barbell Row")
+    }
+
+    @Test func filteredExercisesEquipmentAndMuscleGroup() {
+        let context = makeFreshContext()
+        let vm = ExerciseLibraryViewModel(modelContext: context)
+
+        let e1 = Exercise(name: "Barbell Bench Press", muscleGroup: .chest, equipment: .barbell)
+        let e2 = Exercise(name: "Dumbbell Bench Press", muscleGroup: .chest, equipment: .dumbbell)
+        let e3 = Exercise(name: "Barbell Row", muscleGroup: .back, equipment: .barbell)
+        context.insert(e1)
+        context.insert(e2)
+        context.insert(e3)
+        vm.exercises = [e1, e2, e3]
+
+        vm.selectedMuscleGroup = .chest
+        vm.selectedEquipment = .barbell
+        #expect(vm.filteredExercises.count == 1)
+        #expect(vm.filteredExercises.first?.name == "Barbell Bench Press")
+    }
+
+    @Test func filteredExercisesEquipmentAndSearch() {
+        let context = makeFreshContext()
+        let vm = ExerciseLibraryViewModel(modelContext: context)
+
+        let e1 = Exercise(name: "Barbell Bench Press", muscleGroup: .chest, equipment: .barbell)
+        let e2 = Exercise(name: "Barbell Row", muscleGroup: .back, equipment: .barbell)
+        let e3 = Exercise(name: "Dumbbell Bench Press", muscleGroup: .chest, equipment: .dumbbell)
+        context.insert(e1)
+        context.insert(e2)
+        context.insert(e3)
+        vm.exercises = [e1, e2, e3]
+
+        vm.selectedEquipment = .barbell
+        vm.searchText = "bench"
+        #expect(vm.filteredExercises.count == 1)
+        #expect(vm.filteredExercises.first?.name == "Barbell Bench Press")
+    }
+
+    @Test func clearingEquipmentFilterReturnsAll() {
+        let context = makeFreshContext()
+        let vm = ExerciseLibraryViewModel(modelContext: context)
+
+        let e1 = Exercise(name: "Barbell Squat", muscleGroup: .legs, equipment: .barbell)
+        let e2 = Exercise(name: "Leg Press", muscleGroup: .legs, equipment: .machine)
+        context.insert(e1)
+        context.insert(e2)
+        vm.exercises = [e1, e2]
+
+        vm.selectedEquipment = .machine
+        #expect(vm.filteredExercises.count == 1)
+
+        vm.selectedEquipment = nil
+        #expect(vm.filteredExercises.count == 2)
+    }
+
     // MARK: Recent Exercises
 
     @Test func recentExercisesExcludesNeverUsed() {
@@ -743,6 +879,22 @@ struct ExerciseLibraryViewModelTests {
         vm.addCustomExercise(name: "My Exercise", muscleGroup: .arms)
         #expect(vm.exercises.contains { $0.name == "My Exercise" })
         #expect(vm.exercises.first { $0.name == "My Exercise" }?.isCustom == true)
+    }
+
+    @Test func addCustomExerciseWithEquipment() {
+        let vm = ExerciseLibraryViewModel(modelContext: makeFreshContext())
+        vm.addCustomExercise(name: "Custom Cable Fly", muscleGroup: .chest, equipment: .cable)
+        let added = vm.exercises.first { $0.name == "Custom Cable Fly" }
+        #expect(added != nil)
+        #expect(added?.equipment == .cable)
+        #expect(added?.isCustom == true)
+    }
+
+    @Test func addCustomExerciseDefaultsEquipmentToOther() {
+        let vm = ExerciseLibraryViewModel(modelContext: makeFreshContext())
+        vm.addCustomExercise(name: "Mystery Move", muscleGroup: .core)
+        let added = vm.exercises.first { $0.name == "Mystery Move" }
+        #expect(added?.equipment == .other)
     }
 
     @Test func deleteExerciseOnlyDeletesCustom() throws {
@@ -919,7 +1071,7 @@ struct TemplateViewModelTests {
         #expect(remaining[1].order == 1)
     }
 
-    @Test func updateSetCountClampsToMinimumOne() {
+    @Test func addTemplateSetIncreasesCount() throws {
         let context = makeFreshContext()
         let vm = TemplateViewModel(modelContext: context)
 
@@ -927,20 +1079,65 @@ struct TemplateViewModelTests {
         let exercise = Exercise(name: "Bench", muscleGroup: .chest)
         context.insert(exercise)
         vm.addExercise(exercise, to: template)
+        try context.save()
 
         guard let te = template.exercises.first else {
             Issue.record("No template exercise found")
             return
         }
 
-        vm.updateSetCount(te, count: 0)
-        #expect(te.setCount == 1)
+        vm.migrateToSetsIfNeeded(te)
+        let countBefore = te.sets.count
+        vm.addTemplateSet(to: te)
+        #expect(te.sets.count == countBefore + 1)
+    }
 
-        vm.updateSetCount(te, count: -5)
-        #expect(te.setCount == 1)
+    @Test func deleteTemplateSetDecreasesCount() throws {
+        let context = makeFreshContext()
+        let vm = TemplateViewModel(modelContext: context)
 
-        vm.updateSetCount(te, count: 10)
-        #expect(te.setCount == 10)
+        let template = vm.createTemplate(name: "Test")
+        let exercise = Exercise(name: "Squat", muscleGroup: .legs)
+        context.insert(exercise)
+        vm.addExercise(exercise, to: template)
+        try context.save()
+
+        guard let te = template.exercises.first else {
+            Issue.record("No template exercise found")
+            return
+        }
+
+        vm.migrateToSetsIfNeeded(te)
+        vm.addTemplateSet(to: te)
+        let countBefore = te.sets.count
+
+        if let setToDelete = te.sortedSets.last {
+            vm.deleteTemplateSet(setToDelete, from: te)
+            #expect(te.sets.count == countBefore - 1)
+        }
+    }
+
+    @Test func syncLegacyFieldsClampsSetsToMinimumOne() throws {
+        let context = makeFreshContext()
+        let vm = TemplateViewModel(modelContext: context)
+
+        let template = vm.createTemplate(name: "Test")
+        let exercise = Exercise(name: "Row", muscleGroup: .back)
+        context.insert(exercise)
+        vm.addExercise(exercise, to: template)
+        try context.save()
+
+        guard let te = template.exercises.first else {
+            Issue.record("No template exercise found")
+            return
+        }
+
+        vm.migrateToSetsIfNeeded(te)
+        // Delete all but one set; setCount should never drop below 1
+        while te.sets.count > 1, let last = te.sortedSets.last {
+            vm.deleteTemplateSet(last, from: te)
+        }
+        #expect(te.setCount >= 1)
     }
 
     @Test func createTemplateFromWorkout() throws {
@@ -1072,5 +1269,449 @@ struct WorkoutTemplateRelationshipTests {
         #expect(groups.count == 2)
         #expect(groups[0] == .chest)
         #expect(groups[1] == .legs)
+    }
+}
+
+// MARK: - Isolated Context Helper
+
+/// Creates a fully fresh in-memory store — used by tests that need clean state
+/// so they are unaffected by data inserted by other tests in sharedContainer.
+@MainActor
+private func makeIsolatedContext() -> ModelContext {
+    let container = try! DataService.createPreviewContainer()
+    return ModelContext(container)
+}
+
+// MARK: - ExerciseDetailViewModel Tests
+
+@Suite("ExerciseDetailViewModel Tests", .serialized)
+@MainActor
+struct ExerciseDetailViewModelTests {
+
+    @Test func formattedDateToday() {
+        let vm = ExerciseDetailViewModel(modelContext: makeIsolatedContext())
+        #expect(vm.formattedDate(.now) == "Today")
+    }
+
+    @Test func formattedDateYesterday() {
+        let vm = ExerciseDetailViewModel(modelContext: makeIsolatedContext())
+        let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: .now)!
+        #expect(vm.formattedDate(yesterday) == "Yesterday")
+    }
+
+    @Test func formattedDateOtherDate() {
+        let vm = ExerciseDetailViewModel(modelContext: makeIsolatedContext())
+        let oldDate = Calendar.current.date(from: DateComponents(year: 2024, month: 1, day: 15))!
+        let result = vm.formattedDate(oldDate)
+        #expect(result != "Today")
+        #expect(result != "Yesterday")
+        #expect(!result.isEmpty)
+    }
+
+    @Test func fetchRecordsNilForCardio() {
+        let context = makeIsolatedContext()
+        let vm = ExerciseDetailViewModel(modelContext: context)
+        let cardio = Exercise(name: "Running", muscleGroup: .cardio, isCardio: true)
+        context.insert(cardio)
+        vm.fetchRecords(for: cardio)
+        #expect(vm.exerciseRecords == nil)
+    }
+
+    @Test func fetchRecordsNonNilForStrengthExercise() throws {
+        let context = makeIsolatedContext()
+        let vm = ExerciseDetailViewModel(modelContext: context)
+        let exercise = Exercise(name: "Bench Press", muscleGroup: .chest)
+        context.insert(exercise)
+        try context.save()
+        vm.fetchRecords(for: exercise)
+        #expect(vm.exerciseRecords != nil)
+    }
+
+    @Test func fetchHistoryEmptyForNewExercise() {
+        let context = makeIsolatedContext()
+        let vm = ExerciseDetailViewModel(modelContext: context)
+        let exercise = Exercise(name: "Bench Press", muscleGroup: .chest)
+        context.insert(exercise)
+        vm.fetchHistory(for: exercise)
+        #expect(vm.historyEntries.isEmpty)
+    }
+
+    @Test func fetchHistoryReturnsCompletedWorkouts() throws {
+        let context = makeIsolatedContext()
+        let vm = ExerciseDetailViewModel(modelContext: context)
+
+        let exercise = Exercise(name: "Bench Press", muscleGroup: .chest)
+        context.insert(exercise)
+
+        let workout = Workout(startDate: Date())
+        workout.endDate = Date()
+        context.insert(workout)
+
+        let we = WorkoutExercise(order: 0, exercise: exercise)
+        we.workout = workout
+        try context.save()
+
+        vm.fetchHistory(for: exercise)
+        #expect(vm.historyEntries.count == 1)
+    }
+
+    @Test func fetchHistoryExcludesActiveWorkouts() throws {
+        let context = makeIsolatedContext()
+        let vm = ExerciseDetailViewModel(modelContext: context)
+
+        let exercise = Exercise(name: "Squat", muscleGroup: .legs)
+        context.insert(exercise)
+
+        let active = Workout(startDate: Date())
+        // No endDate — still active
+        context.insert(active)
+
+        let we = WorkoutExercise(order: 0, exercise: exercise)
+        we.workout = active
+        try context.save()
+
+        vm.fetchHistory(for: exercise)
+        #expect(vm.historyEntries.isEmpty)
+    }
+
+    @Test func fetchHistoryLimitedToFiveEntries() throws {
+        let context = makeIsolatedContext()
+        let vm = ExerciseDetailViewModel(modelContext: context)
+
+        let exercise = Exercise(name: "Deadlift", muscleGroup: .back)
+        context.insert(exercise)
+
+        for i in 0..<8 {
+            let date = Calendar.current.date(byAdding: .day, value: -i, to: Date())!
+            let workout = Workout(startDate: date)
+            workout.endDate = date
+            context.insert(workout)
+            let we = WorkoutExercise(order: 0, exercise: exercise)
+            we.workout = workout
+        }
+        try context.save()
+
+        vm.fetchHistory(for: exercise)
+        #expect(vm.historyEntries.count <= 5)
+    }
+}
+
+// MARK: - SettingsViewModel Tests
+
+@Suite("SettingsViewModel Tests", .serialized)
+@MainActor
+struct SettingsViewModelTests {
+
+    @Test func generateExportDataReturnsOnlyCompletedWorkouts() throws {
+        let context = makeIsolatedContext()
+        let vm = SettingsViewModel(modelContext: context)
+
+        let completed = Workout(startDate: Date())
+        completed.endDate = Date()
+        let active = Workout(startDate: Date())
+        // No endDate
+        context.insert(completed)
+        context.insert(active)
+        try context.save()
+
+        let exported = vm.generateExportData()
+        #expect(exported.allSatisfy { $0.endDate != nil })
+        #expect(!exported.isEmpty)
+    }
+
+    @Test func generateExportDataEmptyWhenNoCompletedWorkouts() throws {
+        let context = makeIsolatedContext()
+        let vm = SettingsViewModel(modelContext: context)
+
+        let active = Workout(startDate: Date())
+        // No endDate
+        context.insert(active)
+        try context.save()
+
+        let exported = vm.generateExportData()
+        #expect(exported.isEmpty)
+    }
+
+    @Test func clearAllDataRemovesWorkouts() throws {
+        let context = makeIsolatedContext()
+        let vm = SettingsViewModel(modelContext: context)
+
+        let workout = Workout(startDate: Date())
+        workout.endDate = Date()
+        context.insert(workout)
+        try context.save()
+
+        vm.clearAllData()
+
+        let remaining = (try? context.fetch(FetchDescriptor<Workout>())) ?? []
+        #expect(remaining.isEmpty)
+    }
+
+    @Test func clearAllDataRemovesTemplates() throws {
+        let context = makeIsolatedContext()
+        let vm = SettingsViewModel(modelContext: context)
+
+        let template = WorkoutTemplate(name: "Push Day")
+        context.insert(template)
+        try context.save()
+
+        vm.clearAllData()
+
+        let remaining = (try? context.fetch(FetchDescriptor<WorkoutTemplate>())) ?? []
+        #expect(remaining.isEmpty)
+    }
+
+    @Test func clearAllDataRemovesCustomExercises() throws {
+        let context = makeIsolatedContext()
+        let vm = SettingsViewModel(modelContext: context)
+
+        let custom = Exercise(name: "My Custom Move", muscleGroup: .arms, isCustom: true)
+        context.insert(custom)
+        try context.save()
+
+        vm.clearAllData()
+
+        let remaining = (try? context.fetch(FetchDescriptor<Exercise>())) ?? []
+        #expect(!remaining.contains { $0.isCustom })
+    }
+
+    @Test func clearAllDataResetsNonCustomExercises() throws {
+        let context = makeIsolatedContext()
+        let vm = SettingsViewModel(modelContext: context)
+
+        let exercise = Exercise(name: "Bench Press", muscleGroup: .chest)
+        exercise.isFavorite = true
+        exercise.lastUsedDate = Date()
+        context.insert(exercise)
+        try context.save()
+
+        vm.clearAllData()
+
+        let remaining = (try? context.fetch(FetchDescriptor<Exercise>())) ?? []
+        let bench = remaining.first { $0.name == "Bench Press" }
+        #expect(bench != nil)
+        #expect(bench?.isFavorite == false)
+        #expect(bench?.lastUsedDate == nil)
+    }
+
+    @Test func clearAllDataSetsFlagToTrue() {
+        let vm = SettingsViewModel(modelContext: makeIsolatedContext())
+        #expect(!vm.showingClearDataSuccess)
+        vm.clearAllData()
+        #expect(vm.showingClearDataSuccess)
+    }
+}
+
+// MARK: - PersonalRecordService Context Tests
+
+@Suite("PersonalRecordService Context Tests", .serialized)
+@MainActor
+struct PersonalRecordServiceContextTests {
+
+    @Test func checkForPRFalseForCardio() {
+        let context = makeIsolatedContext()
+        let cardio = Exercise(name: "Running", muscleGroup: .cardio, isCardio: true)
+        context.insert(cardio)
+
+        let set = ExerciseSet(order: 0, weight: 0, reps: 0)
+        set.isCompleted = true
+        let result = PersonalRecordService.checkForPR(set: set, exercise: cardio, modelContext: context)
+        #expect(!result.isAnyPR)
+    }
+
+    @Test func checkForPRFalseWhenNotCompleted() {
+        let context = makeIsolatedContext()
+        let exercise = Exercise(name: "Bench Press", muscleGroup: .chest)
+        context.insert(exercise)
+
+        let set = ExerciseSet(order: 0, weight: 100, reps: 5)
+        // isCompleted = false by default
+        let result = PersonalRecordService.checkForPR(set: set, exercise: exercise, modelContext: context)
+        #expect(!result.isAnyPR)
+    }
+
+    @Test func checkForPRTrueForFirstLiftEver() throws {
+        let context = makeIsolatedContext()
+        let exercise = Exercise(name: "Bench Press", muscleGroup: .chest)
+        context.insert(exercise)
+        try context.save()
+
+        let set = ExerciseSet(order: 0, weight: 100, reps: 5)
+        set.isCompleted = true
+
+        let result = PersonalRecordService.checkForPR(set: set, exercise: exercise, modelContext: context)
+        #expect(result.isWeightPR)
+        #expect(result.isEstimated1RMPR)
+        #expect(result.isVolumePR)
+    }
+
+    @Test func checkForPRFalseWhenNotBeatingRecord() throws {
+        let context = makeIsolatedContext()
+        let exercise = Exercise(name: "Bench Press", muscleGroup: .chest)
+        context.insert(exercise)
+
+        let pastWorkout = Workout(startDate: Calendar.current.date(byAdding: .day, value: -1, to: Date())!)
+        pastWorkout.endDate = pastWorkout.startDate
+        context.insert(pastWorkout)
+
+        let pastWe = WorkoutExercise(order: 0, exercise: exercise)
+        pastWe.workout = pastWorkout
+
+        let pastSet = ExerciseSet(order: 0, weight: 200, reps: 5)
+        pastSet.isCompleted = true
+        pastSet.workoutExercise = pastWe
+        try context.save()
+
+        let newSet = ExerciseSet(order: 0, weight: 100, reps: 5)
+        newSet.isCompleted = true
+        let result = PersonalRecordService.checkForPR(set: newSet, exercise: exercise, modelContext: context)
+        #expect(!result.isWeightPR)
+        #expect(!result.isEstimated1RMPR)
+    }
+
+    @Test func fetchAllTimeRecordsEmptyHistory() throws {
+        let context = makeIsolatedContext()
+        let exercise = Exercise(name: "Squat", muscleGroup: .legs)
+        context.insert(exercise)
+        try context.save()
+
+        let records = PersonalRecordService.fetchAllTimeRecords(for: exercise, modelContext: context)
+        #expect(records.bestWeight == 0)
+        #expect(records.bestEstimated1RM == 0)
+        #expect(records.bestVolume == 0)
+        #expect(records.bestWeightDate == nil)
+    }
+
+    @Test func fetchAllTimeRecordsReturnsBestValues() throws {
+        let context = makeIsolatedContext()
+        let exercise = Exercise(name: "Deadlift", muscleGroup: .back)
+        context.insert(exercise)
+
+        let workout = Workout(startDate: Date())
+        workout.endDate = Date()
+        context.insert(workout)
+
+        let we = WorkoutExercise(order: 0, exercise: exercise)
+        we.workout = workout
+
+        let set1 = ExerciseSet(order: 0, weight: 200, reps: 5)
+        set1.isCompleted = true
+        set1.workoutExercise = we
+
+        let set2 = ExerciseSet(order: 1, weight: 250, reps: 3)
+        set2.isCompleted = true
+        set2.workoutExercise = we
+        try context.save()
+
+        let records = PersonalRecordService.fetchAllTimeRecords(for: exercise, modelContext: context)
+        #expect(records.bestWeight == 250)
+        #expect(records.bestVolume >= 1000)  // 200×5 = 1000
+    }
+}
+
+// MARK: - ExportService Tests
+
+@Suite("ExportService Tests", .serialized)
+@MainActor
+struct ExportServiceTests {
+
+    @Test func exportCSVHasHeader() {
+        let csv = ExportService.exportCSV(workouts: [])
+        #expect(csv.hasPrefix("Date,Duration"))
+    }
+
+    @Test func exportCSVEmptyWorkoutsOnlyHeader() {
+        let csv = ExportService.exportCSV(workouts: [])
+        let lines = csv.components(separatedBy: "\n").filter { !$0.isEmpty }
+        #expect(lines.count == 1)
+    }
+
+    @Test func exportCSVContainsStrengthRow() throws {
+        let context = makeIsolatedContext()
+
+        let workout = Workout(startDate: Date(timeIntervalSince1970: 1_700_000_000))
+        workout.endDate = Date(timeIntervalSince1970: 1_700_003_600)
+        context.insert(workout)
+
+        let exercise = Exercise(name: "Bench Press", muscleGroup: .chest)
+        context.insert(exercise)
+
+        let we = WorkoutExercise(order: 0, exercise: exercise)
+        we.workout = workout
+
+        let set = ExerciseSet(order: 0, weight: 135, reps: 8)
+        set.isCompleted = true
+        set.workoutExercise = we
+        try context.save()
+
+        let csv = ExportService.exportCSV(workouts: [workout])
+        #expect(csv.contains("Bench Press"))
+        #expect(csv.contains("135"))
+    }
+
+    @Test func exportCSVOmitsUncompletedSets() throws {
+        let context = makeIsolatedContext()
+
+        let workout = Workout(startDate: Date())
+        workout.endDate = Date()
+        context.insert(workout)
+
+        let exercise = Exercise(name: "Squat", muscleGroup: .legs)
+        context.insert(exercise)
+
+        let we = WorkoutExercise(order: 0, exercise: exercise)
+        we.workout = workout
+
+        let set = ExerciseSet(order: 0, weight: 225, reps: 5)
+        // isCompleted = false — should not appear in CSV
+        set.workoutExercise = we
+        try context.save()
+
+        let csv = ExportService.exportCSV(workouts: [workout])
+        let lines = csv.components(separatedBy: "\n").filter { !$0.isEmpty }
+        #expect(lines.count == 1)  // Only the header
+    }
+
+    @Test func exportJSONIsValidJSON() {
+        let data = ExportService.exportJSON(workouts: [])
+        #expect(!data.isEmpty)
+        let parsed = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        #expect(parsed != nil)
+    }
+
+    @Test func exportJSONHasWorkoutsKey() {
+        let data = ExportService.exportJSON(workouts: [])
+        let parsed = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        #expect(parsed?["workouts"] != nil)
+    }
+
+    @Test func exportJSONEmptyWorkoutsProducesEmptyArray() {
+        let data = ExportService.exportJSON(workouts: [])
+        let parsed = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        let workoutsArray = parsed?["workouts"] as? [[String: Any]]
+        #expect(workoutsArray?.isEmpty == true)
+    }
+
+    @Test func exportJSONHasExportDateKey() {
+        let data = ExportService.exportJSON(workouts: [])
+        let parsed = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        #expect(parsed?["exportDate"] != nil)
+    }
+
+    @Test func exportJSONContainsCorrectWorkoutCount() throws {
+        let context = makeIsolatedContext()
+
+        let w1 = Workout(startDate: Date())
+        w1.endDate = Date()
+        let w2 = Workout(startDate: Date())
+        w2.endDate = Date()
+        context.insert(w1)
+        context.insert(w2)
+        try context.save()
+
+        let data = ExportService.exportJSON(workouts: [w1, w2])
+        let parsed = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
+        let workoutsArray = parsed?["workouts"] as? [[String: Any]]
+        #expect(workoutsArray?.count == 2)
     }
 }

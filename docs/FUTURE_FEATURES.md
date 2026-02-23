@@ -20,6 +20,7 @@
 - [x] **Apple Health integration** — Sync completed workouts to Apple Health, read body weight, toggle in Settings with authorization status
 - [x] **Track Records (Personal Records)** — Per-set PR detection for weight, estimated 1RM (Epley), and volume. Gold badges on set rows, "New PR!" toast during workouts, personal records section in exercise detail, trophy annotations on strength charts. One-time backfill for existing data.
 - [x] **Calculators** — Plate Calculator, 1RM Calculator, RPE Chart, and Stopwatch accessible via a toolbar button on the Workout tab (idle and active states).
+- [x] **Exercise Database** — 590 exercises sourced from the Free Exercise DB (public domain) across 7 muscle groups and 8 equipment types. Equipment data enables filtering. Additive seeding adds new exercises on update without touching user data.
 
 ---
 
@@ -27,9 +28,6 @@
 
 - [ ] **Bodyweight tracking**
   Track weight or measurements weekly with charts and trends; leverage HealthKit body weight data already being read.
-
-- [ ] **Exercise Database**
-  Pull exercises from an available 3rd party source to greatly expand options in the app, but still allow custom exercises.
 
 - [ ] **Training Partner Mode**
   Share workouts with friends, competitions, workout together, etc.
@@ -42,6 +40,12 @@
 
 - [ ] **Available Equipment**
   Let the user choose what equipment they have and tailor the app to that. A stretch goal may be to allow different gym "profiles" that you can switch between. Kind of like how Fitbod does.
+
+- [ ] **Video Examples**
+  Add videos or gifs to the exercise database.
+
+- [ ] **Group Templates**
+  Allow grouping/tagging templates.
 
 ---
 

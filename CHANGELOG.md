@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.12.0] - 02/23/26
+
+### Added
+- Exercise database expanded from 51 to 590 exercises sourced from the Free Exercise DB (public domain, Unlicense)
+- `Equipment` model — 8 types: Barbell, Dumbbell, Cable, Machine, Bodyweight, Kettlebell, Bands, Other
+- `ExerciseFilterSheet` — `.medium` detent sheet with `LazyVGrid` grids for muscle group (8 groups + All) and equipment (8 types + Any) filtering; Clear All and Done toolbar buttons
+- Exercise library toolbar: favorites star toggle (`showFavoritesOnly`), filter button with active-filter badge dot, and `+` add button
+- Active filter chips row — horizontally scrollable accent-colored capsule pills with `×` dismiss buttons appear above the exercise list whenever any filter is active; "Clear All" text button shown when ≥2 filters are active
+- `AddCustomExerciseView` now includes an equipment picker (defaults to Other)
+- `ExerciseDetailView` instructions fallback — seeded exercises with no `ExerciseInstructions` entry render description + numbered steps from the model; custom exercises show "No instructions available"
+- `scripts/prepare_exercises.py` — one-time data preparation script used to generate `exercises.json` from Free Exercise DB
+- 43 new unit tests covering models (`SetType`, `PRType`, `ExerciseSet`, `WorkoutExercise`, `TemplateSet`, `TimeRange`), services (`PersonalRecordService`, `PlateCalculatorService`, `ExportService`), and ViewModels (`ExerciseDetailViewModel`, `SettingsViewModel`)
+
+### Changed
+- `ExerciseSeedData` — additive seeding: fast-path insert on first launch; on subsequent launches only inserts exercises whose names are not already in the store (preserves user-created exercises)
+- `Exercise` model — added `equipment: Equipment` property (defaults to `.other`; lightweight SwiftData migration for existing rows)
+- `ExerciseLibraryViewModel` — refactored `seedExercisesIfNeeded()` to use additive seeding; added `selectedEquipment` filter state; `addCustomExercise` now accepts `equipment` parameter
+- `NumberInputField` — switched to local `@State localText` buffer with `@FocusState` sync to prevent cursor jumps during mid-edit external value changes
+- Updated README, PROJECT_BRIEF, DESIGN, and FUTURE_FEATURES docs
+
 ## [0.11.0] - 02/22/26
 
 ### Added

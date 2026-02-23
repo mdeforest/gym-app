@@ -9,12 +9,35 @@ struct ExerciseLibraryView: View {
     @State private var selectedExercise: Exercise?
     @State private var searchText = ""
     @State private var selectedMuscleGroup: MuscleGroup?
+    @State private var selectedEquipment: Equipment?
+    @State private var showingFilters = false
+    @State private var showFavoritesOnly = false
+
+    private var activeFilterCount: Int {
+        (selectedMuscleGroup != nil ? 1 : 0) + (selectedEquipment != nil ? 1 : 0)
+    }
+
+    private var totalActiveFilterCount: Int {
+        activeFilterCount + (showFavoritesOnly ? 1 : 0)
+    }
+
+    private var isAnyFilterActive: Bool {
+        showFavoritesOnly || selectedMuscleGroup != nil || selectedEquipment != nil
+    }
 
     private var filteredExercises: [Exercise] {
         var result = allExercises
 
+        if showFavoritesOnly {
+            result = result.filter { $0.isFavorite }
+        }
+
         if let selectedMuscleGroup {
             result = result.filter { $0.muscleGroup == selectedMuscleGroup }
+        }
+
+        if let selectedEquipment {
+            result = result.filter { $0.equipment == selectedEquipment }
         }
 
         if !searchText.isEmpty {
@@ -26,73 +49,105 @@ struct ExerciseLibraryView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                // Muscle group filter
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: AppTheme.Spacing.xs) {
-                        filterChip(title: "All", isSelected: selectedMuscleGroup == nil) {
-                            selectedMuscleGroup = nil
-                        }
-                        ForEach(MuscleGroup.allCases) { group in
-                            filterChip(
-                                title: group.displayName,
-                                isSelected: selectedMuscleGroup == group
-                            ) {
-                                selectedMuscleGroup = group
-                            }
-                        }
-                    }
-                    .padding(.horizontal, AppTheme.Layout.screenEdgePadding)
-                    .padding(.vertical, AppTheme.Spacing.xs)
-                }
-
-                List {
-                    ForEach(filteredExercises) { exercise in
-                        Button {
-                            selectedExercise = exercise
-                        } label: {
-                            HStack {
-                                VStack(alignment: .leading) {
-                                    Text(exercise.name)
-                                        .font(.body)
-                                        .foregroundStyle(AppTheme.Colors.textPrimary)
-                                    Text(exercise.muscleGroup.displayName)
-                                        .font(.caption)
-                                        .foregroundStyle(AppTheme.Colors.textSecondary)
-                                }
-                                Spacer()
-                                if exercise.isCustom {
-                                    Text("Custom")
-                                        .font(.caption2)
-                                        .foregroundStyle(AppTheme.Colors.accent)
-                                }
-                                if !exercise.isCardio {
-                                    Button {
-                                        viewModel?.toggleFavorite(exercise)
-                                    } label: {
-                                        Image(systemName: exercise.isFavorite ? "star.fill" : "star")
-                                            .font(.body)
-                                            .foregroundStyle(exercise.isFavorite ? AppTheme.Colors.accent : AppTheme.Colors.textSecondary)
-                                    }
-                                    .buttonStyle(.plain)
-                                }
-                                Image(systemName: "chevron.right")
+            List {
+                ForEach(filteredExercises) { exercise in
+                    Button {
+                        selectedExercise = exercise
+                    } label: {
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text(exercise.name)
+                                    .font(.body)
+                                    .foregroundStyle(AppTheme.Colors.textPrimary)
+                                Text(exercise.muscleGroup.displayName)
                                     .font(.caption)
                                     .foregroundStyle(AppTheme.Colors.textSecondary)
                             }
-                        }
-                    }
-                    .onDelete { indexSet in
-                        for index in indexSet {
-                            let exercise = filteredExercises[index]
-                            viewModel?.deleteExercise(exercise)
+                            Spacer()
+                            if exercise.isCustom {
+                                Text("Custom")
+                                    .font(.caption2)
+                                    .foregroundStyle(AppTheme.Colors.accent)
+                            }
+                            if !exercise.isCardio {
+                                Button {
+                                    viewModel?.toggleFavorite(exercise)
+                                } label: {
+                                    Image(systemName: exercise.isFavorite ? "star.fill" : "star")
+                                        .font(.body)
+                                        .foregroundStyle(exercise.isFavorite ? AppTheme.Colors.accent : AppTheme.Colors.textSecondary)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundStyle(AppTheme.Colors.textSecondary)
                         }
                     }
                 }
-                .listStyle(.plain)
-                .searchable(text: $searchText, prompt: "Search exercises")
+                .onDelete { indexSet in
+                    for index in indexSet {
+                        let exercise = filteredExercises[index]
+                        viewModel?.deleteExercise(exercise)
+                    }
+                }
             }
+            .listStyle(.plain)
+            .searchable(text: $searchText, prompt: "Search exercises")
+            .safeAreaInset(edge: .top, spacing: 0) {
+                if isAnyFilterActive {
+                    activeFiltersRow
+                        .background(AppTheme.Colors.background)
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                }
+            }
+            .animation(.easeInOut(duration: 0.2), value: isAnyFilterActive)
             .navigationTitle("Exercises")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    HStack(spacing: AppTheme.Spacing.sm) {
+                        Button {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                showFavoritesOnly.toggle()
+                            }
+                        } label: {
+                            Image(systemName: showFavoritesOnly ? "star.fill" : "star")
+                                .font(.system(size: 18))
+                                .foregroundStyle(showFavoritesOnly ? AppTheme.Colors.accent : AppTheme.Colors.textSecondary)
+                        }
+
+                        Button {
+                            showingFilters = true
+                        } label: {
+                            ZStack(alignment: .topTrailing) {
+                                Image(systemName: "line.3.horizontal.decrease.circle")
+                                    .font(.system(size: 20))
+                                    .foregroundStyle(activeFilterCount > 0 ? AppTheme.Colors.accent : AppTheme.Colors.textSecondary)
+                                if activeFilterCount > 0 {
+                                    Circle()
+                                        .fill(AppTheme.Colors.accent)
+                                        .frame(width: 8, height: 8)
+                                        .offset(x: 3, y: -3)
+                                }
+                            }
+                        }
+
+                        Button {
+                            showingAddExercise = true
+                        } label: {
+                            ZStack {
+                                Circle()
+                                    .fill(AppTheme.Colors.surfaceTertiary)
+                                    .frame(width: 32, height: 32)
+                                Image(systemName: "plus")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundStyle(AppTheme.Colors.accent)
+                            }
+                        }
+                    }
+                }
+            }
             .sheet(isPresented: $showingAddExercise) {
                 if let viewModel {
                     AddCustomExerciseView(viewModel: viewModel)
@@ -103,24 +158,13 @@ struct ExerciseLibraryView: View {
                     .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
             }
-            .background(AppTheme.Colors.background)
-        }
-        .overlay(alignment: .topTrailing) {
-            Button {
-                showingAddExercise = true
-            } label: {
-                ZStack {
-                    Circle()
-                        .fill(AppTheme.Colors.surfaceTertiary)
-                        .frame(width: 40, height: 40)
-                    Image(systemName: "plus")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(AppTheme.Colors.accent)
-                }
+            .sheet(isPresented: $showingFilters) {
+                ExerciseFilterSheet(
+                    selectedMuscleGroup: $selectedMuscleGroup,
+                    selectedEquipment: $selectedEquipment
+                )
             }
-            .buttonStyle(.plain)
-            .padding(.trailing, AppTheme.Layout.screenEdgePadding)
-            .padding(.top, 54)
+            .background(AppTheme.Colors.background)
         }
         .onAppear {
             if viewModel == nil {
@@ -131,16 +175,62 @@ struct ExerciseLibraryView: View {
         }
     }
 
-    private func filterChip(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
+    // MARK: - Active Filters Row
+
+    @ViewBuilder
+    private var activeFiltersRow: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: AppTheme.Spacing.xs) {
+                if showFavoritesOnly {
+                    activeChip(title: "Favorites") {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            showFavoritesOnly = false
+                        }
+                    }
+                }
+                if let group = selectedMuscleGroup {
+                    activeChip(title: group.displayName) {
+                        selectedMuscleGroup = nil
+                    }
+                }
+                if let eq = selectedEquipment {
+                    activeChip(title: eq.displayName) {
+                        selectedEquipment = nil
+                    }
+                }
+                if totalActiveFilterCount > 1 {
+                    Button("Clear All") {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            showFavoritesOnly = false
+                        }
+                        selectedMuscleGroup = nil
+                        selectedEquipment = nil
+                    }
+                    .font(.subheadline)
+                    .foregroundStyle(AppTheme.Colors.textSecondary)
+                    .padding(.leading, AppTheme.Spacing.xxs)
+                }
+            }
+            .padding(.horizontal, AppTheme.Layout.screenEdgePadding)
+            .padding(.vertical, AppTheme.Spacing.xs)
+        }
+    }
+
+    private func activeChip(title: String, onRemove: @escaping () -> Void) -> some View {
+        HStack(spacing: 4) {
             Text(title)
                 .font(.subheadline.weight(.medium))
-                .padding(.horizontal, AppTheme.Spacing.sm)
-                .padding(.vertical, AppTheme.Spacing.xs)
-                .foregroundStyle(isSelected ? .white : AppTheme.Colors.textSecondary)
-                .background(isSelected ? AppTheme.Colors.accent : AppTheme.Colors.surfaceTertiary)
-                .clipShape(Capsule())
+            Button(action: onRemove) {
+                Image(systemName: "xmark")
+                    .font(.caption.weight(.bold))
+            }
+            .buttonStyle(.plain)
         }
+        .padding(.horizontal, AppTheme.Spacing.sm)
+        .padding(.vertical, AppTheme.Spacing.xs)
+        .foregroundStyle(.white)
+        .background(AppTheme.Colors.accent)
+        .clipShape(Capsule())
     }
 }
 

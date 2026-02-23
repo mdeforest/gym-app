@@ -26,11 +26,12 @@ A personal workout tracker built for a single user who primarily lifts weights a
   - ~~Apple Health integration~~ **Delivered** — see Core Features
   - ~~Personal record tracking~~ **Delivered** — see Core Features
   - ~~Calculators~~ **Delivered** — see Core Features
+  - ~~Expanded exercise database~~ **Delivered** — 590 exercises with equipment data and filtering
   - Body weight / measurement tracking
 
 ## Core Features
 - [x] **Workout logging**: Start a workout session, add exercises, and log sets (weight, reps) with minimal taps. Cancel button with confirmation to discard in-progress workouts.
-- [x] **Exercise library**: A pre-populated list of 52 common lifts across 7 muscle groups (Chest, Back, Shoulders, Arms, Legs, Core, Cardio) with the ability to add custom exercises
+- [x] **Exercise library**: A pre-populated list of 590 exercises (sourced from Free Exercise DB) across 7 muscle groups (Chest, Back, Shoulders, Arms, Legs, Core, Cardio) and 8 equipment types (Barbell, Dumbbell, Cable, Machine, Bodyweight, Kettlebell, Bands, Other). Filterable by muscle group, equipment type, and favorites. Active filters shown as removable chips. Custom exercises include an equipment picker. Additive seeding adds new exercises without touching user data on updates.
 - [x] **Exercise detail panel**: Tap any exercise to view how-to instructions (description, primary muscles, step-by-step guide) and recent workout history in a resizable bottom sheet
 - [x] **Cardio logging**: Dedicated time (minutes) and distance (km) inputs for cardio exercises, replacing weight/reps UI. Pre-fills from last session.
 - [x] **Workout history**: Browse past workouts by date, view full session details. After finishing a workout, the app auto-navigates to the completed workout's detail view in the History tab. Only completed sets are saved; incomplete sets and empty exercises are discarded on finish.

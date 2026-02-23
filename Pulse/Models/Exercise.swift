@@ -13,6 +13,7 @@ final class Exercise {
     var lastUsedDate: Date?
     var defaultRestSeconds: Int?
     var isFavorite: Bool = false
+    var equipment: Equipment?
 
     @Relationship(deleteRule: .cascade, inverse: \WorkoutExercise.exercise)
     var workoutExercises: [WorkoutExercise] = []
@@ -27,7 +28,8 @@ final class Exercise {
         isCardio: Bool = false,
         exerciseDescription: String = "",
         instructions: String = "",
-        defaultRestSeconds: Int? = nil
+        defaultRestSeconds: Int? = nil,
+        equipment: Equipment = .other
     ) {
         self.id = UUID()
         self.name = name
@@ -37,5 +39,6 @@ final class Exercise {
         self.exerciseDescription = exerciseDescription
         self.instructions = instructions
         self.defaultRestSeconds = defaultRestSeconds
+        self.equipment = equipment
     }
 }

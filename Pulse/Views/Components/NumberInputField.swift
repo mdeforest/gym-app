@@ -4,8 +4,12 @@ struct NumberInputField: View {
     let label: String
     @Binding var value: String
 
+    @State private var localText = ""
+    @FocusState private var isFocused: Bool
+
     var body: some View {
-        TextField(label, text: $value)
+        TextField(label, text: $localText)
+            .focused($isFocused)
             .keyboardType(.decimalPad)
             .multilineTextAlignment(.center)
             .font(.callout.weight(.medium))
@@ -14,6 +18,11 @@ struct NumberInputField: View {
             .frame(height: AppTheme.Layout.minTouchTarget)
             .background(AppTheme.Colors.surfaceTertiary)
             .clipShape(RoundedRectangle(cornerRadius: AppTheme.Spacing.sm))
+            .onAppear { localText = value }
+            .onChange(of: localText) { _, newValue in value = newValue }
+            .onChange(of: value) { _, newValue in
+                if !isFocused { localText = newValue }
+            }
             .onReceive(NotificationCenter.default.publisher(for: UITextField.textDidBeginEditingNotification)) { notification in
                 (notification.object as? UITextField)?.selectAll(nil)
             }

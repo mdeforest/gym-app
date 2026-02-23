@@ -16,7 +16,7 @@
 - **Exercise reordering** — Move exercises (or superset groups) up and down during an active workout or while editing a completed workout. Inline arrow buttons in each card header.
 - **Workout templates** — Save named routines (e.g. "Push Day") with per-set configuration (individual weight, reps, and warm-up/normal type for each set), superset grouping, and optional defaults. Create templates from scratch or save a completed workout as a template — exact set configurations are captured. Start a pre-populated workout from any template with one tap.
 - **Rest timer** — Auto-starts on set completion (configurable per exercise). Floating pill with countdown, expandable to full controls (+30s, -30s, Skip). Haptic + sound on completion; local notification when backgrounded. Timer continues counting in the background.
-- **Exercise library** — Pre-populated list of 52 common lifts categorized by muscle group, plus custom exercises
+- **Exercise library** — Pre-populated list of 590 exercises sourced from the Free Exercise DB, categorized across 7 muscle groups and 8 equipment types. Filter by muscle group, equipment type, or favorites; a favorites-only star toggle lives in the toolbar for quick one-tap access. Active filters appear as removable chips below the search bar. Add custom exercises with a name, muscle group, and equipment type.
 - **Exercise favorites** — Star up to 10 exercises in the library or detail panel; favorites are prioritized in progress charts
 - **Exercise detail panel** — Tap any exercise to view how-to instructions, primary muscles, rest timer config, and recent workout history
 - **Personal records (PRs)** — Automatic per-set PR detection for three record types: heaviest weight, best estimated 1RM (Epley formula), and best single-set volume (weight × reps). Gold "PR" badges on set rows during workouts and in history. Animated "New PR!" toast with haptic feedback during active workouts. "Personal Records" section in exercise detail showing all-time bests. Trophy markers on strength progression charts. PR data included in CSV/JSON exports.
@@ -60,7 +60,8 @@ Pulse/
 │   └── ContentView.swift         # 4-tab layout (Workout, History, Exercises, Templates)
 ├── Models/
 │   ├── MuscleGroup.swift         # Muscle group enum (7 groups)
-│   ├── Exercise.swift            # Exercise definition (name, muscle group, custom flag)
+│   ├── Equipment.swift           # Equipment enum (8 types: barbell, dumbbell, cable, machine, bodyweight, kettlebell, bands, other)
+│   ├── Exercise.swift            # Exercise definition (name, muscle group, equipment, custom flag)
 │   ├── Workout.swift             # Workout session (start/end date, exercises)
 │   ├── WorkoutExercise.swift     # Exercise within a workout (+ cardio fields, superset group)
 │   ├── ExerciseSet.swift         # Individual set (weight, reps, completion, set type, RPE, PR flags)
@@ -84,6 +85,7 @@ Pulse/
 │   ├── ExerciseLibrary/
 │   │   ├── ExerciseLibraryView.swift
 │   │   ├── ExerciseDetailView.swift
+│   │   ├── ExerciseFilterSheet.swift
 │   │   └── AddCustomExerciseView.swift
 │   ├── History/
 │   │   ├── HistoryView.swift
@@ -137,7 +139,7 @@ Pulse/
 │   └── AppTheme.swift            # Design tokens (colors, spacing, layout)
 ├── Services/
 │   ├── DataService.swift         # ModelContainer factory
-│   ├── ExerciseSeedData.swift    # 52 pre-populated exercises
+│   ├── ExerciseSeedData.swift    # 590 pre-populated exercises (additive seeding on update)
 │   ├── ExerciseInstructions.swift # How-to instructions for all exercises
 │   ├── ExportService.swift       # CSV/JSON workout data export
 │   ├── PersonalRecordService.swift # PR detection, records queries, and backfill
@@ -145,10 +147,11 @@ Pulse/
 │   └── HealthKitService.swift    # Apple Health sync (workouts + body weight)
 └── Resources/
     ├── Assets.xcassets           # AppIcon, Logo image, AccentColor
-    └── exercises.json          # Exercise seed data (52 exercises with rest defaults)
+    └── exercises.json          # Exercise seed data (590 exercises with equipment + rest defaults)
 PulseTests/
-├── ViewModelTests.swift         # Unit tests (Swift Testing)
-└── ProgressViewModelTests.swift # Progress analytics tests
+├── PulseTests.swift             # Model, enum, and service unit tests (Swift Testing)
+├── ViewModelTests.swift         # ViewModel unit tests (Swift Testing)
+└── ProgressViewModelTests.swift # Progress analytics tests (Swift Testing)
 PulseUITests/
 └── PulseUITests.swift           # UI tests (XCTest)
 project.yml                       # XcodeGen project configuration

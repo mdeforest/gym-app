@@ -163,11 +163,11 @@ private struct SupersetExerciseSection: View {
                             viewModel.deleteSet(exerciseSet, from: workoutExercise)
                         } : nil,
                         onToggleSetType: { viewModel.toggleSetType(exerciseSet) },
-                        rpe: exerciseSet.setType == .warmup ? nil : Binding(
+                        rpe: Binding(
                             get: { exerciseSet.rpe },
                             set: { exerciseSet.rpe = $0 }
                         ),
-                        onRPETap: exerciseSet.setType == .warmup ? nil : {
+                        onRPETap: {
                             withAnimation(.easeInOut(duration: 0.2)) {
                                 showingRPEPickerForSet = showingRPEPickerForSet == exerciseSet.id ? nil : exerciseSet.id
                             }

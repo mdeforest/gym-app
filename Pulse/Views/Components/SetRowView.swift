@@ -71,6 +71,8 @@ struct SetRowView: View {
 
                 if let rpe, let onRPETap {
                     RPEBadgeView(rpe: rpe.wrappedValue, onTap: onRPETap)
+                        .opacity(setType == .warmup ? 0 : 1)
+                        .allowsHitTesting(setType != .warmup)
                 }
 
                 if !prTypes.isEmpty {
