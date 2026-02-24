@@ -6,6 +6,7 @@ struct ContentView: View {
     var splashFinished: Bool = true
 
     @AppStorage("prBackfillCompleted") private var prBackfillCompleted = false
+    @AppStorage("machineTypeBackfillCompleted") private var machineTypeBackfillCompleted = false
     @State private var selectedTab = 0
     @State private var completedWorkout: Workout?
     @State private var pendingTemplate: WorkoutTemplate?
@@ -60,6 +61,11 @@ struct ContentView: View {
             if !prBackfillCompleted {
                 PersonalRecordService.backfillPRFlags(modelContext: modelContext)
                 prBackfillCompleted = true
+            }
+            if !machineTypeBackfillCompleted {
+                let vm = ExerciseLibraryViewModel(modelContext: modelContext)
+                vm.backfillMachineTypesIfNeeded()
+                machineTypeBackfillCompleted = true
             }
         }
     }

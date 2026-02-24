@@ -151,8 +151,23 @@ final class ExerciseLibraryViewModel {
             exerciseDescription: definition.description,
             instructions: definition.instructions,
             defaultRestSeconds: definition.defaultRestSeconds,
-            equipment: definition.equipment
+            equipment: definition.equipment,
+            machineType: ExerciseSeedData.machineTypeMap[definition.name]
         )
+    }
+
+    /// Stamps machineType on any seeded machine exercise that's missing it (one-time backfill).
+    func backfillMachineTypesIfNeeded() {
+        let descriptor = FetchDescriptor<Exercise>()
+        guard let all = try? modelContext.fetch(descriptor) else { return }
+        var changed = false
+        for exercise in all where !exercise.isCustom && exercise.equipment == .machine && exercise.machineType == nil {
+            if let type_ = ExerciseSeedData.machineTypeMap[exercise.name] {
+                exercise.machineType = type_
+                changed = true
+            }
+        }
+        if changed { save() }
     }
 
     private func save() {

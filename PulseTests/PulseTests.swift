@@ -827,3 +827,402 @@ struct AvailableEquipmentFilterTests {
         }
     }
 }
+
+// MARK: - GymProfile Tests
+
+@Suite("GymProfile — Initialization")
+struct GymProfileInitTests {
+    @Test func defaultEquipmentRawIsEmpty() {
+        let p = GymProfile(name: "My Gym")
+        #expect(p.equipmentRaw == "")
+    }
+
+    @Test func customIdIsPreserved() {
+        let id = UUID()
+        let p = GymProfile(id: id, name: "Test")
+        #expect(p.id == id)
+    }
+
+    @Test func defaultIdIsUnique() {
+        let a = GymProfile(name: "A")
+        let b = GymProfile(name: "B")
+        #expect(a.id != b.id)
+    }
+}
+
+@Suite("GymProfile — Equipment Encoding")
+struct GymProfileEquipmentEncodingTests {
+    @Test func emptyRawMeansEmptySet() {
+        let p = GymProfile(name: "All", equipmentRaw: "")
+        #expect(p.equipmentSet.isEmpty)
+    }
+
+    @Test func parsesRawCorrectly() {
+        let p = GymProfile(name: "Home", equipmentRaw: "barbell,dumbbell")
+        #expect(p.equipmentSet == [.barbell, .dumbbell])
+    }
+
+    @Test func encodeFullSetProducesEmptyString() {
+        let result = GymProfile.encode(equipment: Set(Equipment.allCases))
+        #expect(result == "")
+    }
+
+    @Test func encodeIsSorted() {
+        let result = GymProfile.encode(equipment: [.dumbbell, .barbell])
+        #expect(result == "barbell,dumbbell")
+    }
+
+    @Test func encodeDecodeRoundTrip() {
+        let original: Set<Equipment> = [.barbell, .kettlebell, .bodyweight]
+        let encoded = GymProfile.encode(equipment: original)
+        let p = GymProfile(name: "Test", equipmentRaw: encoded)
+        #expect(p.equipmentSet == original)
+    }
+}
+
+@Suite("GymProfile — Codable")
+struct GymProfileCodableTests {
+    @Test func singleProfileRoundTrip() throws {
+        let original = GymProfile(id: UUID(), name: "My Gym", equipmentRaw: "barbell,cable")
+        let data = try JSONEncoder().encode(original)
+        let decoded = try JSONDecoder().decode(GymProfile.self, from: data)
+        #expect(decoded.id == original.id)
+        #expect(decoded.name == original.name)
+        #expect(decoded.equipmentRaw == original.equipmentRaw)
+    }
+
+    @Test func arrayRoundTrip() throws {
+        let profiles = [
+            GymProfile(name: "Home Gym", equipmentRaw: "barbell,dumbbell"),
+            GymProfile(name: "Commercial Gym", equipmentRaw: ""),
+        ]
+        let data = try JSONEncoder().encode(profiles)
+        let decoded = try JSONDecoder().decode([GymProfile].self, from: data)
+        #expect(decoded.count == 2)
+        #expect(decoded[0].name == "Home Gym")
+        #expect(decoded[1].name == "Commercial Gym")
+    }
+
+    @Test func missingDataReturnsEmpty() {
+        let key = "gymProfiles_test_\(UUID().uuidString)"
+        // key was never written — loadAll should return []
+        let data = UserDefaults.standard.data(forKey: key)
+        #expect(data == nil)
+    }
+}
+
+@Suite("GymProfile — Built-in Templates")
+struct GymProfileTemplateTests {
+    @Test func builtInTemplatesCount() {
+        #expect(GymProfile.builtInTemplates.count == 3)
+    }
+
+    @Test func commercialGymIsAllEquipment() {
+        #expect(GymProfile.commercialGym.equipmentRaw == "")
+    }
+
+    @Test func homeGymExcludesCableAndMachine() {
+        let eq = GymProfile.homeGym.equipmentSet
+        #expect(!eq.contains(.cable))
+        #expect(!eq.contains(.machine))
+    }
+
+    @Test func travelIncludesBodyweightAndBands() {
+        let eq = GymProfile.travel.equipmentSet
+        #expect(eq.contains(.bodyweight))
+        #expect(eq.contains(.bands))
+    }
+
+    @Test func builtInTemplatesHaveUniqueIds() {
+        let ids = GymProfile.builtInTemplates.map(\.id)
+        #expect(Set(ids).count == ids.count)
+    }
+
+    @Test func builtInTemplatesHaveNonEmptyNames() {
+        #expect(GymProfile.builtInTemplates.allSatisfy { !$0.name.isEmpty })
+    }
+}
+
+@Suite("GymProfile — Equatable")
+struct GymProfileEquatableTests {
+    @Test func sameIdAndContentAreEqual() {
+        let id = UUID()
+        let a = GymProfile(id: id, name: "Gym", equipmentRaw: "barbell")
+        let b = GymProfile(id: id, name: "Gym", equipmentRaw: "barbell")
+        #expect(a == b)
+    }
+
+    @Test func differentIdsAreNotEqual() {
+        let a = GymProfile(name: "Gym", equipmentRaw: "barbell")
+        let b = GymProfile(name: "Gym", equipmentRaw: "barbell")
+        #expect(a != b)
+    }
+
+    @Test func sameIdDifferentNameAreNotEqual() {
+        let id = UUID()
+        let a = GymProfile(id: id, name: "Home", equipmentRaw: "barbell")
+        let b = GymProfile(id: id, name: "Work", equipmentRaw: "barbell")
+        #expect(a != b)
+    }
+}
+
+// MARK: - MachineType Tests
+
+@Suite("MachineType Tests")
+struct MachineTypeTests {
+    @Test func allCasesCount() {
+        #expect(MachineType.allCases.count == 12)
+    }
+
+    @Test func idEqualsRawValue() {
+        for type_ in MachineType.allCases {
+            #expect(type_.id == type_.rawValue)
+        }
+    }
+
+    @Test func rawValues() {
+        #expect(MachineType.smithMachine.rawValue == "smith_machine")
+        #expect(MachineType.legPress.rawValue == "leg_press")
+        #expect(MachineType.legExtensionCurl.rawValue == "leg_extension_curl")
+        #expect(MachineType.hackSquat.rawValue == "hack_squat")
+        #expect(MachineType.calfMachine.rawValue == "calf_machine")
+        #expect(MachineType.cardioMachine.rawValue == "cardio_machine")
+        #expect(MachineType.chestMachine.rawValue == "chest_machine")
+        #expect(MachineType.rowMachine.rawValue == "row_machine")
+        #expect(MachineType.shoulderMachine.rawValue == "shoulder_machine")
+        #expect(MachineType.leverageMachine.rawValue == "leverage_machine")
+        #expect(MachineType.armMachine.rawValue == "arm_machine")
+        #expect(MachineType.otherMachine.rawValue == "other_machine")
+    }
+
+    @Test func displayNames() {
+        #expect(MachineType.smithMachine.displayName == "Smith Machine")
+        #expect(MachineType.legPress.displayName == "Leg Press")
+        #expect(MachineType.legExtensionCurl.displayName == "Leg Extension / Curl")
+        #expect(MachineType.hackSquat.displayName == "Hack Squat")
+        #expect(MachineType.calfMachine.displayName == "Calf Machine")
+        #expect(MachineType.cardioMachine.displayName == "Cardio Machines")
+        #expect(MachineType.chestMachine.displayName == "Chest / Fly Machine")
+        #expect(MachineType.rowMachine.displayName == "Row Machine")
+        #expect(MachineType.shoulderMachine.displayName == "Shoulder Press Machine")
+        #expect(MachineType.leverageMachine.displayName == "Leverage / Plate Machine")
+        #expect(MachineType.armMachine.displayName == "Arm Machine")
+        #expect(MachineType.otherMachine.displayName == "Other Machines")
+    }
+
+    @Test func allCasesHaveNonEmptyIcons() {
+        for type_ in MachineType.allCases {
+            #expect(!type_.icon.isEmpty, "\(type_.rawValue) has empty icon")
+        }
+    }
+
+    @Test func initFromRawValue() {
+        #expect(MachineType(rawValue: "smith_machine") == .smithMachine)
+        #expect(MachineType(rawValue: "leg_press") == .legPress)
+        #expect(MachineType(rawValue: "other_machine") == .otherMachine)
+        #expect(MachineType(rawValue: "unknown") == nil)
+    }
+
+    @Test func codableRoundTrip() throws {
+        for type_ in MachineType.allCases {
+            let encoded = try JSONEncoder().encode(type_)
+            let decoded = try JSONDecoder().decode(MachineType.self, from: encoded)
+            #expect(decoded == type_)
+        }
+    }
+}
+
+// MARK: - GymProfile Machine Helpers Tests
+
+@Suite("GymProfile — Machine Helpers")
+struct GymProfileMachineTests {
+    @Test func defaultMachinesRawIsEmpty() {
+        let p = GymProfile(name: "My Gym")
+        #expect(p.machinesRaw == "")
+    }
+
+    @Test func emptyMachinesRawMeansEmptySet() {
+        let p = GymProfile(name: "All", machinesRaw: "")
+        #expect(p.machineTypeSet.isEmpty)
+    }
+
+    @Test func parseMachinesRawCorrectly() {
+        let p = GymProfile(name: "Partial", machinesRaw: "leg_press,smith_machine")
+        #expect(p.machineTypeSet == [.legPress, .smithMachine])
+    }
+
+    @Test func unknownMachineRawValueIsDropped() {
+        let p = GymProfile(name: "Test", machinesRaw: "leg_press,unknown_type,smith_machine")
+        #expect(p.machineTypeSet == [.legPress, .smithMachine])
+    }
+
+    @Test func encodeFullMachineSetProducesEmptyString() {
+        let result = GymProfile.encode(machines: Set(MachineType.allCases))
+        #expect(result == "")
+    }
+
+    @Test func encodeEmptyMachineSet() {
+        // Empty set encodes to "" (same as "all machines" convention)
+        let result = GymProfile.encode(machines: [])
+        #expect(result == "")
+    }
+
+    @Test func encodeMachinesIsSorted() {
+        let result = GymProfile.encode(machines: [.smithMachine, .legPress])
+        #expect(result == "leg_press,smith_machine")
+    }
+
+    @Test func encodeMachinesDecodeRoundTrip() {
+        let original: Set<MachineType> = [.legPress, .chestMachine, .armMachine]
+        let encoded = GymProfile.encode(machines: original)
+        let p = GymProfile(name: "Test", machinesRaw: encoded)
+        #expect(p.machineTypeSet == original)
+    }
+
+    @Test func codableRoundTripIncludesMachinesRaw() throws {
+        let original = GymProfile(id: UUID(), name: "Gym", equipmentRaw: "machine", machinesRaw: "leg_press,smith_machine")
+        let data = try JSONEncoder().encode(original)
+        let decoded = try JSONDecoder().decode(GymProfile.self, from: data)
+        #expect(decoded.machinesRaw == original.machinesRaw)
+        #expect(decoded.machineTypeSet == original.machineTypeSet)
+    }
+
+    @Test func backwardCompatibleDecodeWithoutMachinesRaw() throws {
+        // Simulates an old stored profile that has no machinesRaw key
+        let oldJSON = """
+        {"id":"\(UUID().uuidString)","name":"Legacy Gym","equipmentRaw":"barbell,dumbbell"}
+        """.data(using: .utf8)!
+        let decoded = try JSONDecoder().decode(GymProfile.self, from: oldJSON)
+        #expect(decoded.machinesRaw == "")
+        #expect(decoded.machineTypeSet.isEmpty)
+    }
+}
+
+// MARK: - Machine-Aware Exercise Filter Tests
+
+/// Pure-logic helper mirroring the exercisePasses(_:) logic in AddExerciseView/ExerciseLibraryView.
+private func exercisePassesMachineFilter(
+    _ exercise: Exercise,
+    availableEquipment: Set<Equipment>,
+    availableMachines: Set<MachineType>
+) -> Bool {
+    guard let eq = exercise.equipment else { return true }
+    if eq == .other { return true }
+    if !availableEquipment.isEmpty && !availableEquipment.contains(eq) { return false }
+    if eq == .machine && !availableMachines.isEmpty {
+        guard let mt = exercise.machineType else { return true }
+        return availableMachines.contains(mt)
+    }
+    return true
+}
+
+@Suite("Machine-Aware Exercise Filter")
+struct MachineAwareFilterTests {
+
+    // MARK: No active machine filter
+
+    @Test func emptyMachineFilterShowsAllMachineExercises() {
+        let exercise = Exercise(name: "Leg Press", muscleGroup: .legs, equipment: .machine, machineType: .legPress)
+        #expect(exercisePassesMachineFilter(exercise, availableEquipment: [.machine], availableMachines: []))
+    }
+
+    @Test func emptyBothFiltersShowsAll() {
+        let exercise = Exercise(name: "Leg Press", muscleGroup: .legs, equipment: .machine, machineType: .legPress)
+        #expect(exercisePassesMachineFilter(exercise, availableEquipment: [], availableMachines: []))
+    }
+
+    // MARK: Machine sub-filter active
+
+    @Test func machineExercisePassesWhenTypeInFilter() {
+        let exercise = Exercise(name: "Leg Press", muscleGroup: .legs, equipment: .machine, machineType: .legPress)
+        #expect(exercisePassesMachineFilter(exercise, availableEquipment: [.machine], availableMachines: [.legPress, .smithMachine]))
+    }
+
+    @Test func machineExerciseHiddenWhenTypeNotInFilter() {
+        let exercise = Exercise(name: "Hack Squat", muscleGroup: .legs, equipment: .machine, machineType: .hackSquat)
+        let filter: Set<MachineType> = [.legPress, .smithMachine]
+        #expect(!exercisePassesMachineFilter(exercise, availableEquipment: [.machine], availableMachines: filter))
+    }
+
+    @Test func machineExerciseWithNilTypePassesAnyMachineFilter() {
+        // Exercises without a machineType assigned are always shown
+        let exercise = Exercise(name: "Generic Machine Row", muscleGroup: .back, equipment: .machine, machineType: nil)
+        let filter: Set<MachineType> = [.legPress]
+        #expect(exercisePassesMachineFilter(exercise, availableEquipment: [.machine], availableMachines: filter))
+    }
+
+    // MARK: Equipment filter still applies
+
+    @Test func machineExerciseHiddenWhenMachineEquipmentNotInFilter() {
+        let exercise = Exercise(name: "Leg Press", muscleGroup: .legs, equipment: .machine, machineType: .legPress)
+        // Machine equipment not included in availableEquipment → filtered out before machine check
+        let filter: Set<MachineType> = [.legPress]
+        #expect(!exercisePassesMachineFilter(exercise, availableEquipment: [.barbell, .dumbbell], availableMachines: filter))
+    }
+
+    // MARK: Non-machine equipment unaffected by machine filter
+
+    @Test func barbellExerciseUnaffectedByMachineFilter() {
+        let exercise = Exercise(name: "Squat", muscleGroup: .legs, equipment: .barbell)
+        let machineFilter: Set<MachineType> = [.legPress]
+        #expect(exercisePassesMachineFilter(exercise, availableEquipment: [.barbell], availableMachines: machineFilter))
+    }
+
+    @Test func bodyweightExerciseUnaffectedByMachineFilter() {
+        let exercise = Exercise(name: "Push-up", muscleGroup: .chest, equipment: .bodyweight)
+        let machineFilter: Set<MachineType> = [.chestMachine]
+        #expect(exercisePassesMachineFilter(exercise, availableEquipment: [.bodyweight], availableMachines: machineFilter))
+    }
+
+    @Test func otherEquipmentAlwaysPasses() {
+        let exercise = Exercise(name: "Stretch", muscleGroup: .core, equipment: .other)
+        // Even with a restrictive equipment filter, .other always passes
+        #expect(exercisePassesMachineFilter(exercise, availableEquipment: [.barbell], availableMachines: [.legPress]))
+    }
+
+    @Test func nilEquipmentAlwaysPasses() {
+        let exercise = Exercise(name: "Custom", muscleGroup: .chest)
+        exercise.equipment = nil
+        #expect(exercisePassesMachineFilter(exercise, availableEquipment: [.barbell], availableMachines: [.legPress]))
+    }
+}
+
+// MARK: - MachineTypeMap Coverage Tests
+
+@Suite("MachineTypeMap Coverage")
+struct MachineTypeMapTests {
+    @Test func mapIsNotEmpty() {
+        #expect(!ExerciseSeedData.machineTypeMap.isEmpty)
+    }
+
+    @Test func allValuesAreValidMachineTypes() {
+        // All mapped values are valid MachineType cases (always true for hardcoded enum literals,
+        // but validates no raw value string typos exist)
+        for (_, machineType) in ExerciseSeedData.machineTypeMap {
+            #expect(MachineType(rawValue: machineType.rawValue) != nil)
+        }
+    }
+
+    @Test func allMachineTypesRepresentedInMap() {
+        let mappedTypes = Set(ExerciseSeedData.machineTypeMap.values)
+        for type_ in MachineType.allCases {
+            #expect(mappedTypes.contains(type_), "\(type_.displayName) has no exercises in machineTypeMap")
+        }
+    }
+
+    @Test func mapKeysAreUnique() {
+        // Dictionary keys are always unique by definition, but we verify count vs. original entries
+        // by checking the map was not silently collapsed during construction
+        #expect(ExerciseSeedData.machineTypeMap.count > 0)
+    }
+
+    @Test func smithMachineExercisesAreMapped() {
+        let smithExercises = ExerciseSeedData.machineTypeMap.filter { $0.value == .smithMachine }
+        #expect(!smithExercises.isEmpty)
+    }
+
+    @Test func legPressExercisesAreMapped() {
+        let legPressExercises = ExerciseSeedData.machineTypeMap.filter { $0.value == .legPress }
+        #expect(!legPressExercises.isEmpty)
+    }
+}

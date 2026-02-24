@@ -13,10 +13,27 @@ struct ExerciseLibraryView: View {
     @State private var showingFilters = false
     @State private var showFavoritesOnly = false
     @AppStorage("availableEquipment") private var availableEquipmentRaw: String = ""
+    @AppStorage("availableMachines") private var availableMachinesRaw: String = ""
 
     private var availableEquipment: Set<Equipment> {
         guard !availableEquipmentRaw.isEmpty else { return [] }
         return Set(availableEquipmentRaw.split(separator: ",").compactMap { Equipment(rawValue: String($0)) })
+    }
+
+    private var availableMachines: Set<MachineType> {
+        guard !availableMachinesRaw.isEmpty else { return [] }
+        return Set(availableMachinesRaw.split(separator: ",").compactMap { MachineType(rawValue: String($0)) })
+    }
+
+    private func exercisePasses(_ exercise: Exercise) -> Bool {
+        guard let eq = exercise.equipment else { return true }
+        if eq == .other { return true }
+        if !availableEquipment.isEmpty && !availableEquipment.contains(eq) { return false }
+        if eq == .machine && !availableMachines.isEmpty {
+            guard let mt = exercise.machineType else { return true }
+            return availableMachines.contains(mt)
+        }
+        return true
     }
 
     private var activeFilterCount: Int {
@@ -32,14 +49,7 @@ struct ExerciseLibraryView: View {
     }
 
     private var filteredExercises: [Exercise] {
-        var result = allExercises
-
-        if !availableEquipment.isEmpty {
-            result = result.filter { exercise in
-                guard let eq = exercise.equipment else { return true }
-                return eq == .other || availableEquipment.contains(eq)
-            }
-        }
+        var result = allExercises.filter { exercisePasses($0) }
 
         if showFavoritesOnly {
             result = result.filter { $0.isFavorite }

@@ -149,14 +149,6 @@ final class WorkoutViewModel {
         activeWorkout = nil
         save()
 
-        // Sync to Apple Health if enabled
-        let healthService = HealthKitService.shared
-        if healthService.isEnabled {
-            Task {
-                await healthService.saveWorkout(workout)
-            }
-        }
-
         return workout
     }
 

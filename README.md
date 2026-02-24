@@ -27,10 +27,9 @@
 - **Last-session reference** — Sets are pre-filled with last session's weight/reps for easy progressive overload tracking
 - **Set management** — Swipe left to delete sets; editing a set auto-populates remaining incomplete sets
 - **Cancel workout** — Dedicated cancel button with confirmation to discard an in-progress workout
-- **Available Equipment** — Configure which equipment you have access to in Settings. Exercises requiring unconfigured equipment are hidden in the Exercise Library and Add Exercise sheet. Exercises with no equipment type or categorized as "Other" always show. Easily reset to show everything with a single tap.
-- **Settings page** — Profile setup (name, body weight, weight unit), available equipment configuration, Apple Health sync toggle with authorization status, data export (CSV/JSON via share sheet), clear all data with confirmation, and app version display. Accessed via a profile avatar button on the Workout tab.
+- **Gym Profiles** — Save named equipment presets and switch between them instantly (e.g. "Home Gym", "Commercial Gym", "Travel"). Each profile stores a set of available equipment types and, for machine exercises, specific machine types (Smith Machine, Leg Press, Hack Squat, etc.). Applying a profile filters the Exercise Library and Add Exercise sheet in real time. Built-in templates for Commercial Gym, Home Gym, and Travel to get started quickly. Active profile name shown as trailing text in the Settings row.
+- **Settings page** — Profile setup (name, body weight, weight unit), gym profiles configuration, data export (CSV/JSON via share sheet), clear all data with confirmation, and app version display. Accessed via a profile avatar button on the Workout tab.
 - **Data export** — Export full workout history as CSV or JSON. Includes exercise names, muscle groups, sets, weight, reps, set type, RPE, superset group, and cardio data. Share via the iOS share sheet.
-- **Apple Health integration** — Sync completed workouts to Apple Health with exercise count and total volume metadata. Read latest body weight from Health. Toggle sync on/off in Settings with authorization status display.
 - **Animated splash screen** — Logo fades in centered, then shrinks and slides into position on the Workout tab as the app reveals
 - **Calculators** — Quick-access tool menu from the Workout tab (both idle and active states). Includes: Plate Calculator (target weight → plates per side with visual bar + plate breakdown, custom bar weight, lbs/kg support), 1RM Calculator (weight + reps → estimated 1RM with RPE-to-percentage reference table), RPE Chart (reference table with optional 1RM input for weight targets per RPE level), and Stopwatch (MM:SS.cs display with lap splits)
 
@@ -62,7 +61,9 @@ Pulse/
 ├── Models/
 │   ├── MuscleGroup.swift         # Muscle group enum (7 groups)
 │   ├── Equipment.swift           # Equipment enum (8 types: barbell, dumbbell, cable, machine, bodyweight, kettlebell, bands, other)
-│   ├── Exercise.swift            # Exercise definition (name, muscle group, equipment, custom flag)
+│   ├── GymProfile.swift          # Named equipment preset (Codable, UserDefaults-backed)
+│   ├── MachineType.swift         # Machine sub-type enum (12 types: Smith Machine, Leg Press, Hack Squat, etc.)
+│   ├── Exercise.swift            # Exercise definition (name, muscle group, equipment, machine type, custom flag)
 │   ├── Workout.swift             # Workout session (start/end date, exercises)
 │   ├── WorkoutExercise.swift     # Exercise within a workout (+ cardio fields, superset group)
 │   ├── ExerciseSet.swift         # Individual set (weight, reps, completion, set type, RPE, PR flags)
@@ -105,8 +106,8 @@ Pulse/
 │   ├── Settings/
 │   │   ├── SettingsView.swift
 │   │   ├── ProfileSectionView.swift
-│   │   ├── EquipmentSectionView.swift
-│   │   ├── HealthSectionView.swift
+│   │   ├── GymProfilesView.swift
+│   │   ├── GymProfileEditView.swift
 │   │   └── DataManagementSectionView.swift
 │   ├── Tools/
 │   │   ├── ToolsMenuView.swift
@@ -141,7 +142,7 @@ Pulse/
 │   └── AppTheme.swift            # Design tokens (colors, spacing, layout)
 ├── Services/
 │   ├── DataService.swift         # ModelContainer factory
-│   ├── ExerciseSeedData.swift    # 590 pre-populated exercises (additive seeding on update)
+│   ├── ExerciseSeedData.swift    # 590 pre-populated exercises + machine type map (additive seeding on update)
 │   ├── ExerciseInstructions.swift # How-to instructions for all exercises
 │   ├── ExportService.swift       # CSV/JSON workout data export
 │   ├── PersonalRecordService.swift # PR detection, records queries, and backfill

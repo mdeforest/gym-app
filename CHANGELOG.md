@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.14.0] - 02/24/26
+
+### Added
+- **Gym Profiles** — named equipment presets (`GymProfilesView`, `GymProfileEditView`) accessible via a new Settings row. Each profile stores available equipment types and, when Machine is included, a specific subset of 12 machine types. Applying a profile writes to `availableEquipment` and `availableMachines` `@AppStorage` keys, updating exercise filters in real time with haptic feedback
+- `GymProfile` Codable struct persisted as JSON in UserDefaults with backward-compatible `init(from:)` (`machinesRaw` defaults to `""` for old data)
+- `MachineType` enum — 12 cases: Smith Machine, Leg Press, Leg Extension/Curl, Hack Squat, Calf Machine, Cardio Machines, Chest/Fly Machine, Row Machine, Shoulder Press Machine, Leverage/Plate Machine, Arm Machine, Other Machines — each with `displayName` and SF Symbol `icon`
+- Three built-in gym templates (Commercial Gym, Home Gym, Travel) accessible via "Use Template" button in the edit sheet
+- Default "My Gym" profile auto-created on first launch via `createDefaultProfileIfNeeded()`
+- `machineType: MachineType?` property on `Exercise` model; `backfillMachineTypesIfNeeded()` in `ExerciseLibraryViewModel` stamps machine types on existing exercises on update
+- `ExerciseSeedData.machineTypeMap` — maps all 66 machine exercise names to their `MachineType`
+- Machine type sub-filter in `AddExerciseView` and `ExerciseLibraryView`: machine exercises are further filtered by type when `availableMachines` is non-empty; exercises with no `machineType` always show
+- Active profile name shown as trailing secondary text in the Settings navigation row
+- 30 new unit tests across 4 suites: **MachineType** (6), **GymProfile — Machine Helpers** (9, including backward-compat Codable), **Machine-Aware Exercise Filter** (9), **MachineTypeMap Coverage** (6)
+
+### Changed
+- `SettingsView` — replaced `EquipmentSectionView` with `GymProfilesSectionView` NavigationLink
+- Deleted `EquipmentSectionView.swift` — equipment configuration now lives entirely within Gym Profiles
+- `ExerciseLibraryViewModel.makeExercise(from:)` now passes `machineType` from `machineTypeMap`
+- Updated README, PROJECT_BRIEF, DESIGN, and FUTURE_FEATURES docs
+
+### Removed
+- HealthKit entitlement and `HealthSectionView` from Settings (temporarily disabled — requires paid Apple Developer account for entitlements)
+- Health sync call removed from `WorkoutViewModel.finishWorkout()`
+
 ## [0.13.0] - 02/23/26
 
 ### Added

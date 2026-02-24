@@ -27,7 +27,8 @@ A personal workout tracker built for a single user who primarily lifts weights a
   - ~~Personal record tracking~~ **Delivered** — see Core Features
   - ~~Calculators~~ **Delivered** — see Core Features
   - ~~Expanded exercise database~~ **Delivered** — 590 exercises with equipment data and filtering
-  - ~~Available equipment filtering~~ **Delivered** — per-equipment-type toggle in Settings, filters library and add-exercise views
+  - ~~Available equipment filtering~~ **Delivered** — superseded by Gym Profiles
+  - ~~Gym Profiles~~ **Delivered** — named equipment presets with machine-type sub-selection, instant switching, and built-in templates
   - Body weight / measurement tracking
 
 ## Core Features
@@ -54,7 +55,7 @@ A personal workout tracker built for a single user who primarily lifts weights a
 - [x] **Apple Health integration**: Sync completed workouts to Apple Health with exercise count and total volume metadata. Read latest body weight from Health. Toggle sync on/off in Settings with authorization status display and link to system Settings when access is denied. Uses `HealthKitService` singleton with async/await.
 - [x] **Personal records (PRs)**: Per-set PR detection for three record types: heaviest weight, best estimated 1RM (Epley formula), and best single-set volume (weight × reps). Gold "PR" badges on set rows throughout the app, animated "New PR!" toast with haptic during active workouts, "Personal Records" section in exercise detail showing all-time bests, and trophy annotations on strength progression charts. PR flags stored on `ExerciseSet` for instant display. One-time backfill stamps PRs on existing workout history. PR data included in CSV/JSON exports.
 - [x] **Calculators**: Quick-access tool menu via a `±` toolbar button on the Workout tab (both idle and active workout states). Four tools: **Plate Calculator** (greedy algorithm for plates per side given a target weight; visual bar + plate breakdown with color-coded chips; custom bar weight option; lbs/kg support), **1RM Calculator** (Epley formula estimate from weight + reps; RPE-to-percentage reference table with color-coded badges), **RPE Chart** (reference table mapping RPE 6–10 to percentages and RIR; optional 1RM input shows target weights per RPE level), and **Stopwatch** (MM:SS.cs monospaced display; lap splits with cumulative time and delta; wall-clock date tracking for background accuracy).
-- [x] **Available Equipment**: Configure which equipment types are accessible (barbell, dumbbell, cable, machine, bodyweight, kettlebell, bands, other) in a dedicated Settings section. Exercises requiring unconfigured equipment are hidden in the Exercise Library and Add Exercise sheet. Exercises with `nil` equipment or typed as `.other` always show. Persisted via `@AppStorage` as comma-separated rawValues; empty string = all available (no filtering). A "Reset" button appears in the section header whenever any equipment is deselected.
+- [x] **Gym Profiles**: Save named equipment presets (e.g. "Home Gym", "Commercial Gym", "Travel") that can be switched instantly from a dedicated Settings screen. Each profile stores a selected set of equipment types (barbell, dumbbell, cable, machine, bodyweight, kettlebell, bands, other) and, when Machine is included, a specific subset of 12 machine types (Smith Machine, Leg Press, Leg Extension/Curl, Hack Squat, Calf Machine, Cardio Machines, Chest/Fly Machine, Row Machine, Shoulder Press Machine, Leverage/Plate Machine, Arm Machine, Other Machines). Applying a profile writes to the `availableEquipment` and `availableMachines` `@AppStorage` keys that filter the Exercise Library and Add Exercise sheet in real time. Profiles persisted as JSON in UserDefaults with backward-compatible Codable (new `machinesRaw` field defaults to `""` for existing data). Three built-in templates (Commercial Gym, Home Gym, Travel) available via a "Use Template" shortcut in the edit sheet. A default "My Gym" profile is auto-created on first launch. Active profile name shown as trailing text on the Settings navigation row. Exercises typed as `.other` or with no equipment always show regardless of profile.
 
 ## Design and User Experience Vibe
 - **Tone**: Minimal and functional — get in, log, get out. No gamification, no fluff
@@ -73,7 +74,7 @@ A personal workout tracker built for a single user who primarily lifts weights a
 - XcodeGen for Xcode project generation (`project.yml`)
 - No backend needed for MVP — all data is local on-device
 - Deployment via TestFlight (beta) and App Store Connect (production)
-- HealthKit integration for workout sync and body weight reading
+- HealthKit integration for workout sync and body weight reading (currently disabled — requires paid Apple Developer account for entitlements)
 - iCloud sync is a nice-to-have post-MVP
 
 ## Risks / Open Questions

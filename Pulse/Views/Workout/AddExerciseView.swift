@@ -8,6 +8,7 @@ struct AddExerciseView: View {
     @State private var searchText = ""
     @State private var selectedMuscleGroup: MuscleGroup?
     @AppStorage("availableEquipment") private var availableEquipmentRaw: String = ""
+    @AppStorage("availableMachines") private var availableMachinesRaw: String = ""
 
     let onSelect: (Exercise) -> Void
 
@@ -16,15 +17,24 @@ struct AddExerciseView: View {
         return Set(availableEquipmentRaw.split(separator: ",").compactMap { Equipment(rawValue: String($0)) })
     }
 
-    private var filteredExercises: [Exercise] {
-        var result = allExercises
+    private var availableMachines: Set<MachineType> {
+        guard !availableMachinesRaw.isEmpty else { return [] }
+        return Set(availableMachinesRaw.split(separator: ",").compactMap { MachineType(rawValue: String($0)) })
+    }
 
-        if !availableEquipment.isEmpty {
-            result = result.filter { exercise in
-                guard let eq = exercise.equipment else { return true }
-                return eq == .other || availableEquipment.contains(eq)
-            }
+    private func exercisePasses(_ exercise: Exercise) -> Bool {
+        guard let eq = exercise.equipment else { return true }
+        if eq == .other { return true }
+        if !availableEquipment.isEmpty && !availableEquipment.contains(eq) { return false }
+        if eq == .machine && !availableMachines.isEmpty {
+            guard let mt = exercise.machineType else { return true }
+            return availableMachines.contains(mt)
         }
+        return true
+    }
+
+    private var filteredExercises: [Exercise] {
+        var result = allExercises.filter { exercisePasses($0) }
 
         if let selectedMuscleGroup {
             result = result.filter { $0.muscleGroup == selectedMuscleGroup }
@@ -38,14 +48,7 @@ struct AddExerciseView: View {
     }
 
     private var recentExercises: [Exercise] {
-        var result = allExercises
-        if !availableEquipment.isEmpty {
-            result = result.filter { exercise in
-                guard let eq = exercise.equipment else { return true }
-                return eq == .other || availableEquipment.contains(eq)
-            }
-        }
-        return result
+        return allExercises.filter { exercisePasses($0) }
             .filter { $0.lastUsedDate != nil }
             .sorted { ($0.lastUsedDate ?? .distantPast) > ($1.lastUsedDate ?? .distantPast) }
             .prefix(5)
