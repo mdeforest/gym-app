@@ -12,6 +12,12 @@ struct ExerciseLibraryView: View {
     @State private var selectedEquipment: Equipment?
     @State private var showingFilters = false
     @State private var showFavoritesOnly = false
+    @AppStorage("availableEquipment") private var availableEquipmentRaw: String = ""
+
+    private var availableEquipment: Set<Equipment> {
+        guard !availableEquipmentRaw.isEmpty else { return [] }
+        return Set(availableEquipmentRaw.split(separator: ",").compactMap { Equipment(rawValue: String($0)) })
+    }
 
     private var activeFilterCount: Int {
         (selectedMuscleGroup != nil ? 1 : 0) + (selectedEquipment != nil ? 1 : 0)
@@ -27,6 +33,13 @@ struct ExerciseLibraryView: View {
 
     private var filteredExercises: [Exercise] {
         var result = allExercises
+
+        if !availableEquipment.isEmpty {
+            result = result.filter { exercise in
+                guard let eq = exercise.equipment else { return true }
+                return eq == .other || availableEquipment.contains(eq)
+            }
+        }
 
         if showFavoritesOnly {
             result = result.filter { $0.isFavorite }

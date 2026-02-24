@@ -10,6 +10,7 @@ struct SettingsView: View {
         NavigationStack {
             List {
                 ProfileSectionView()
+                EquipmentSectionView()
                 HealthSectionView()
                 if let viewModel {
                     DataManagementSectionView(viewModel: viewModel)

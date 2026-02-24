@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.13.0] - 02/23/26
+
+### Added
+- **Available Equipment** — new Settings section (`EquipmentSectionView`) lets users configure which equipment types they have access to; exercises requiring unconfigured equipment are hidden in the Exercise Library and Add Exercise sheet
+- `EquipmentSectionView` — iOS Settings-style list rows with 32×32pt colored icon squares, checkmarks, a "Reset" button in the section header (shown when any equipment is deselected), and a footer explaining the filter behavior
+- Equipment filter applied in `ExerciseLibraryView` and `AddExerciseView` (including the Recent section); exercises with `nil` or `.other` equipment always show regardless of the setting
+- Filter state persisted via `@AppStorage("availableEquipment")` as a comma-separated string of `Equipment` rawValues; empty string = all available (no filtering active)
+- 20 new unit tests across 3 suites: **Available Equipment — Parsing** (6 tests), **Encoding** (5 tests), and **Exercise Filtering** (9 tests)
+
+### Changed
+- `SettingsView` — added `EquipmentSectionView()` between Profile and Health sections
+- Updated README, PROJECT_BRIEF, DESIGN, and FUTURE_FEATURES docs
+
 ## [0.12.0] - 02/23/26
 
 ### Added

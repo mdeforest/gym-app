@@ -7,11 +7,24 @@ struct AddExerciseView: View {
 
     @State private var searchText = ""
     @State private var selectedMuscleGroup: MuscleGroup?
+    @AppStorage("availableEquipment") private var availableEquipmentRaw: String = ""
 
     let onSelect: (Exercise) -> Void
 
+    private var availableEquipment: Set<Equipment> {
+        guard !availableEquipmentRaw.isEmpty else { return [] }
+        return Set(availableEquipmentRaw.split(separator: ",").compactMap { Equipment(rawValue: String($0)) })
+    }
+
     private var filteredExercises: [Exercise] {
         var result = allExercises
+
+        if !availableEquipment.isEmpty {
+            result = result.filter { exercise in
+                guard let eq = exercise.equipment else { return true }
+                return eq == .other || availableEquipment.contains(eq)
+            }
+        }
 
         if let selectedMuscleGroup {
             result = result.filter { $0.muscleGroup == selectedMuscleGroup }
@@ -25,7 +38,14 @@ struct AddExerciseView: View {
     }
 
     private var recentExercises: [Exercise] {
-        allExercises
+        var result = allExercises
+        if !availableEquipment.isEmpty {
+            result = result.filter { exercise in
+                guard let eq = exercise.equipment else { return true }
+                return eq == .other || availableEquipment.contains(eq)
+            }
+        }
+        return result
             .filter { $0.lastUsedDate != nil }
             .sorted { ($0.lastUsedDate ?? .distantPast) > ($1.lastUsedDate ?? .distantPast) }
             .prefix(5)

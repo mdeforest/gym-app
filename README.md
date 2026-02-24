@@ -27,7 +27,8 @@
 - **Last-session reference** — Sets are pre-filled with last session's weight/reps for easy progressive overload tracking
 - **Set management** — Swipe left to delete sets; editing a set auto-populates remaining incomplete sets
 - **Cancel workout** — Dedicated cancel button with confirmation to discard an in-progress workout
-- **Settings page** — Profile setup (name, body weight, weight unit), Apple Health sync toggle with authorization status, data export (CSV/JSON via share sheet), clear all data with confirmation, and app version display. Accessed via a profile avatar button on the Workout tab.
+- **Available Equipment** — Configure which equipment you have access to in Settings. Exercises requiring unconfigured equipment are hidden in the Exercise Library and Add Exercise sheet. Exercises with no equipment type or categorized as "Other" always show. Easily reset to show everything with a single tap.
+- **Settings page** — Profile setup (name, body weight, weight unit), available equipment configuration, Apple Health sync toggle with authorization status, data export (CSV/JSON via share sheet), clear all data with confirmation, and app version display. Accessed via a profile avatar button on the Workout tab.
 - **Data export** — Export full workout history as CSV or JSON. Includes exercise names, muscle groups, sets, weight, reps, set type, RPE, superset group, and cardio data. Share via the iOS share sheet.
 - **Apple Health integration** — Sync completed workouts to Apple Health with exercise count and total volume metadata. Read latest body weight from Health. Toggle sync on/off in Settings with authorization status display.
 - **Animated splash screen** — Logo fades in centered, then shrinks and slides into position on the Workout tab as the app reveals
@@ -104,6 +105,7 @@ Pulse/
 │   ├── Settings/
 │   │   ├── SettingsView.swift
 │   │   ├── ProfileSectionView.swift
+│   │   ├── EquipmentSectionView.swift
 │   │   ├── HealthSectionView.swift
 │   │   └── DataManagementSectionView.swift
 │   ├── Tools/

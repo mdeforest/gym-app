@@ -21,6 +21,7 @@
 - [x] **Track Records (Personal Records)** — Per-set PR detection for weight, estimated 1RM (Epley), and volume. Gold badges on set rows, "New PR!" toast during workouts, personal records section in exercise detail, trophy annotations on strength charts. One-time backfill for existing data.
 - [x] **Calculators** — Plate Calculator, 1RM Calculator, RPE Chart, and Stopwatch accessible via a toolbar button on the Workout tab (idle and active states).
 - [x] **Exercise Database** — 590 exercises sourced from the Free Exercise DB (public domain) across 7 muscle groups and 8 equipment types. Equipment data enables filtering. Additive seeding adds new exercises on update without touching user data.
+- [x] **Available Equipment** — Let the user configure which equipment they have access to; exercises requiring unconfigured equipment are hidden in the library and the Add Exercise sheet. Configured via a dedicated section in Settings (individual rows, iOS Settings-style colored icon squares, checkmarks, Reset button). Persisted via `@AppStorage` as comma-separated rawValues. Exercises with `nil` or `.other` equipment always show regardless of the setting.
 
 ---
 
@@ -38,8 +39,8 @@
 - [ ] **Schedule Workouts**
   Allow the user to schedule workouts for the future.
 
-- [ ] **Available Equipment**
-  Let the user choose what equipment they have and tailor the app to that. A stretch goal may be to allow different gym "profiles" that you can switch between. Kind of like how Fitbod does.
+- [ ] **Gym Profiles**
+  Allow different equipment configurations that you can switch between — home gym, commercial gym, travel, etc. A natural extension of the Available Equipment feature already built.
 
 - [ ] **Video Examples**
   Add videos or gifs to the exercise database.

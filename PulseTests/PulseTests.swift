@@ -662,3 +662,168 @@ struct PlateCalculatorServiceTests {
         #expect(result.plates[0].count == 1)
     }
 }
+
+// MARK: - Available Equipment Tests
+
+/// Pure-logic helpers mirroring the @AppStorage ↔ Set<Equipment> conversion used in views.
+private func parseAvailableEquipment(_ raw: String) -> Set<Equipment> {
+    guard !raw.isEmpty else { return [] }
+    return Set(raw.split(separator: ",").compactMap { Equipment(rawValue: String($0)) })
+}
+
+private func encodeAvailableEquipment(_ set: Set<Equipment>) -> String {
+    if set.count == Equipment.allCases.count { return "" }
+    return set.map(\.rawValue).sorted().joined(separator: ",")
+}
+
+private func exercisePassesFilter(_ exercise: Exercise, availableEquipment: Set<Equipment>) -> Bool {
+    guard !availableEquipment.isEmpty else { return true }
+    guard let eq = exercise.equipment else { return true }
+    return eq == .other || availableEquipment.contains(eq)
+}
+
+@Suite("Available Equipment — Parsing")
+struct AvailableEquipmentParsingTests {
+
+    @Test func emptyStringMeansNoFilter() {
+        let result = parseAvailableEquipment("")
+        #expect(result.isEmpty)
+    }
+
+    @Test func singleEquipment() {
+        let result = parseAvailableEquipment("barbell")
+        #expect(result == [.barbell])
+    }
+
+    @Test func multipleEquipment() {
+        let result = parseAvailableEquipment("barbell,dumbbell,cable")
+        #expect(result == [.barbell, .dumbbell, .cable])
+    }
+
+    @Test func allEquipmentCases() {
+        let all = Equipment.allCases.map(\.rawValue).sorted().joined(separator: ",")
+        let result = parseAvailableEquipment(all)
+        #expect(result == Set(Equipment.allCases))
+    }
+
+    @Test func unknownRawValueIsDropped() {
+        let result = parseAvailableEquipment("barbell,unknown_type,dumbbell")
+        #expect(result == [.barbell, .dumbbell])
+    }
+
+    @Test func orderDoesNotMatter() {
+        let a = parseAvailableEquipment("dumbbell,barbell")
+        let b = parseAvailableEquipment("barbell,dumbbell")
+        #expect(a == b)
+    }
+}
+
+@Suite("Available Equipment — Encoding")
+struct AvailableEquipmentEncodingTests {
+
+    @Test func fullSetEncodesToEmptyString() {
+        let result = encodeAvailableEquipment(Set(Equipment.allCases))
+        #expect(result == "")
+    }
+
+    @Test func emptySetEncodesToEmptyString() {
+        // Edge case: empty selection encodes the same as "all selected"
+        // (no equipment configured = show everything)
+        let result = encodeAvailableEquipment([])
+        #expect(result == "")
+    }
+
+    @Test func singleEquipmentIsSorted() {
+        let result = encodeAvailableEquipment([.barbell])
+        #expect(result == "barbell")
+    }
+
+    @Test func multipleEquipmentAreSorted() {
+        let result = encodeAvailableEquipment([.dumbbell, .barbell, .cable])
+        #expect(result == "barbell,cable,dumbbell")
+    }
+
+    @Test func roundTrip() {
+        let original: Set<Equipment> = [.barbell, .kettlebell, .bodyweight]
+        let encoded = encodeAvailableEquipment(original)
+        let decoded = parseAvailableEquipment(encoded)
+        #expect(decoded == original)
+    }
+}
+
+@Suite("Available Equipment — Exercise Filtering")
+struct AvailableEquipmentFilterTests {
+
+    // MARK: Empty filter (no restriction)
+
+    @Test func emptyFilterShowsAll() {
+        let exercise = Exercise(name: "Bench Press", muscleGroup: .chest, equipment: .barbell)
+        #expect(exercisePassesFilter(exercise, availableEquipment: []))
+    }
+
+    @Test func emptyFilterShowsNilEquipment() {
+        let exercise = Exercise(name: "Custom", muscleGroup: .chest)
+        exercise.equipment = nil
+        #expect(exercisePassesFilter(exercise, availableEquipment: []))
+    }
+
+    // MARK: Active filter — exercises that should always show
+
+    @Test func nilEquipmentAlwaysShows() {
+        let exercise = Exercise(name: "Custom", muscleGroup: .chest)
+        exercise.equipment = nil
+        let filter: Set<Equipment> = [.barbell]
+        #expect(exercisePassesFilter(exercise, availableEquipment: filter))
+    }
+
+    @Test func otherEquipmentAlwaysShows() {
+        let exercise = Exercise(name: "Stretch", muscleGroup: .chest, equipment: .other)
+        let filter: Set<Equipment> = [.barbell]
+        #expect(exercisePassesFilter(exercise, availableEquipment: filter))
+    }
+
+    // MARK: Active filter — exercises that should be hidden
+
+    @Test func barbellHiddenWhenNotInFilter() {
+        let exercise = Exercise(name: "Bench Press", muscleGroup: .chest, equipment: .barbell)
+        let filter: Set<Equipment> = [.dumbbell, .bodyweight]
+        #expect(!exercisePassesFilter(exercise, availableEquipment: filter))
+    }
+
+    @Test func dumbbellHiddenWhenNotInFilter() {
+        let exercise = Exercise(name: "Dumbbell Curl", muscleGroup: .arms, equipment: .dumbbell)
+        let filter: Set<Equipment> = [.barbell, .cable]
+        #expect(!exercisePassesFilter(exercise, availableEquipment: filter))
+    }
+
+    // MARK: Active filter — exercises that should show
+
+    @Test func barbellShownWhenInFilter() {
+        let exercise = Exercise(name: "Squat", muscleGroup: .legs, equipment: .barbell)
+        let filter: Set<Equipment> = [.barbell, .dumbbell]
+        #expect(exercisePassesFilter(exercise, availableEquipment: filter))
+    }
+
+    @Test func bodyweightShownWhenInFilter() {
+        let exercise = Exercise(name: "Push-up", muscleGroup: .chest, equipment: .bodyweight)
+        let filter: Set<Equipment> = [.bodyweight]
+        #expect(exercisePassesFilter(exercise, availableEquipment: filter))
+    }
+
+    // MARK: Full set filter equals no filter
+
+    @Test func fullFilterEquivalentToNoFilter() {
+        let exercises: [Exercise] = [
+            Exercise(name: "Bench Press", muscleGroup: .chest, equipment: .barbell),
+            Exercise(name: "Curl", muscleGroup: .arms, equipment: .dumbbell),
+            Exercise(name: "Push-up", muscleGroup: .chest, equipment: .bodyweight),
+        ]
+        let fullFilter = Set(Equipment.allCases)
+        let noFilter: Set<Equipment> = []
+        for exercise in exercises {
+            let withFull = exercisePassesFilter(exercise, availableEquipment: fullFilter)
+            let withNone = exercisePassesFilter(exercise, availableEquipment: noFilter)
+            #expect(withFull == withNone)
+        }
+    }
+}
